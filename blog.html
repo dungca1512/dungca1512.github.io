@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog — Dũng Ca</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">D<span class="accent">.</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="projects.html" class="nav-link">Projects</a>
+                <a href="blog.html" class="nav-link active">Blog</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span>
+            </button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="index.html" class="mobile-link">Home</a>
+            <a href="projects.html" class="mobile-link">Projects</a>
+            <a href="blog.html" class="mobile-link active">Blog</a>
+            <a href="about.html" class="mobile-link">About</a>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <span class="section-label anim-fade">Writing</span>
+        <h1 class="section-title anim-slide" style="--delay: 0.15s">Blog</h1>
+        <p class="anim-fade" style="--delay: 0.3s">Thoughts on AI systems, engineering practices, and the intersection of language and technology.</p>
+    </div>
+
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="blog-list">
+
+                <a href="#world-models" class="blog-post-card" id="world-models">
+                    <div>
+                        <time>2025</time>
+                        <h3>World Models & the Path to AGI</h3>
+                        <p>An exploration connecting historical scientific paradigms — from Newtonian mechanics to quantum field theory — to the limitations of current AI architectures. What would it take to build systems that truly understand the world, not just predict tokens?</p>
+                        <div class="blog-tags">
+                            <span>AGI</span><span>World Models</span><span>Research</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#multi-agent" class="blog-post-card" id="multi-agent">
+                    <div>
+                        <time>2025</time>
+                        <h3>Designing Multi-Agent LLM Systems</h3>
+                        <p>Lessons from building production agent systems: why MCP and A2A protocols matter, how to handle agent failures gracefully, and the importance of human-in-the-loop design for high-stakes decisions.</p>
+                        <div class="blog-tags">
+                            <span>Multi-Agent</span><span>MCP</span><span>LangGraph</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#mobile-ai" class="blog-post-card" id="mobile-ai">
+                    <div>
+                        <time>2025</time>
+                        <h3>Deploying Speech Models on Mobile</h3>
+                        <p>Practical strategies for running Whisper and SenseVoice on iOS and Android — from model quantization to on-device optimization for CJK language processing.</p>
+                        <div class="blog-tags">
+                            <span>Mobile AI</span><span>Whisper</span><span>Optimization</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#prompt-engineering" class="blog-post-card" id="prompt-engineering">
+                    <div>
+                        <time>2025</time>
+                        <h3>Chain of Thought: Beyond the Basics</h3>
+                        <p>Advanced prompt engineering techniques for complex reasoning tasks — when CoT helps, when it hurts, and how to combine it with structured output for reliable production systems.</p>
+                        <div class="blog-tags">
+                            <span>Prompt Engineering</span><span>CoT</span><span>LLM</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#ai-gateway-design" class="blog-post-card" id="ai-gateway-design">
+                    <div>
+                        <time>2025</time>
+                        <h3>Building a Resilient AI Gateway</h3>
+                        <p>Architecture decisions behind a multi-provider AI gateway: reactive programming with WebFlux, circuit breaker patterns, and intelligent routing strategies.</p>
+                        <div class="blog-tags">
+                            <span>Architecture</span><span>Java</span><span>System Design</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#japanese-nlp" class="blog-post-card" id="japanese-nlp">
+                    <div>
+                        <time>2024</time>
+                        <h3>Hybrid AI + Code for Japanese NLP</h3>
+                        <p>Why pure LLM-based Japanese vocabulary extraction fails, and how combining AI creativity with deterministic morphological analysis (SudachiPy) produces reliable results.</p>
+                        <div class="blog-tags">
+                            <span>NLP</span><span>Japanese</span><span>SudachiPy</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>© 2025 Dũng Ca</span>
+            <div class="footer-links">
+                <a href="https://github.com/dungca1512" target="_blank">GitHub</a>
+                <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
