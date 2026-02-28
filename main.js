@@ -1,193 +1,211 @@
-// ============================================
-// RENDER FUNCTIONS
-// ============================================
+const byId = (id) => document.getElementById(id);
 
-const repoIconSVG = '<svg class="repo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>';
+function renderHero() {
+    const data = PORTFOLIO_DATA;
 
-function renderPinnedRepos() {
-    const grid = document.getElementById('pinnedGrid');
-    if (!grid) return;
-    grid.innerHTML = PINNED_REPOS.map(r => `
-        <div class="repo-card">
-            <div class="repo-header">
-                ${repoIconSVG}
-                <span class="repo-name">${r.name}</span>
-            </div>
-            <p class="repo-desc">${r.desc}</p>
-            <div class="repo-footer">
-                ${r.langs.map(l => `<span class="repo-lang"><span class="lang-dot" style="background:${l.color};width:8px;height:8px"></span> ${l.name}</span>`).join('')}
-                <span class="repo-stat">⭐ ${r.stars}</span>
-                ${r.forks ? `<span class="repo-stat">🍴 ${r.forks}</span>` : ''}
-            </div>
-        </div>
+    const trustEl = byId('heroTrust');
+    trustEl.innerHTML = data.heroTrust.map((item) => `<li>${item}</li>`).join('');
+
+    const focusEl = byId('focusList');
+    focusEl.innerHTML = data.focus.map((item) => `<li>${item}</li>`).join('');
+
+    byId('profileLocation').textContent = data.profile.location;
+    byId('profileStatus').textContent = data.profile.status;
+}
+
+function renderMetrics() {
+    const metricsGrid = byId('metricsGrid');
+    metricsGrid.innerHTML = PORTFOLIO_DATA.metrics.map((item) => `
+        <article class="metric-card reveal">
+            <h3>${item.value}</h3>
+            <p>${item.label}</p>
+        </article>
     `).join('');
 }
 
-function renderTimeline() {
-    const el = document.getElementById('timeline');
-    if (!el) return;
-    el.innerHTML = TIMELINE_ITEMS.map(t => `
-        <div class="timeline-item">
-            <div class="timeline-dot ${t.color}"></div>
-            <div class="timeline-date">${t.date}</div>
-            <div class="timeline-text">${t.text}</div>
-        </div>
+function renderExpertise() {
+    const expertiseGrid = byId('expertiseGrid');
+    expertiseGrid.innerHTML = PORTFOLIO_DATA.expertise.map((item) => `
+        <article class="expertise-card reveal">
+            <div class="expertise-icon">${item.icon}</div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+        </article>
     `).join('');
 }
 
 function renderProjects() {
-    const el = document.getElementById('tab-projects');
-    if (!el) return;
-    el.innerHTML = PROJECTS.map(p => `
-        <div class="project-full">
-            <div class="project-full-card">
-                <div class="project-full-banner" style="background:${p.banner}">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">${p.icon}</svg>
+    const projectsGrid = byId('projectsGrid');
+
+    projectsGrid.innerHTML = PORTFOLIO_DATA.projects.map((project) => {
+        const stack = project.stack.map((tech) => `<li>${tech}</li>`).join('');
+        const links = project.links.map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join('');
+
+        return `
+            <article class="project-card reveal">
+                <div class="project-head">
+                    <h3>${project.name}</h3>
+                    <span class="project-period">${project.period}</span>
                 </div>
-                <div class="project-full-body">
-                    <h3>${p.name} <span class="visibility">${p.label}</span></h3>
-                    <p>${p.desc}</p>
-                    <div class="project-full-techs">
-                        ${p.techs.map(t => `<span class="tech-badge">${t}</span>`).join('')}
-                    </div>
-                    <div class="project-full-stats">
-                        ${p.langs.map(l => `<span><span class="lang-dot-inline" style="background:${l.color}"></span> ${l.name} ${l.pct}</span>`).join('')}
-                        <span>⭐ ${p.stars}</span>
-                        ${p.forks ? `<span>🍴 ${p.forks}</span>` : ''}
-                        <span>Updated ${p.updated}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <p class="project-summary">${project.summary}</p>
+                <p class="project-impact">${project.impact}</p>
+                <ul class="project-stack">${stack}</ul>
+                <div class="project-links">${links}</div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderPlaybook() {
+    const playbookList = byId('playbookList');
+
+    playbookList.innerHTML = PORTFOLIO_DATA.playbook.map((item) => `
+        <li class="reveal">
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+        </li>
     `).join('');
 }
 
-function renderBlog() {
-    const el = document.getElementById('tab-blog');
-    if (!el) return;
-    el.innerHTML = '<div class="post-list">' + BLOG_POSTS.map(p => `
-        <div class="post-item">
-            <div>
-                <div class="post-title">${p.title}</div>
-                <div class="post-excerpt">${p.excerpt}</div>
-                <div class="post-meta">
-                    ${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
-                </div>
-            </div>
-            <span class="post-date">${p.date}</span>
-        </div>
-    `).join('') + '</div>';
+function renderWriting() {
+    const writingGrid = byId('writingGrid');
+
+    writingGrid.innerHTML = PORTFOLIO_DATA.writing.map((article) => {
+        const tags = article.tags.map((tag) => `<li>${tag}</li>`).join('');
+        const hasLink = Boolean(article.url);
+        const tagName = hasLink ? 'a' : 'article';
+        const hrefAttr = hasLink ? `href=\"${article.url}\"` : '';
+        const relAttrs = hasLink && article.url.startsWith('http')
+            ? 'target=\"_blank\" rel=\"noopener noreferrer\"'
+            : '';
+
+        return `
+            <${tagName} class="article-card reveal" ${hrefAttr} ${relAttrs}>
+                <span class="article-meta">${article.year}</span>
+                <h3>${article.title}</h3>
+                <p>${article.summary}</p>
+                <ul class="article-tags">${tags}</ul>
+            </${tagName}>
+        `;
+    }).join('');
 }
 
-function renderReadme() {
-    const el = document.getElementById('tab-readme');
-    if (!el) return;
-    el.innerHTML = `
-        <div class="readme-card">
-            <div class="readme-header">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                README.md
-            </div>
-            <div class="readme-body">${README_HTML}</div>
-        </div>
-    `;
+function renderContacts() {
+    const contactActions = byId('contactActions');
+
+    contactActions.innerHTML = PORTFOLIO_DATA.contacts.map((item) => {
+        const isExternal = item.url.startsWith('http');
+        const attrs = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
+        return `<a href="${item.url}" ${attrs}>${item.label}</a>`;
+    }).join('');
 }
 
-function generateContribGraph() {
-    const graph = document.getElementById('contribGraph');
-    if (!graph) return;
-    // Seeded pseudo-random for consistent look
-    let seed = 42;
-    function rand() {
-        seed = (seed * 16807 + 0) % 2147483647;
-        return seed / 2147483647;
+function initHeader() {
+    const header = byId('siteHeader');
+
+    const onScroll = () => {
+        header.classList.toggle('scrolled', window.scrollY > 8);
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+function initMobileMenu() {
+    const toggle = byId('menuToggle');
+    const nav = byId('siteNav');
+
+    if (!toggle || !nav) {
+        return;
     }
-    for (let w = 0; w < 52; w++) {
-        for (let d = 0; d < 7; d++) {
-            const cell = document.createElement('div');
-            cell.className = 'contrib-cell';
-            const recency = w / 52;
-            const r = rand();
-            const threshold = 0.3 + recency * 0.25;
-            if (r < threshold * 0.4) { /* l0 - empty */ }
-            else if (r < threshold * 0.65) cell.classList.add('l1');
-            else if (r < threshold * 0.8) cell.classList.add('l2');
-            else if (r < threshold * 0.92) cell.classList.add('l3');
-            else cell.classList.add('l4');
-            graph.appendChild(cell);
-        }
-    }
-}
 
-// ============================================
-// TAB SWITCHING
-// ============================================
-
-function switchTab(tabName) {
-    // Tab content
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    const target = document.getElementById('tab-' + tabName);
-    if (target) target.classList.add('active');
-
-    // Tab buttons (main)
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === tabName);
+    toggle.addEventListener('click', () => {
+        const isOpen = nav.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
     });
 
-    // Topbar nav
-    document.querySelectorAll('.topbar-nav a, .mobile-dropdown a').forEach(a => {
-        a.classList.toggle('active', a.dataset.tab === tabName);
+    nav.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('open');
+            toggle.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
     });
-
-    // Close mobile dropdown
-    const dd = document.getElementById('mobileDropdown');
-    const toggle = document.getElementById('topbarToggle');
-    if (dd) dd.classList.remove('open');
-    if (toggle) toggle.classList.remove('open');
-
-    // Scroll to tabs on mobile
-    if (window.innerWidth <= 900) {
-        const tabNav = document.querySelector('.tab-nav');
-        if (tabNav) {
-            setTimeout(() => tabNav.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-        }
-    }
 }
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
+function initActiveNav() {
+    const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
+    const sections = navLinks
+        .map((link) => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Render everything
-    renderPinnedRepos();
-    renderTimeline();
+    if (!sections.length || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    const setActive = (id) => {
+        navLinks.forEach((link) => {
+            link.classList.toggle('active', link.dataset.nav === id);
+        });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible) {
+            setActive(visible.target.id);
+        }
+    }, { threshold: [0.2, 0.45, 0.7], rootMargin: '-20% 0px -50% 0px' });
+
+    sections.forEach((section) => observer.observe(section));
+}
+
+function initReveal() {
+    const revealNodes = Array.from(document.querySelectorAll('.reveal'));
+
+    if (!revealNodes.length) {
+        return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+        revealNodes.forEach((node) => node.classList.add('is-visible'));
+        return;
+    }
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+        });
+    }, { threshold: 0.14, rootMargin: '0px 0px -10% 0px' });
+
+    revealNodes.forEach((node) => revealObserver.observe(node));
+}
+
+function setCurrentYear() {
+    byId('currentYear').textContent = new Date().getFullYear();
+}
+
+function bootstrap() {
+    renderHero();
+    renderMetrics();
+    renderExpertise();
     renderProjects();
-    renderBlog();
-    renderReadme();
-    generateContribGraph();
+    renderPlaybook();
+    renderWriting();
+    renderContacts();
 
-    // Tab button clicks
-    document.querySelectorAll('[data-tab]').forEach(el => {
-        el.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchTab(el.dataset.tab);
-        });
-    });
+    setCurrentYear();
+    initHeader();
+    initMobileMenu();
+    initActiveNav();
+    initReveal();
+}
 
-    // Topbar scroll shadow
-    const topbar = document.getElementById('topbar');
-    window.addEventListener('scroll', () => {
-        topbar.classList.toggle('scrolled', window.scrollY > 10);
-    }, { passive: true });
-
-    // Mobile menu toggle
-    const toggle = document.getElementById('topbarToggle');
-    const dropdown = document.getElementById('mobileDropdown');
-    if (toggle && dropdown) {
-        toggle.addEventListener('click', () => {
-            toggle.classList.toggle('open');
-            dropdown.classList.toggle('open');
-        });
-    }
-});
+document.addEventListener('DOMContentLoaded', bootstrap);
