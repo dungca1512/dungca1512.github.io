@@ -1,87 +1,87 @@
 const PORTFOLIO_DATA = {
     profile: {
-        name: 'Dung Ca',
+        name: 'Công Anh Dũng',
         location: 'Hanoi, Vietnam',
-        status: 'Open to AI/ML opportunities'
+        status: 'Open to AI/ML Engineer opportunities'
     },
 
     heroTrust: [
-        'LLM Platforms',
-        'Multi-Agent Systems',
-        'On-Device AI',
-        'MLOps + DevOps'
+        'LLM Platform Engineering',
+        'ASR Fine-tuning',
+        'RAG + Research Agents',
+        'Streaming Data Systems'
     ],
 
     focus: [
-        'Designing multi-provider AI gateways with resilient failover and routing',
-        'Building MCP/A2A agent workflows with human-in-the-loop checkpoints',
-        'Shipping mobile-first speech/NLP pipelines for Vietnamese and Japanese use cases'
+        'Shipping ai-gateway for multi-provider LLM routing with fallback, rate-limit, and cache layers',
+        'Building research-agent workflows with LangChain + LangGraph for web and ArXiv research automation',
+        'Training and exporting Whisper Tiny for Japanese ASR using ReazonSpeech data'
     ],
 
     metrics: [
-        { value: '12+', label: 'AI/ML repositories built and maintained' },
-        { value: '4', label: 'Production-style systems highlighted in this portfolio' },
-        { value: '3', label: 'Working languages: Vietnamese, English, Japanese' },
-        { value: '1', label: 'Mission: practical AI that delivers business value' }
+        { value: '56', label: 'Public repositories on GitHub' },
+        { value: '45', label: 'Owned repositories (non-fork)' },
+        { value: '13', label: 'Repositories updated during 2025-2026' },
+        { value: '2021', label: 'Building publicly on GitHub since' }
     ],
 
     expertise: [
         {
             icon: '01',
             title: 'LLM Platform Engineering',
-            description: 'Gateway design, provider abstraction, smart routing, and fault tolerance for real-world LLM traffic.'
+            description: 'Provider abstraction, OpenAI-compatible APIs, fallback and retry patterns, and reliability controls for LLM traffic.'
         },
         {
             icon: '02',
-            title: 'Agentic Workflow Design',
-            description: 'MCP and A2A based agent collaboration patterns, plus governance with human checkpoints.'
+            title: 'Research Automation Agents',
+            description: 'LangChain and LangGraph workflows that combine iterative search, ArXiv retrieval, and citation-ready reporting.'
         },
         {
             icon: '03',
-            title: 'Applied ML For Mobile',
-            description: 'Speech and NLP workloads tuned for latency, model size constraints, and offline-first experience.'
+            title: 'Applied Speech/NLP Systems',
+            description: 'ASR fine-tuning and translation pipelines with practical training, evaluation, and deployment workflows.'
         }
     ],
 
     projects: [
         {
             name: 'AI Gateway',
-            period: '2024-2025',
-            summary: 'A multi-provider orchestration layer for OpenAI, Gemini, Claude, and local models with a unified API for product teams.',
-            impact: 'Implemented circuit breakers, rate limiting, and caching to improve service resilience under provider instability.',
-            stack: ['Java', 'Spring WebFlux', 'Python', 'FastAPI', 'Redis', 'Docker'],
-            links: [
-                { label: 'Repository', url: 'https://github.com/dungca1512' }
-            ]
-        },
-        {
-            name: 'Nihongo Learn AI',
-            period: '2024-2025',
-            summary: 'Language learning platform blending LLM content generation with deterministic Japanese morphology via SudachiPy.',
-            impact: 'Reduced vocabulary extraction errors by combining AI creativity with rule-based validation before release.',
-            stack: ['Python', 'SudachiPy', 'Whisper', 'SenseVoice', 'iOS', 'Android'],
-            links: [
-                { label: 'Repository', url: 'https://github.com/dungca1512' }
-            ]
-        },
-        {
-            name: 'DevOps AI Agent',
             period: '2025',
-            summary: 'Incident response system where multiple agents collaborate to detect, triage, and propose remediations.',
-            impact: 'Structured incident workflows with explicit decision points, so humans can approve critical actions safely.',
-            stack: ['Python', 'LangChain', 'LangGraph', 'MCP', 'A2A'],
+            summary: 'Production-style gateway using Java Spring WebFlux and Python FastAPI to unify AI model access behind one API.',
+            impact: 'Implements multi-provider routing, retry and fallback, Bucket4j rate limiting, Redis caching, and circuit breaker controls.',
+            stack: ['Java', 'Spring WebFlux', 'Python', 'FastAPI', 'Redis', 'Bucket4j'],
             links: [
-                { label: 'Repository', url: 'https://github.com/dungca1512' }
+                { label: 'Repository', url: 'https://github.com/dungca1512/ai-gateway' }
             ]
         },
         {
-            name: 'Mobile OCR Toolkit',
-            period: '2024',
-            summary: 'Cross-platform OCR for Vietnamese, Japanese, and CJK scripts with practical on-device deployment constraints.',
-            impact: 'Balanced model footprint and inference speed for mobile usage by targeting compact model variants.',
-            stack: ['Computer Vision', 'Python', 'Android', 'iOS', 'Edge ML'],
+            name: 'Research Agent',
+            period: '2025',
+            summary: 'LangChain + LangGraph research assistant for automated literature discovery and synthesis.',
+            impact: 'Combines web search (Tavily/DuckDuckGo) and ArXiv retrieval with iterative query expansion to generate structured reports.',
+            stack: ['Python', 'LangChain', 'LangGraph', 'ArXiv', 'Gemini API'],
             links: [
-                { label: 'Repository', url: 'https://github.com/dungca1512' }
+                { label: 'Repository', url: 'https://github.com/dungca1512/research-agent' }
+            ]
+        },
+        {
+            name: 'Whisper Finetune JA',
+            period: '2026',
+            summary: 'Fine-tuning pipeline for Whisper Tiny focused on Japanese ASR with ReazonSpeech data.',
+            impact: 'Includes end-to-end scripts for setup, training, evaluation, and export to faster-whisper (CTranslate2) for deployment.',
+            stack: ['Python', 'Whisper', 'ReazonSpeech', 'Hugging Face', 'ASR'],
+            links: [
+                { label: 'Repository', url: 'https://github.com/dungca1512/whisper-finetune-ja' }
+            ]
+        },
+        {
+            name: 'NewsPulse Reco Engine',
+            period: '2025',
+            summary: 'Vietnamese news intelligence platform for crawling, processing, semantic retrieval, and trend detection.',
+            impact: 'Design spans Scala crawler + Spark ETL + Kafka pipeline, embedding service, clustering/trending engines, and Spring API.',
+            stack: ['Scala', 'Kafka', 'Spark', 'Python Embeddings', 'Elasticsearch', 'Spring Boot'],
+            links: [
+                { label: 'Repository', url: 'https://github.com/dungca1512/newspulse-reco-engine' }
             ]
         }
     ],
@@ -89,47 +89,47 @@ const PORTFOLIO_DATA = {
     playbook: [
         {
             title: 'Start from reliability goals',
-            description: 'Define latency, error budget, and fallback behavior before writing model orchestration logic.'
+            description: 'Define latency targets and fallback behavior first, then design model routing and retry strategy around those constraints.'
         },
         {
             title: 'Blend probabilistic + deterministic logic',
-            description: 'Use LLMs for generative strengths, then guard outputs with rules, validators, and schema constraints.'
+            description: 'Use generative models where they shine, then enforce validators, parsing rules, and schema checks before outputs are trusted.'
         },
         {
             title: 'Instrument every critical path',
-            description: 'Trace prompts, model responses, and agent handoffs so failures can be diagnosed quickly.'
+            description: 'Trace requests, model responses, and agent transitions so failures can be reproduced and debugged fast.'
         },
         {
             title: 'Design for graceful degradation',
-            description: 'Treat provider outages and model failures as expected conditions, not edge cases.'
+            description: 'Treat provider downtime and weak model outputs as normal conditions with predefined fallback paths.'
         },
         {
             title: 'Keep humans in control',
-            description: 'High-impact actions always pass through approval points and transparent decision logs.'
+            description: 'Critical actions need explicit approval points and logs that make each decision path auditable.'
         }
     ],
 
     writing: [
         {
-            year: '2025',
-            title: 'Designing Multi-Agent LLM Systems',
-            summary: 'Practical architecture patterns for agent collaboration, memory boundaries, and failure recovery.',
-            tags: ['Multi-Agent', 'MCP', 'LangGraph'],
-            url: ''
+            year: '2026',
+            title: 'Whisper Tiny Japanese Finetune Notes',
+            summary: 'Training and export workflow for Japanese ASR fine-tuning with reproducible scripts and deployment-ready artifacts.',
+            tags: ['ASR', 'Whisper', 'Fine-tuning'],
+            url: 'https://github.com/dungca1512/whisper-finetune-ja'
         },
         {
             year: '2025',
-            title: 'Building a Resilient AI Gateway',
-            summary: 'System decisions behind provider routing, retries, and backpressure handling in production APIs.',
-            tags: ['LLM Infra', 'Java', 'System Design'],
-            url: ''
+            title: 'Research Agent Workflow Design',
+            summary: 'How iterative web + ArXiv search loops are orchestrated to produce citation-friendly technical reports.',
+            tags: ['LangChain', 'LangGraph', 'Research Automation'],
+            url: 'https://github.com/dungca1512/research-agent'
         },
         {
-            year: '2024',
-            title: 'Hybrid AI + Deterministic NLP',
-            summary: 'Why mixed pipelines are often more dependable than pure prompt-based extraction workflows.',
-            tags: ['NLP', 'Quality', 'Production'],
-            url: ''
+            year: '2025',
+            title: 'AI Gateway Architecture Snapshot',
+            summary: 'A practical breakdown of provider routing, resilience controls, and unified API patterns for LLM products.',
+            tags: ['LLM Infra', 'WebFlux', 'System Design'],
+            url: 'https://github.com/dungca1512/ai-gateway'
         }
     ],
 
