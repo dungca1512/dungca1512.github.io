@@ -75,6 +75,125 @@ function resolveMetricValue(metric) {
     return metric.fallback;
 }
 
+function calculateAnalytics() {
+    const repos = Object.values(state.github?.repos || {});
+    if (!repos.length) {
+        return null;
+    }
+
+    const unknownLabel = t(PORTFOLIO_DATA.i18n.analytics.unknown);
+    const languageCountMap = {};
+    const yearlyCountMap = {};
+    const freshness = { d30: 0, d90: 0, d180: 0, old: 0 };
+    const now = Date.now();
+
+    repos.forEach((repo) => {
+        const language = repo.language || unknownLabel;
+        languageCountMap[language] = (languageCountMap[language] || 0) + 1;
+
+        if (repo.pushed_at) {
+            const date = new Date(repo.pushed_at);
+            if (!Number.isNaN(date.getTime())) {
+                const year = String(date.getFullYear());
+                yearlyCountMap[year] = (yearlyCountMap[year] || 0) + 1;
+
+                const days = Math.floor((now - date.getTime()) / (1000 * 60 * 60 * 24));
+                if (days <= 30) freshness.d30 += 1;
+                else if (days <= 90) freshness.d90 += 1;
+                else if (days <= 180) freshness.d180 += 1;
+                else freshness.old += 1;
+            }
+        }
+    });
+
+    const languages = Object.entries(languageCountMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6);
+
+    const years = Object.entries(yearlyCountMap)
+        .sort((a, b) => Number(a[0]) - Number(b[0]))
+        .slice(-6);
+
+    return {
+        total: repos.length,
+        languages,
+        years,
+        freshness
+    };
+}
+
+function renderAnalytics() {
+    const languageEl = byId('languageChart');
+    const yearlyEl = byId('yearlyChart');
+    const freshnessEl = byId('freshnessChart');
+    const analytics = calculateAnalytics();
+
+    if (!languageEl || !yearlyEl || !freshnessEl) {
+        return;
+    }
+
+    if (!analytics) {
+        const emptyText = t(PORTFOLIO_DATA.i18n.analytics.noData);
+        languageEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
+        yearlyEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
+        freshnessEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
+        return;
+    }
+
+    const langMax = Math.max(...analytics.languages.map((item) => item[1]), 1);
+    languageEl.innerHTML = `
+        <div class="chart-list">
+            ${analytics.languages.map(([language, count]) => `
+                <div class="chart-row">
+                    <span class="chart-row-label" title="${language}">${language}</span>
+                    <span class="chart-track"><span class="chart-fill" style="width:${(count / langMax) * 100}%"></span></span>
+                    <span class="chart-row-value">${count}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    const yearMax = Math.max(...analytics.years.map((item) => item[1]), 1);
+    yearlyEl.innerHTML = `
+        <div class="year-bars">
+            ${analytics.years.map(([year, count]) => `
+                <div class="year-col">
+                    <div class="year-col-bar-wrap"><div class="year-col-bar" style="height:${(count / yearMax) * 100}%"></div></div>
+                    <span class="year-col-count">${count}</span>
+                    <span class="year-col-label">${year}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    const freshTotal = Math.max(
+        analytics.freshness.d30 + analytics.freshness.d90 + analytics.freshness.d180 + analytics.freshness.old,
+        1
+    );
+    const freshRows = [
+        { key: 'd30', cls: 'fresh-30', label: t(PORTFOLIO_DATA.i18n.analytics.days30) },
+        { key: 'd90', cls: 'fresh-90', label: t(PORTFOLIO_DATA.i18n.analytics.days90) },
+        { key: 'd180', cls: 'fresh-180', label: t(PORTFOLIO_DATA.i18n.analytics.days180) },
+        { key: 'old', cls: 'fresh-old', label: t(PORTFOLIO_DATA.i18n.analytics.older) }
+    ];
+
+    freshnessEl.innerHTML = `
+        <div class="freshness-stack">
+            ${freshRows.map((row) => `
+                <span class="fresh-seg ${row.cls}" style="width:${(analytics.freshness[row.key] / freshTotal) * 100}%"></span>
+            `).join('')}
+        </div>
+        <ul class="freshness-legend">
+            ${freshRows.map((row) => `
+                <li>
+                    <span class="fresh-left"><span class="fresh-dot ${row.cls}"></span>${row.label}</span>
+                    <span class="fresh-val">${analytics.freshness[row.key]}</span>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+}
+
 function renderHero() {
     byId('profileLocation').textContent = t(PORTFOLIO_DATA.profile.location);
     byId('profileStatus').textContent = t(PORTFOLIO_DATA.profile.status);
@@ -231,6 +350,7 @@ function renderContacts() {
 function renderDynamicSections() {
     renderHero();
     renderMetrics();
+    renderAnalytics();
     renderExpertise();
     renderProjects();
     renderCaseStudy();

@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260228c">
+    <link rel="stylesheet" href="style.css?v=20260228d">
 </head>
 <body>
     <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
@@ -29,6 +29,7 @@
             <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
                 <a href="#projects" data-nav="projects" data-i18n="nav.projects">Projects</a>
                 <a href="#case-study" data-nav="case-study" data-i18n="nav.caseStudy">Case Study</a>
+                <a href="#analytics" data-nav="analytics" data-i18n="nav.analytics">Analytics</a>
                 <a href="#expertise" data-nav="expertise" data-i18n="nav.expertise">Expertise</a>
                 <a href="#writing" data-nav="writing" data-i18n="nav.writing">Writing</a>
                 <a href="#contact" data-nav="contact" data-i18n="nav.contact">Contact</a>
@@ -93,6 +94,29 @@
                     <h2 data-i18n="impact.title">Engineering with outcomes, not demos.</h2>
                 </div>
                 <div class="metrics-grid" id="metricsGrid"></div>
+            </div>
+        </section>
+
+        <section class="section analytics" id="analytics">
+            <div class="container">
+                <div class="section-head reveal">
+                    <p class="kicker" data-i18n="analytics.kicker">Data Snapshot</p>
+                    <h2 data-i18n="analytics.title">GitHub activity and repository signals.</h2>
+                </div>
+                <div class="analytics-grid">
+                    <article class="analytics-card reveal" style="--reveal-delay:0ms">
+                        <h3 data-i18n="analytics.languageChart">Language Distribution</h3>
+                        <div class="chart-area" id="languageChart"></div>
+                    </article>
+                    <article class="analytics-card reveal" style="--reveal-delay:90ms">
+                        <h3 data-i18n="analytics.yearlyChart">Repository Updates by Year</h3>
+                        <div class="chart-area" id="yearlyChart"></div>
+                    </article>
+                    <article class="analytics-card reveal" style="--reveal-delay:180ms">
+                        <h3 data-i18n="analytics.freshnessChart">Repository Freshness</h3>
+                        <div class="chart-area" id="freshnessChart"></div>
+                    </article>
+                </div>
             </div>
         </section>
 
@@ -179,7 +203,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260228c"></script>
-    <script src="main.js?v=20260228c"></script>
+    <script src="data.js?v=20260228d"></script>
+    <script src="main.js?v=20260228d"></script>
 </body>
 </html>

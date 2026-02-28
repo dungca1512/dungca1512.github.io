@@ -21,6 +21,7 @@ const PORTFOLIO_DATA = {
         nav: {
             projects: { en: 'Projects', vi: 'Dự án' },
             caseStudy: { en: 'Case Study', vi: 'Case Study' },
+            analytics: { en: 'Analytics', vi: 'Phân tích' },
             expertise: { en: 'Expertise', vi: 'Năng lực' },
             writing: { en: 'Writing', vi: 'Bài viết' },
             contact: { en: 'Contact', vi: 'Liên hệ' }
@@ -58,6 +59,23 @@ const PORTFOLIO_DATA = {
                 en: 'Engineering with outcomes, not demos.',
                 vi: 'Làm kỹ thuật theo kết quả thực, không dừng ở demo.'
             }
+        },
+        analytics: {
+            kicker: { en: 'Data Snapshot', vi: 'Dữ liệu tổng quan' },
+            title: {
+                en: 'GitHub activity and repository signals.',
+                vi: 'Tín hiệu hoạt động và repository từ GitHub.'
+            },
+            languageChart: { en: 'Language Distribution', vi: 'Phân bố ngôn ngữ' },
+            yearlyChart: { en: 'Repository Updates by Year', vi: 'Cập nhật repository theo năm' },
+            freshnessChart: { en: 'Repository Freshness', vi: 'Độ mới của repository' },
+            repoCount: { en: 'repos', vi: 'repo' },
+            days30: { en: 'Updated <= 30 days', vi: 'Cập nhật <= 30 ngày' },
+            days90: { en: 'Updated 31-90 days', vi: 'Cập nhật 31-90 ngày' },
+            days180: { en: 'Updated 91-180 days', vi: 'Cập nhật 91-180 ngày' },
+            older: { en: 'Updated > 180 days', vi: 'Cập nhật > 180 ngày' },
+            noData: { en: 'Loading GitHub data...', vi: 'Đang tải dữ liệu GitHub...' },
+            unknown: { en: 'Unknown', vi: 'Không rõ' }
         },
         expertise: {
             kicker: { en: 'Core Expertise', vi: 'Năng lực cốt lõi' },
