@@ -459,9 +459,57 @@ a {
     padding-top: 28px;
 }
 
+.analytics-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid #d6ddd7;
+    background: #f9faf7;
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+}
+
+.analytics-meta strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.analytics-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid #d8dfd9;
+    border-radius: 14px;
+    padding: 13px 14px;
+    box-shadow: 0 8px 18px rgba(17, 24, 39, 0.05);
+}
+
+.kpi-card p {
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 5px;
+}
+
+.kpi-card h4 {
+    font-size: 1.42rem;
+    line-height: 1;
+}
+
 .analytics-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 
@@ -476,6 +524,62 @@ a {
 .analytics-card h3 {
     font-size: 0.92rem;
     margin-bottom: 14px;
+}
+
+.analytics-card-wide {
+    grid-column: span 2;
+}
+
+.donut-layout {
+    display: grid;
+    grid-template-columns: 184px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.donut-chart {
+    min-height: 176px;
+    display: grid;
+    place-items: center;
+}
+
+.donut-ring {
+    width: 156px;
+    height: 156px;
+    border-radius: 999px;
+    background: conic-gradient(var(--donut-gradient));
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.donut-ring::after {
+    content: '';
+    width: 108px;
+    height: 108px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #d9dfda;
+    position: absolute;
+}
+
+.donut-center {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: grid;
+    gap: 2px;
+}
+
+.donut-center strong {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.donut-center span {
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
 }
 
 .chart-area {
@@ -508,9 +612,19 @@ a {
     font-size: 0.74rem;
     color: var(--ink-soft);
     font-family: var(--font-mono);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.lang-swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
 }
 
 .chart-track {
@@ -634,6 +748,42 @@ a {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: #24303f;
+}
+
+.repo-table {
+    border: 1px solid #dde4de;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.repo-table-head,
+.repo-table-row {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr 0.9fr 0.4fr;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 0.75rem;
+}
+
+.repo-table-head {
+    background: #f4f8f5;
+    font-family: var(--font-mono);
+    color: #4b596d;
+}
+
+.repo-table-row {
+    border-top: 1px solid #e6ece7;
+    color: #1f2937;
+}
+
+.repo-table-row:hover {
+    background: #fafcf9;
+}
+
+.repo-table-name {
+    font-weight: 600;
+    color: #1d4ed8;
 }
 
 .expertise-grid {
@@ -1069,6 +1219,10 @@ a {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .analytics-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .analytics-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -1144,6 +1298,14 @@ a {
         grid-template-columns: 1fr;
     }
 
+    .analytics-card-wide {
+        grid-column: span 1;
+    }
+
+    .donut-layout {
+        grid-template-columns: 1fr;
+    }
+
     .hero-copy,
     .hero-panel,
     .contact-card,
@@ -1189,8 +1351,20 @@ a {
         grid-template-columns: 1fr;
     }
 
+    .analytics-kpis {
+        grid-template-columns: 1fr;
+    }
+
     .chart-row {
         grid-template-columns: 76px 1fr auto;
+    }
+
+    .repo-table-head,
+    .repo-table-row {
+        grid-template-columns: 1.3fr 0.8fr 0.9fr 0.4fr;
+        font-size: 0.68rem;
+        padding: 9px 8px;
+        gap: 6px;
     }
 
     .panel-meta {

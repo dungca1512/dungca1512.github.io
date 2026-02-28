@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260228d">
+    <link rel="stylesheet" href="style.css?v=20260228e">
 </head>
 <body>
     <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
@@ -103,18 +103,30 @@
                     <p class="kicker" data-i18n="analytics.kicker">Data Snapshot</p>
                     <h2 data-i18n="analytics.title">GitHub activity and repository signals.</h2>
                 </div>
+                <div class="analytics-meta reveal" style="--reveal-delay:0ms">
+                    <span data-i18n="analytics.liveLabel">Live GitHub Snapshot</span>
+                    <strong id="analyticsUpdatedAt">-</strong>
+                </div>
+                <div class="analytics-kpis" id="analyticsKpis"></div>
                 <div class="analytics-grid">
-                    <article class="analytics-card reveal" style="--reveal-delay:0ms">
-                        <h3 data-i18n="analytics.languageChart">Language Distribution</h3>
-                        <div class="chart-area" id="languageChart"></div>
+                    <article class="analytics-card analytics-card-wide reveal" style="--reveal-delay:140ms">
+                        <h3 data-i18n="analytics.languageMix">Language Mix</h3>
+                        <div class="donut-layout">
+                            <div class="donut-chart" id="languageDonut"></div>
+                            <div class="chart-area" id="languageChart"></div>
+                        </div>
                     </article>
-                    <article class="analytics-card reveal" style="--reveal-delay:90ms">
-                        <h3 data-i18n="analytics.yearlyChart">Repository Updates by Year</h3>
-                        <div class="chart-area" id="yearlyChart"></div>
+                    <article class="analytics-card reveal" style="--reveal-delay:220ms">
+                        <h3 data-i18n="analytics.velocityChart">Update Velocity (12 Months)</h3>
+                        <div class="chart-area" id="velocityChart"></div>
                     </article>
-                    <article class="analytics-card reveal" style="--reveal-delay:180ms">
+                    <article class="analytics-card reveal" style="--reveal-delay:300ms">
                         <h3 data-i18n="analytics.freshnessChart">Repository Freshness</h3>
                         <div class="chart-area" id="freshnessChart"></div>
+                    </article>
+                    <article class="analytics-card analytics-card-wide reveal" style="--reveal-delay:380ms">
+                        <h3 data-i18n="analytics.topRepos">Most Active Repositories</h3>
+                        <div class="chart-area" id="topReposTable"></div>
                     </article>
                 </div>
             </div>
@@ -203,7 +215,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260228d"></script>
-    <script src="main.js?v=20260228d"></script>
+    <script src="data.js?v=20260228e"></script>
+    <script src="main.js?v=20260228e"></script>
 </body>
 </html>

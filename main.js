@@ -15,6 +15,8 @@ const state = {
     revealObserver: null
 };
 
+const ANALYTICS_COLORS = ['#0f766e', '#2563eb', '#f97316', '#7c3aed', '#0ea5e9', '#84cc16', '#6b7280'];
+
 function getValueByPath(obj, path) {
     return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
 }
@@ -35,6 +37,19 @@ function formatDate(isoDate) {
     }
     const locale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
     return new Date(isoDate).toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+}
+
+function formatDateTime(isoDate) {
+    if (!isoDate) {
+        return '-';
+    }
+    const locale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
+    return new Date(isoDate).toLocaleString(locale, {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 function setLanguage(lang) {
@@ -86,16 +101,39 @@ function calculateAnalytics() {
     const yearlyCountMap = {};
     const freshness = { d30: 0, d90: 0, d180: 0, old: 0 };
     const now = Date.now();
+    let totalStars = 0;
+
+    const monthLocale = state.lang === 'vi' ? 'vi-VN' : 'en-US';
+    const monthBuckets = [];
+    const monthCountMap = {};
+    for (let i = 11; i >= 0; i -= 1) {
+        const date = new Date();
+        date.setDate(1);
+        date.setMonth(date.getMonth() - i);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        let label = date.toLocaleDateString(monthLocale, { month: 'short' });
+        if (date.getMonth() === 0) {
+            label = `${label} '${String(date.getFullYear()).slice(-2)}`;
+        }
+        monthBuckets.push({ key, label });
+        monthCountMap[key] = 0;
+    }
 
     repos.forEach((repo) => {
         const language = repo.language || unknownLabel;
         languageCountMap[language] = (languageCountMap[language] || 0) + 1;
+        totalStars += repo.stargazers_count || 0;
 
         if (repo.pushed_at) {
             const date = new Date(repo.pushed_at);
             if (!Number.isNaN(date.getTime())) {
                 const year = String(date.getFullYear());
                 yearlyCountMap[year] = (yearlyCountMap[year] || 0) + 1;
+
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (monthCountMap[monthKey] !== undefined) {
+                    monthCountMap[monthKey] += 1;
+                }
 
                 const days = Math.floor((now - date.getTime()) / (1000 * 60 * 60 * 24));
                 if (days <= 30) freshness.d30 += 1;
@@ -108,59 +146,127 @@ function calculateAnalytics() {
 
     const languages = Object.entries(languageCountMap)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 6);
+        .slice(0, 6)
+        .map(([name, count], index) => ({
+            name,
+            count,
+            color: ANALYTICS_COLORS[index % ANALYTICS_COLORS.length],
+            pct: (count / repos.length) * 100
+        }));
 
     const years = Object.entries(yearlyCountMap)
         .sort((a, b) => Number(a[0]) - Number(b[0]))
         .slice(-6);
 
+    const months = monthBuckets.map((item) => ({
+        label: item.label,
+        count: monthCountMap[item.key]
+    }));
+
+    const topRepos = repos
+        .filter((repo) => repo.pushed_at)
+        .sort((a, b) => {
+            const t1 = new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime();
+            if (t1 !== 0) return t1;
+            return (b.stargazers_count || 0) - (a.stargazers_count || 0);
+        })
+        .slice(0, 6);
+
     return {
         total: repos.length,
+        totalStars,
+        languageDiversity: Object.keys(languageCountMap).length,
         languages,
         years,
+        months,
+        topRepos,
         freshness
     };
 }
 
 function renderAnalytics() {
+    const updatedAtEl = byId('analyticsUpdatedAt');
+    if (updatedAtEl) {
+        updatedAtEl.textContent = formatDateTime(state.github?.generatedAt);
+    }
+
+    const kpiEl = byId('analyticsKpis');
+    const languageDonutEl = byId('languageDonut');
     const languageEl = byId('languageChart');
-    const yearlyEl = byId('yearlyChart');
+    const yearlyEl = byId('velocityChart');
     const freshnessEl = byId('freshnessChart');
+    const topReposEl = byId('topReposTable');
     const analytics = calculateAnalytics();
 
-    if (!languageEl || !yearlyEl || !freshnessEl) {
+    if (!kpiEl || !languageDonutEl || !languageEl || !yearlyEl || !freshnessEl || !topReposEl) {
         return;
     }
 
     if (!analytics) {
         const emptyText = t(PORTFOLIO_DATA.i18n.analytics.noData);
+        kpiEl.innerHTML = '';
+        languageDonutEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         languageEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         yearlyEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         freshnessEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
+        topReposEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         return;
     }
 
-    const langMax = Math.max(...analytics.languages.map((item) => item[1]), 1);
+    const kpis = [
+        { label: t(PORTFOLIO_DATA.i18n.analytics.kpiActive90), value: analytics.freshness.d30 + analytics.freshness.d90 },
+        { label: t(PORTFOLIO_DATA.i18n.analytics.kpiLanguage), value: analytics.languageDiversity },
+        { label: t(PORTFOLIO_DATA.i18n.analytics.kpiStars), value: analytics.totalStars },
+        { label: t(PORTFOLIO_DATA.i18n.analytics.kpiFresh30), value: analytics.freshness.d30 }
+    ];
+    kpiEl.innerHTML = kpis
+        .map((item, index) => `
+            <article class="kpi-card reveal" style="--reveal-delay:${index * 70}ms">
+                <p>${item.label}</p>
+                <h4>${item.value}</h4>
+            </article>
+        `)
+        .join('');
+
+    let cumulative = 0;
+    const donutGradient = analytics.languages
+        .map((item) => {
+            const start = cumulative;
+            cumulative += item.pct;
+            return `${item.color} ${start}% ${cumulative}%`;
+        })
+        .join(', ');
+
+    languageDonutEl.innerHTML = `
+        <div class="donut-ring" style="--donut-gradient:${donutGradient}">
+            <div class="donut-center">
+                <strong>${analytics.total}</strong>
+                <span>${t(PORTFOLIO_DATA.i18n.analytics.repoCount)}</span>
+            </div>
+        </div>
+    `;
+
+    const langMax = Math.max(...analytics.languages.map((item) => item.count), 1);
     languageEl.innerHTML = `
         <div class="chart-list">
-            ${analytics.languages.map(([language, count]) => `
+            ${analytics.languages.map((item) => `
                 <div class="chart-row">
-                    <span class="chart-row-label" title="${language}">${language}</span>
-                    <span class="chart-track"><span class="chart-fill" style="width:${(count / langMax) * 100}%"></span></span>
-                    <span class="chart-row-value">${count}</span>
+                    <span class="chart-row-label" title="${item.name}"><span class="lang-swatch" style="background:${item.color}"></span>${item.name}</span>
+                    <span class="chart-track"><span class="chart-fill" style="width:${(item.count / langMax) * 100}%"></span></span>
+                    <span class="chart-row-value">${item.count} (${Math.round(item.pct)}%)</span>
                 </div>
             `).join('')}
         </div>
     `;
 
-    const yearMax = Math.max(...analytics.years.map((item) => item[1]), 1);
+    const yearMax = Math.max(...analytics.months.map((item) => item.count), 1);
     yearlyEl.innerHTML = `
         <div class="year-bars">
-            ${analytics.years.map(([year, count]) => `
+            ${analytics.months.map((item) => `
                 <div class="year-col">
-                    <div class="year-col-bar-wrap"><div class="year-col-bar" style="height:${(count / yearMax) * 100}%"></div></div>
-                    <span class="year-col-count">${count}</span>
-                    <span class="year-col-label">${year}</span>
+                    <div class="year-col-bar-wrap"><div class="year-col-bar" style="height:${(item.count / yearMax) * 100}%"></div></div>
+                    <span class="year-col-count">${item.count}</span>
+                    <span class="year-col-label">${item.label}</span>
                 </div>
             `).join('')}
         </div>
@@ -191,6 +297,25 @@ function renderAnalytics() {
                 </li>
             `).join('')}
         </ul>
+    `;
+
+    topReposEl.innerHTML = `
+        <div class="repo-table">
+            <div class="repo-table-head">
+                <span>${t(PORTFOLIO_DATA.i18n.analytics.tableRepo)}</span>
+                <span>${t(PORTFOLIO_DATA.i18n.analytics.tableLanguage)}</span>
+                <span>${t(PORTFOLIO_DATA.i18n.analytics.tableUpdated)}</span>
+                <span>${t(PORTFOLIO_DATA.i18n.analytics.tableStars)}</span>
+            </div>
+            ${analytics.topRepos.map((repo) => `
+                <a class="repo-table-row" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">
+                    <span class="repo-table-name">${repo.name}</span>
+                    <span>${repo.language || t(PORTFOLIO_DATA.i18n.analytics.unknown)}</span>
+                    <span>${formatDate(repo.pushed_at)}</span>
+                    <span>${repo.stargazers_count || 0}</span>
+                </a>
+            `).join('')}
+        </div>
     `;
 }
 
