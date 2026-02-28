@@ -104,8 +104,8 @@ function renderHero() {
 
 function renderMetrics() {
     byId('metricsGrid').innerHTML = PORTFOLIO_DATA.metrics
-        .map((item) => `
-            <article class="metric-card reveal">
+        .map((item, index) => `
+            <article class="metric-card reveal" style="--reveal-delay:${index * 80}ms">
                 <h3>${resolveMetricValue(item)}</h3>
                 <p>${t(item.label)}</p>
             </article>
@@ -115,8 +115,8 @@ function renderMetrics() {
 
 function renderExpertise() {
     byId('expertiseGrid').innerHTML = PORTFOLIO_DATA.expertise
-        .map((item) => `
-            <article class="expertise-card reveal">
+        .map((item, index) => `
+            <article class="expertise-card reveal" style="--reveal-delay:${index * 90}ms">
                 <div class="expertise-icon">${item.icon}</div>
                 <h3>${t(item.title)}</h3>
                 <p>${t(item.description)}</p>
@@ -129,7 +129,7 @@ function renderProjects() {
     const repoMap = state.github?.repos || {};
 
     byId('projectsGrid').innerHTML = PORTFOLIO_DATA.projects
-        .map((project) => {
+        .map((project, index) => {
             const stack = project.stack.map((tech) => `<li>${tech}</li>`).join('');
             const links = project.links
                 .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${t(link.label)}</a>`)
@@ -152,7 +152,7 @@ function renderProjects() {
             }
 
             return `
-                <article class="project-card reveal">
+                <article class="project-card reveal" style="--reveal-delay:${index * 100}ms">
                     <div class="project-head">
                         <h3>${project.name}</h3>
                         <span class="project-period">${project.period}</span>
@@ -177,12 +177,12 @@ function renderCaseStudy() {
     byId('caseStudyRepo').textContent = t(PORTFOLIO_DATA.i18n.common.repository);
 
     byId('caseHighlights').innerHTML = data.highlights
-        .map((item) => `<li>${t(item)}</li>`)
+        .map((item, index) => `<li class="reveal" style="--reveal-delay:${index * 90}ms">${t(item)}</li>`)
         .join('');
 
     byId('caseGrid').innerHTML = data.blocks
-        .map((item) => `
-            <article class="case-block">
+        .map((item, index) => `
+            <article class="case-block reveal" style="--reveal-delay:${index * 90}ms">
                 <h4>${t(item.title)}</h4>
                 <p>${t(item.text)}</p>
             </article>
@@ -192,8 +192,8 @@ function renderCaseStudy() {
 
 function renderPlaybook() {
     byId('playbookList').innerHTML = PORTFOLIO_DATA.playbook
-        .map((item) => `
-            <li class="reveal">
+        .map((item, index) => `
+            <li class="reveal" style="--reveal-delay:${index * 80}ms">
                 <h3>${t(item.title)}</h3>
                 <p>${t(item.description)}</p>
             </li>
@@ -203,10 +203,10 @@ function renderPlaybook() {
 
 function renderWriting() {
     byId('writingGrid').innerHTML = PORTFOLIO_DATA.writing
-        .map((article) => {
+        .map((article, index) => {
             const tags = article.tags.map((tag) => `<li>${tag}</li>`).join('');
             return `
-                <a class="article-card reveal" href="${article.url}" target="_blank" rel="noopener noreferrer">
+                <a class="article-card reveal" style="--reveal-delay:${index * 100}ms" href="${article.url}" target="_blank" rel="noopener noreferrer">
                     <span class="article-meta">${article.year}</span>
                     <h3>${t(article.title)}</h3>
                     <p>${t(article.summary)}</p>
@@ -219,11 +219,11 @@ function renderWriting() {
 
 function renderContacts() {
     byId('contactActions').innerHTML = PORTFOLIO_DATA.contacts
-        .map((item) => {
+        .map((item, index) => {
             const isExternal = item.url.startsWith('http');
             const targetAttrs = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
             const downloadAttr = item.download ? 'download' : '';
-            return `<a href="${item.url}" ${targetAttrs} ${downloadAttr}>${t(item.label)}</a>`;
+            return `<a class="reveal" style="--reveal-delay:${index * 70}ms" href="${item.url}" ${targetAttrs} ${downloadAttr}>${t(item.label)}</a>`;
         })
         .join('');
 }
@@ -304,6 +304,12 @@ function initReveal() {
         state.revealObserver.disconnect();
     }
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.remove('js-animate');
+        document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
+        return;
+    }
+
     document.documentElement.classList.add('js-animate');
 
     const revealNodes = Array.from(document.querySelectorAll('.reveal'));
@@ -321,9 +327,17 @@ function initReveal() {
             entry.target.classList.add('is-visible');
             observer.unobserve(entry.target);
         });
-    }, { threshold: 0.14, rootMargin: '0px 0px -10% 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
 
     revealNodes.forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        const shouldShowNow = rect.top < window.innerHeight * 0.92;
+
+        if (shouldShowNow) {
+            node.classList.add('is-visible');
+            return;
+        }
+
         node.classList.remove('is-visible');
         state.revealObserver.observe(node);
     });

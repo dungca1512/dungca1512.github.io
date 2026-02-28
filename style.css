@@ -851,11 +851,36 @@ a {
     color: var(--ink);
 }
 
-.reveal,
-.js-animate .reveal,
-.js-animate .reveal.is-visible {
+.reveal {
     opacity: 1;
     transform: none;
+}
+
+.js-animate .reveal {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.985);
+    filter: blur(3px);
+    transition:
+        opacity 0.62s cubic-bezier(0.2, 0.8, 0.2, 1),
+        transform 0.62s cubic-bezier(0.2, 0.8, 0.2, 1),
+        filter 0.42s ease;
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity;
+}
+
+.js-animate .reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js-animate .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        transition: none !important;
+    }
 }
 
 @media (max-width: 1180px) {
