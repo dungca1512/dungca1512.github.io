@@ -81,8 +81,11 @@ function renderHero() {
 
     const avatarEl = byId('heroAvatar');
     if (avatarEl) {
-        const fallbackAvatar = PORTFOLIO_DATA.profile.avatarUrl || `https://avatars.githubusercontent.com/${PORTFOLIO_DATA.github.username}?v=4`;
-        const profileAvatar = state.github?.profile?.avatar_url || fallbackAvatar;
+        const localAvatar = PORTFOLIO_DATA.profile.avatarUrl;
+        const githubAvatar = state.github?.profile?.avatar_url;
+        const defaultGithubAvatar = `https://avatars.githubusercontent.com/${PORTFOLIO_DATA.github.username}?v=4`;
+        const profileAvatar = localAvatar || githubAvatar || defaultGithubAvatar;
+        const fallbackAvatar = githubAvatar || defaultGithubAvatar;
         avatarEl.src = profileAvatar;
         avatarEl.onerror = () => {
             avatarEl.onerror = null;
