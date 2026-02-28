@@ -1,0 +1,418 @@
+{
+  "generatedAt": "2026-02-28T02:02:28.813Z",
+  "source": "https://api.github.com/users/dungca1512",
+  "stats": {
+    "publicRepos": 56,
+    "followers": 3,
+    "following": 12,
+    "nonForkRepos": 45,
+    "recentRepos": 13
+  },
+  "repos": {
+    "dungca1512.github.io": {
+      "name": "dungca1512.github.io",
+      "html_url": "https://github.com/dungca1512/dungca1512.github.io",
+      "language": "CSS",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-02-28T01:49:52Z",
+      "description": null
+    },
+    "whisper-finetune-ja": {
+      "name": "whisper-finetune-ja",
+      "html_url": "https://github.com/dungca1512/whisper-finetune-ja",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-02-26T09:39:23Z",
+      "description": null
+    },
+    "dungca1512": {
+      "name": "dungca1512",
+      "html_url": "https://github.com/dungca1512/dungca1512",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-02-06T08:00:33Z",
+      "description": null
+    },
+    "newspulse-reco-engine": {
+      "name": "newspulse-reco-engine",
+      "html_url": "https://github.com/dungca1512/newspulse-reco-engine",
+      "language": "Scala",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-12-24T10:48:44Z",
+      "description": null
+    },
+    "research-agent": {
+      "name": "research-agent",
+      "html_url": "https://github.com/dungca1512/research-agent",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-12-22T13:11:16Z",
+      "description": null
+    },
+    "ai-gateway": {
+      "name": "ai-gateway",
+      "html_url": "https://github.com/dungca1512/ai-gateway",
+      "language": "Java",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-12-15T12:03:55Z",
+      "description": null
+    },
+    "diffusion-bart-translation": {
+      "name": "diffusion-bart-translation",
+      "html_url": "https://github.com/dungca1512/diffusion-bart-translation",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-09-17T08:52:23Z",
+      "description": null
+    },
+    "ebook": {
+      "name": "ebook",
+      "html_url": "https://github.com/dungca1512/ebook",
+      "language": "HTML",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-08-17T05:43:36Z",
+      "description": null
+    },
+    "mongo-kafka-scheduler": {
+      "name": "mongo-kafka-scheduler",
+      "html_url": "https://github.com/dungca1512/mongo-kafka-scheduler",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-07-18T11:33:05Z",
+      "description": null
+    },
+    "cluster-kafka": {
+      "name": "cluster-kafka",
+      "html_url": "https://github.com/dungca1512/cluster-kafka",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-05-07T03:40:12Z",
+      "description": null
+    },
+    "image_test": {
+      "name": "image_test",
+      "html_url": "https://github.com/dungca1512/image_test",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-04-26T04:32:37Z",
+      "description": null
+    },
+    "milvus-rag": {
+      "name": "milvus-rag",
+      "html_url": "https://github.com/dungca1512/milvus-rag",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-04-12T05:33:48Z",
+      "description": null
+    },
+    "rec-sys": {
+      "name": "rec-sys",
+      "html_url": "https://github.com/dungca1512/rec-sys",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2025-01-22T06:34:00Z",
+      "description": null
+    },
+    "speech_process": {
+      "name": "speech_process",
+      "html_url": "https://github.com/dungca1512/speech_process",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-12-22T14:58:38Z",
+      "description": null
+    },
+    "image_captioning": {
+      "name": "image_captioning",
+      "html_url": "https://github.com/dungca1512/image_captioning",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "pushed_at": "2024-12-03T10:16:41Z",
+      "description": null
+    },
+    "llm_retrieval_rag": {
+      "name": "llm_retrieval_rag",
+      "html_url": "https://github.com/dungca1512/llm_retrieval_rag",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "pushed_at": "2024-09-25T10:29:11Z",
+      "description": null
+    },
+    "process_data_nckh": {
+      "name": "process_data_nckh",
+      "html_url": "https://github.com/dungca1512/process_data_nckh",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-08-28T02:27:44Z",
+      "description": null
+    },
+    "vietnamese-ocr-toolbox": {
+      "name": "vietnamese-ocr-toolbox",
+      "html_url": "https://github.com/dungca1512/vietnamese-ocr-toolbox",
+      "language": "C++",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "pushed_at": "2024-05-31T06:56:31Z",
+      "description": null
+    },
+    "big-data-search-engine": {
+      "name": "big-data-search-engine",
+      "html_url": "https://github.com/dungca1512/big-data-search-engine",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-06-26T06:59:49Z",
+      "description": null
+    },
+    "Information_Retrieval": {
+      "name": "Information_Retrieval",
+      "html_url": "https://github.com/dungca1512/Information_Retrieval",
+      "language": "HTML",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-06-19T07:14:32Z",
+      "description": null
+    },
+    "HPC_Vaccine_VolB": {
+      "name": "HPC_Vaccine_VolB",
+      "html_url": "https://github.com/dungca1512/HPC_Vaccine_VolB",
+      "language": "JavaScript",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-06-03T02:47:41Z",
+      "description": null
+    },
+    "poc_frt_flc": {
+      "name": "poc_frt_flc",
+      "html_url": "https://github.com/dungca1512/poc_frt_flc",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-06-03T02:45:52Z",
+      "description": null
+    },
+    "Resnet-101-Attention-LSTM": {
+      "name": "Resnet-101-Attention-LSTM",
+      "html_url": "https://github.com/dungca1512/Resnet-101-Attention-LSTM",
+      "language": "Python",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "pushed_at": "2023-01-16T03:10:46Z",
+      "description": null
+    },
+    "text-summarization": {
+      "name": "text-summarization",
+      "html_url": "https://github.com/dungca1512/text-summarization",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-05-29T07:16:53Z",
+      "description": null
+    },
+    "word2vec": {
+      "name": "word2vec",
+      "html_url": "https://github.com/dungca1512/word2vec",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-05-08T07:40:45Z",
+      "description": null
+    },
+    "Yolov3": {
+      "name": "Yolov3",
+      "html_url": "https://github.com/dungca1512/Yolov3",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-05-03T12:04:43Z",
+      "description": null
+    },
+    "chatbotAI_Demo": {
+      "name": "chatbotAI_Demo",
+      "html_url": "https://github.com/dungca1512/chatbotAI_Demo",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2024-03-09T15:35:25Z",
+      "description": null
+    },
+    "ecommerece": {
+      "name": "ecommerece",
+      "html_url": "https://github.com/dungca1512/ecommerece",
+      "language": "JavaScript",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2023-10-17T08:39:49Z",
+      "description": null
+    },
+    "neural_network_and_deep_learning": {
+      "name": "neural_network_and_deep_learning",
+      "html_url": "https://github.com/dungca1512/neural_network_and_deep_learning",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2023-08-01T13:43:13Z",
+      "description": null
+    },
+    "fptai-enhance": {
+      "name": "fptai-enhance",
+      "html_url": "https://github.com/dungca1512/fptai-enhance",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2023-07-06T10:06:41Z",
+      "description": null
+    },
+    "test_git": {
+      "name": "test_git",
+      "html_url": "https://github.com/dungca1512/test_git",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2023-04-18T09:41:09Z",
+      "description": null
+    },
+    "us_accidents_analysis": {
+      "name": "us_accidents_analysis",
+      "html_url": "https://github.com/dungca1512/us_accidents_analysis",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-11-04T18:52:26Z",
+      "description": null
+    },
+    "Advanced_CV": {
+      "name": "Advanced_CV",
+      "html_url": "https://github.com/dungca1512/Advanced_CV",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-10-12T06:47:13Z",
+      "description": null
+    },
+    "django_test": {
+      "name": "django_test",
+      "html_url": "https://github.com/dungca1512/django_test",
+      "language": "HTML",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-10-05T09:12:46Z",
+      "description": null
+    },
+    "Computer_vision_advanced": {
+      "name": "Computer_vision_advanced",
+      "html_url": "https://github.com/dungca1512/Computer_vision_advanced",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-09-29T16:50:15Z",
+      "description": null
+    },
+    "linear-regression": {
+      "name": "linear-regression",
+      "html_url": "https://github.com/dungca1512/linear-regression",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-24T11:48:07Z",
+      "description": null
+    },
+    "tts-python-api-add-duc": {
+      "name": "tts-python-api-add-duc",
+      "html_url": "https://github.com/dungca1512/tts-python-api-add-duc",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-22T07:25:08Z",
+      "description": null
+    },
+    "simple-linear-regression-for-salary-data": {
+      "name": "simple-linear-regression-for-salary-data",
+      "html_url": "https://github.com/dungca1512/simple-linear-regression-for-salary-data",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-02T11:47:36Z",
+      "description": null
+    },
+    "Webcam-Face-Detect-master": {
+      "name": "Webcam-Face-Detect-master",
+      "html_url": "https://github.com/dungca1512/Webcam-Face-Detect-master",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-02T11:46:04Z",
+      "description": null
+    },
+    "offline-handwritten-text-ocr": {
+      "name": "offline-handwritten-text-ocr",
+      "html_url": "https://github.com/dungca1512/offline-handwritten-text-ocr",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-02T11:39:56Z",
+      "description": null
+    },
+    "test-pi": {
+      "name": "test-pi",
+      "html_url": "https://github.com/dungca1512/test-pi",
+      "language": "HTML",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-02T02:32:03Z",
+      "description": null
+    },
+    "face-mask-detection-yolov5": {
+      "name": "face-mask-detection-yolov5",
+      "html_url": "https://github.com/dungca1512/face-mask-detection-yolov5",
+      "language": "Jupyter Notebook",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-08-02T11:43:12Z",
+      "description": null
+    },
+    "e-commere-django": {
+      "name": "e-commere-django",
+      "html_url": "https://github.com/dungca1512/e-commere-django",
+      "language": "JavaScript",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-07-21T01:20:31Z",
+      "description": null
+    },
+    "Image-Augmentation-Using-OpenCV-and-Python": {
+      "name": "Image-Augmentation-Using-OpenCV-and-Python",
+      "html_url": "https://github.com/dungca1512/Image-Augmentation-Using-OpenCV-and-Python",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-07-18T03:38:40Z",
+      "description": null
+    },
+    "monte-carlo-simulation-pi-master": {
+      "name": "monte-carlo-simulation-pi-master",
+      "html_url": "https://github.com/dungca1512/monte-carlo-simulation-pi-master",
+      "language": "C",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2022-07-18T03:34:21Z",
+      "description": null
+    }
+  }
+}

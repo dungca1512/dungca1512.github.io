@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Anh Dũng | AI/ML Engineer Portfolio</title>
-    <meta name="description" content="AI/ML Engineer building production LLM systems, multi-agent workflows, and on-device AI products.">
+    <meta name="description" content="AI/ML Engineer building production LLM systems, agent workflows, and intelligent data platforms.">
     <meta property="og:title" content="Công Anh Dũng | AI/ML Engineer">
-    <meta property="og:description" content="Production AI systems: LLM platforms, agent orchestration, and mobile intelligence.">
+    <meta property="og:description" content="Production AI engineering portfolio: LLM infra, research agents, ASR, and data systems.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dungca1512.github.io">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,16 +21,25 @@
     <header class="site-header" id="siteHeader">
         <div class="container header-inner">
             <a class="brand" href="#home">Công Anh Dũng</a>
+
             <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="siteNav">
                 <span></span><span></span><span></span>
             </button>
+
             <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
-                <a href="#projects" data-nav="projects">Projects</a>
-                <a href="#expertise" data-nav="expertise">Expertise</a>
-                <a href="#writing" data-nav="writing">Writing</a>
-                <a href="#contact" data-nav="contact">Contact</a>
+                <a href="#projects" data-nav="projects" data-i18n="nav.projects">Projects</a>
+                <a href="#case-study" data-nav="case-study" data-i18n="nav.caseStudy">Case Study</a>
+                <a href="#expertise" data-nav="expertise" data-i18n="nav.expertise">Expertise</a>
+                <a href="#writing" data-nav="writing" data-i18n="nav.writing">Writing</a>
+                <a href="#contact" data-nav="contact" data-i18n="nav.contact">Contact</a>
             </nav>
-            <a class="header-cta" href="mailto:dungca1512@gmail.com">Hire Me</a>
+
+            <div class="lang-switch" role="group" aria-label="Language switch">
+                <button class="lang-btn" type="button" data-lang="en">EN</button>
+                <button class="lang-btn" type="button" data-lang="vi">VI</button>
+            </div>
+
+            <a class="header-cta" href="mailto:dungca1512@gmail.com" data-i18n="common.hireMe">Hire Me</a>
         </div>
     </header>
 
@@ -38,19 +47,19 @@
         <section class="hero section">
             <div class="container hero-grid">
                 <div class="hero-copy reveal">
-                    <p class="eyebrow">AI/ML ENGINEER</p>
-                    <h1>Building reliable AI products that ship, scale, and deliver business outcomes.</h1>
-                    <p class="hero-lead">I design production systems that combine LLM reasoning, deterministic engineering, and clean DevOps. Current focus: multi-agent orchestration, AI gateways, and on-device intelligence.</p>
+                    <p class="eyebrow" data-i18n="hero.eyebrow">AI/ML ENGINEER</p>
+                    <h1 data-i18n="hero.title">Building reliable AI products that ship, scale, and deliver business outcomes.</h1>
+                    <p class="hero-lead" data-i18n="hero.lead">I design production systems that combine LLM reasoning, deterministic engineering, and clean DevOps.</p>
                     <div class="hero-actions">
-                        <a class="btn btn-primary" href="#projects">View Projects</a>
-                        <a class="btn btn-ghost" href="https://github.com/dungca1512" target="_blank" rel="noopener noreferrer">GitHub</a>
+                        <a class="btn btn-primary" href="#projects" data-i18n="hero.primaryCta">View Projects</a>
+                        <a class="btn btn-ghost" href="https://github.com/dungca1512" target="_blank" rel="noopener noreferrer" data-i18n="hero.secondaryCta">GitHub</a>
                     </div>
                     <ul class="hero-trust" id="heroTrust"></ul>
                 </div>
 
-                <aside class="hero-panel reveal" id="heroPanel">
-                    <p class="panel-title">Current Mission</p>
-                    <h2>Production AI systems with measurable reliability.</h2>
+                <aside class="hero-panel reveal">
+                    <p class="panel-title" data-i18n="panel.title">Current Mission</p>
+                    <h2 data-i18n="panel.heading">Production AI systems with measurable reliability.</h2>
                     <ul class="focus-list" id="focusList"></ul>
                     <div class="panel-meta">
                         <span id="profileLocation">Hanoi, Vietnam</span>
@@ -64,8 +73,8 @@
         <section class="metrics section" id="impact">
             <div class="container">
                 <div class="section-head reveal">
-                    <p class="kicker">Impact</p>
-                    <h2>Engineering with outcomes, not demos.</h2>
+                    <p class="kicker" data-i18n="impact.kicker">Impact</p>
+                    <h2 data-i18n="impact.title">Engineering with outcomes, not demos.</h2>
                 </div>
                 <div class="metrics-grid" id="metricsGrid"></div>
             </div>
@@ -74,8 +83,8 @@
         <section class="section" id="expertise">
             <div class="container">
                 <div class="section-head reveal">
-                    <p class="kicker">Core Expertise</p>
-                    <h2>How I approach AI product engineering.</h2>
+                    <p class="kicker" data-i18n="expertise.kicker">Core Expertise</p>
+                    <h2 data-i18n="expertise.title">How I approach AI product engineering.</h2>
                 </div>
                 <div class="expertise-grid" id="expertiseGrid"></div>
             </div>
@@ -84,18 +93,40 @@
         <section class="section" id="projects">
             <div class="container">
                 <div class="section-head reveal">
-                    <p class="kicker">Selected Work</p>
-                    <h2>Portfolio projects in AI, ML, and system design.</h2>
+                    <p class="kicker" data-i18n="projects.kicker">Selected Work</p>
+                    <h2 data-i18n="projects.title">Portfolio projects in AI, ML, and system design.</h2>
                 </div>
                 <div class="projects-grid" id="projectsGrid"></div>
+            </div>
+        </section>
+
+        <section class="section case-study" id="case-study">
+            <div class="container">
+                <div class="section-head reveal">
+                    <p class="kicker" data-i18n="caseStudy.kicker">Flagship Case Study</p>
+                    <h2 id="caseStudyHeading">AI Gateway</h2>
+                </div>
+
+                <article class="case-card reveal">
+                    <header class="case-header">
+                        <div>
+                            <p class="case-label" data-i18n="caseStudy.label">From architecture to execution</p>
+                            <h3 id="caseStudySubheading">How I designed a resilient multi-provider AI gateway.</h3>
+                        </div>
+                        <a id="caseStudyRepo" class="btn btn-ghost" href="https://github.com/dungca1512/ai-gateway" target="_blank" rel="noopener noreferrer">Repository</a>
+                    </header>
+
+                    <ul class="case-highlights" id="caseHighlights"></ul>
+                    <div class="case-grid" id="caseGrid"></div>
+                </article>
             </div>
         </section>
 
         <section class="section playbook" id="playbook">
             <div class="container playbook-grid">
                 <div class="section-head reveal">
-                    <p class="kicker">Engineering Playbook</p>
-                    <h2>Execution principles for production AI.</h2>
+                    <p class="kicker" data-i18n="playbook.kicker">Engineering Playbook</p>
+                    <h2 data-i18n="playbook.title">Execution principles for production AI.</h2>
                 </div>
                 <ol class="playbook-list" id="playbookList"></ol>
             </div>
@@ -104,8 +135,8 @@
         <section class="section" id="writing">
             <div class="container">
                 <div class="section-head reveal">
-                    <p class="kicker">Writing</p>
-                    <h2>Notes on architecture, ML systems, and agent design.</h2>
+                    <p class="kicker" data-i18n="writing.kicker">Writing</p>
+                    <h2 data-i18n="writing.title">Notes on architecture, ML systems, and agent design.</h2>
                 </div>
                 <div class="writing-grid" id="writingGrid"></div>
             </div>
@@ -113,9 +144,9 @@
 
         <section class="section contact" id="contact">
             <div class="container contact-card reveal">
-                <p class="kicker">Contact</p>
-                <h2>Building an AI product or platform?</h2>
-                <p class="contact-text">I am available for AI engineering roles and technical collaborations focused on production LLM systems, ML platforms, and intelligent applications.</p>
+                <p class="kicker" data-i18n="contact.kicker">Contact</p>
+                <h2 data-i18n="contact.title">Building an AI product or platform?</h2>
+                <p class="contact-text" data-i18n="contact.text">I am available for AI engineering roles and technical collaborations focused on production LLM systems, ML platforms, and intelligent applications.</p>
                 <div class="contact-actions" id="contactActions"></div>
             </div>
         </section>
@@ -123,7 +154,7 @@
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <p>© <span id="currentYear"></span> Công Anh Dũng. Built for AI/ML engineering opportunities.</p>
+            <p id="footerText">© 2026 Công Anh Dũng. Built for AI/ML engineering opportunities.</p>
             <div class="footer-links">
                 <a href="https://github.com/dungca1512" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://www.linkedin.com/in/dungca/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
