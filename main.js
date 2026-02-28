@@ -1,8 +1,16 @@
 const byId = (id) => document.getElementById(id);
 const LANG_STORAGE_KEY = 'portfolio_lang';
 
+function getInitialLanguage() {
+    try {
+        return localStorage.getItem(LANG_STORAGE_KEY) || 'en';
+    } catch (error) {
+        return 'en';
+    }
+}
+
 const state = {
-    lang: localStorage.getItem(LANG_STORAGE_KEY) || 'en',
+    lang: getInitialLanguage(),
     github: null,
     revealObserver: null
 };
@@ -31,7 +39,11 @@ function formatDate(isoDate) {
 
 function setLanguage(lang) {
     state.lang = lang;
-    localStorage.setItem(LANG_STORAGE_KEY, lang);
+    try {
+        localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch (error) {
+        // Ignore storage failures and keep in-memory language state.
+    }
     document.documentElement.lang = lang;
 
     document.querySelectorAll('.lang-btn').forEach((btn) => {
@@ -278,6 +290,8 @@ function initReveal() {
         state.revealObserver.disconnect();
     }
 
+    document.documentElement.classList.add('js-animate');
+
     const revealNodes = Array.from(document.querySelectorAll('.reveal'));
 
     if (!('IntersectionObserver' in window)) {
@@ -344,8 +358,18 @@ function normalizeGithubData(user, repos) {
 }
 
 async function loadGithubData() {
+    const fetchWithTimeout = async (url, options = {}, timeoutMs = 3000) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            return await fetch(url, { ...options, signal: controller.signal });
+        } finally {
+            clearTimeout(timer);
+        }
+    };
+
     try {
-        const local = await fetch(PORTFOLIO_DATA.github.dataFile, { cache: 'no-store' });
+        const local = await fetchWithTimeout(PORTFOLIO_DATA.github.dataFile, { cache: 'no-store' }, 1500);
         if (local.ok) {
             state.github = await local.json();
             return;
@@ -357,8 +381,8 @@ async function loadGithubData() {
     try {
         const username = PORTFOLIO_DATA.github.username;
         const [userRes, reposRes] = await Promise.all([
-            fetch(`https://api.github.com/users/${username}`),
-            fetch(`https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=updated`)
+            fetchWithTimeout(`https://api.github.com/users/${username}`, {}, 3000),
+            fetchWithTimeout(`https://api.github.com/users/${username}/repos?per_page=100&type=owner&sort=updated`, {}, 3000)
         ]);
 
         if (!userRes.ok || !reposRes.ok) {
@@ -378,8 +402,13 @@ async function bootstrap() {
     initActiveNav();
     initLanguageToggle();
 
-    await loadGithubData();
+    // Render immediately with local fallback data to avoid blank UI on slow/blocked network.
     setLanguage(state.lang);
+
+    // Refresh with GitHub data asynchronously when available.
+    loadGithubData().then(() => {
+        renderDynamicSections();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', bootstrap);
