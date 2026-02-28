@@ -3,213 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DungCA — AI/ML Engineer</title>
+    <title>Dũng Ca — AI/ML Engineer</title>
     <meta name="description" content="AI/ML Engineer specializing in LLM systems, multi-agent architectures, and intelligent applications.">
+    <meta property="og:title" content="Dũng Ca — AI/ML Engineer">
+    <meta property="og:description" content="Building intelligent systems with LLMs, multi-agent architectures & on-device AI.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dungca1512.github.io">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="nav-logo">D<span class="accent">.</span></a>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link active">Home</a>
-                <a href="projects.html" class="nav-link">Projects</a>
-                <a href="blog.html" class="nav-link">Blog</a>
-                <a href="about.html" class="nav-link">About</a>
-            </div>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-                <span></span><span></span>
+
+    <!-- TOP BAR -->
+    <header class="topbar" id="topbar">
+        <div class="topbar-inner">
+            <a href="index.html" class="topbar-logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                dungca1512
+            </a>
+            <nav class="topbar-nav" id="topbarNav">
+                <a href="#" class="active" data-tab="overview">Overview</a>
+                <a href="#" data-tab="projects">Projects</a>
+                <a href="#" data-tab="blog">Blog</a>
+            </nav>
+            <button class="topbar-toggle" id="topbarToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
             </button>
         </div>
-        <!-- Mobile menu -->
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="index.html" class="mobile-link active">Home</a>
-            <a href="projects.html" class="mobile-link">Projects</a>
-            <a href="blog.html" class="mobile-link">Blog</a>
-            <a href="about.html" class="mobile-link">About</a>
+        <div class="mobile-dropdown" id="mobileDropdown">
+            <a href="#" data-tab="overview" class="active">Overview</a>
+            <a href="#" data-tab="projects">Projects</a>
+            <a href="#" data-tab="blog">Blog</a>
         </div>
-    </nav>
+    </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-bg">
-            <div class="grid-overlay"></div>
-            <div class="glow glow-1"></div>
-            <div class="glow glow-2"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-label anim-fade" style="--delay: 0.1s">AI / ML Engineer</div>
-            <h1 class="hero-title">
-                <span class="anim-slide" style="--delay: 0.2s">Building</span>
-                <span class="anim-slide" style="--delay: 0.35s"><em>intelligent</em></span>
-                <span class="anim-slide" style="--delay: 0.5s">systems that</span>
-                <span class="anim-slide" style="--delay: 0.65s">matter<span class="accent">.</span></span>
-            </h1>
-            <p class="hero-desc anim-fade" style="--delay: 0.8s">
-                I design and build LLM-powered applications, multi-agent systems, 
-                and AI infrastructure — from concept to production.
-            </p>
-            <div class="hero-cta anim-fade" style="--delay: 1s">
-                <a href="projects.html" class="btn btn-primary">View Projects</a>
-                <a href="about.html" class="btn btn-ghost">About Me →</a>
-            </div>
-        </div>
-        <div class="hero-scroll anim-fade" style="--delay: 1.3s">
-            <div class="scroll-line"></div>
-            <span>Scroll</span>
-        </div>
-    </section>
+    <!-- PROFILE BANNER -->
+    <div class="profile-banner">
+        <div class="profile-banner-grid"></div>
+    </div>
 
-    <!-- Featured Work -->
-    <section class="section" id="work">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">Selected Work</span>
-                <h2 class="section-title">Featured Projects</h2>
+    <!-- PROFILE CONTENT -->
+    <div class="profile-section">
+        <!-- LEFT SIDEBAR -->
+        <aside class="profile-sidebar">
+            <div class="avatar-wrapper">
+                <div class="avatar-inner">D</div>
+                <div class="avatar-status" title="Available"></div>
             </div>
-            <div class="project-grid">
-                <a href="projects.html#ai-gateway" class="project-card project-card--large">
-                    <div class="project-card-image">
-                        <div class="project-placeholder" style="--bg: linear-gradient(135deg, #0f4c75, #1b262c)">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+
+            <h1 class="profile-name">Dũng Ca</h1>
+            <p class="profile-username">dungca1512</p>
+            <p class="profile-bio">AI/ML Engineer • Building intelligent systems with LLMs, multi-agent architectures & on-device AI. 🇻🇳 🇯🇵</p>
+
+            <a href="mailto:dungca1512@gmail.com" class="profile-btn">✉️ Contact me</a>
+
+            <div class="profile-stats">
+                <span class="profile-stat"><strong>12</strong> repositories</span>
+                <span class="profile-stat-sep">·</span>
+                <span class="profile-stat"><strong>48</strong> stars</span>
+                <span class="profile-stat-sep">·</span>
+                <span class="profile-stat"><strong>6</strong> followers</span>
+            </div>
+
+            <div class="profile-meta">
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Hanoi, Vietnam
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    dungca1512@gmail.com
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a href="https://dungca1512.github.io" target="_blank">dungca1512.github.io</a>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Languages</h3>
+                <div class="lang-bar">
+                    <div class="lang-bar-segment" style="width:42%;background:#3572A5" title="Python 42%"></div>
+                    <div class="lang-bar-segment" style="width:28%;background:#b07219" title="Java 28%"></div>
+                    <div class="lang-bar-segment" style="width:12%;background:#f1e05a" title="JavaScript 12%"></div>
+                    <div class="lang-bar-segment" style="width:8%;background:#89e051" title="Shell 8%"></div>
+                    <div class="lang-bar-segment" style="width:6%;background:#e34c26" title="HTML/CSS 6%"></div>
+                    <div class="lang-bar-segment" style="width:4%;background:#555555" title="C 4%"></div>
+                </div>
+                <div class="lang-list">
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#3572A5"></div> Python</div><span>42%</span></div>
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#b07219"></div> Java</div><span>28%</span></div>
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#f1e05a"></div> JavaScript</div><span>12%</span></div>
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#89e051"></div> Shell</div><span>8%</span></div>
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#e34c26"></div> HTML/CSS</div><span>6%</span></div>
+                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#555555"></div> C</div><span>4%</span></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Tech Stack</h3>
+                <div class="tech-badges">
+                    <span class="tech-badge">LangChain</span>
+                    <span class="tech-badge">LangGraph</span>
+                    <span class="tech-badge">PyTorch</span>
+                    <span class="tech-badge">Spring Boot</span>
+                    <span class="tech-badge">FastAPI</span>
+                    <span class="tech-badge">Docker</span>
+                    <span class="tech-badge">K8s</span>
+                    <span class="tech-badge">Redis</span>
+                    <span class="tech-badge">Whisper</span>
+                    <span class="tech-badge">MCP</span>
+                    <span class="tech-badge">A2A</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Speaks</h3>
+                <div class="tech-badges">
+                    <span class="tech-badge">🇻🇳 Vietnamese</span>
+                    <span class="tech-badge">🇺🇸 English</span>
+                    <span class="tech-badge">🇯🇵 Japanese</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="profile-main">
+            <!-- TAB NAV -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="overview">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/></svg>
+                    Overview
+                </button>
+                <button class="tab-btn" data-tab="projects">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                    Projects <span class="tab-count">4</span>
+                </button>
+                <button class="tab-btn" data-tab="blog">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    Blog <span class="tab-count">6</span>
+                </button>
+                <button class="tab-btn" data-tab="readme">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    README
+                </button>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div class="tab-content active" id="tab-overview">
+                <p class="pinned-header">📌 Pinned</p>
+                <div class="pinned-grid" id="pinnedGrid"></div>
+
+                <div class="contrib-section">
+                    <div class="contrib-header">
+                        <h3>🟩 Contribution activity</h3>
+                        <p class="contrib-count"><strong>847</strong> contributions in the last year</p>
+                    </div>
+                    <div class="contrib-graph-wrapper">
+                        <div class="contrib-graph" id="contribGraph"></div>
+                        <div class="contrib-legend">
+                            Less
+                            <div class="contrib-legend-cell" style="background:var(--contrib-0)"></div>
+                            <div class="contrib-legend-cell" style="background:var(--contrib-1)"></div>
+                            <div class="contrib-legend-cell" style="background:var(--contrib-2)"></div>
+                            <div class="contrib-legend-cell" style="background:var(--contrib-3)"></div>
+                            <div class="contrib-legend-cell" style="background:var(--contrib-4)"></div>
+                            More
                         </div>
                     </div>
-                    <div class="project-card-body">
-                        <div class="project-tags">
-                            <span>Java Spring Boot</span><span>Python FastAPI</span><span>Redis</span>
-                        </div>
-                        <h3>AI Gateway</h3>
-                        <p>Multi-provider AI orchestration system with circuit breakers, rate limiting, and intelligent routing across OpenAI, Gemini, Claude & local models.</p>
-                    </div>
-                </a>
-                <a href="projects.html#japanese-learning" class="project-card">
-                    <div class="project-card-image">
-                        <div class="project-placeholder" style="--bg: linear-gradient(135deg, #c0392b, #2c1320)">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="project-card-body">
-                        <div class="project-tags">
-                            <span>NLP</span><span>SudachiPy</span><span>LLM</span>
-                        </div>
-                        <h3>Japanese Learning Platform</h3>
-                        <p>AI-powered language learning with hybrid content generation and speech recognition.</p>
-                    </div>
-                </a>
-                <a href="projects.html#devops-agent" class="project-card">
-                    <div class="project-card-image">
-                        <div class="project-placeholder" style="--bg: linear-gradient(135deg, #6c3483, #1a1a2e)">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8l3 3-3 3M13 14h4"/></svg>
-                        </div>
-                    </div>
-                    <div class="project-card-body">
-                        <div class="project-tags">
-                            <span>LangGraph</span><span>MCP</span><span>A2A</span>
-                        </div>
-                        <h3>DevOps AI Agent</h3>
-                        <p>Multi-agent incident response system using MCP & A2A protocols with LangChain.</p>
-                    </div>
-                </a>
-            </div>
-            <div class="section-footer">
-                <a href="projects.html" class="link-arrow">All Projects →</a>
-            </div>
-        </div>
-    </section>
+                </div>
 
-    <!-- Skills Marquee -->
-    <section class="marquee-section">
-        <div class="marquee">
-            <div class="marquee-track">
-                <span>Python</span><span class="sep">◆</span>
-                <span>Java</span><span class="sep">◆</span>
-                <span>Spring Boot</span><span class="sep">◆</span>
-                <span>FastAPI</span><span class="sep">◆</span>
-                <span>LangChain</span><span class="sep">◆</span>
-                <span>LangGraph</span><span class="sep">◆</span>
-                <span>Kubernetes</span><span class="sep">◆</span>
-                <span>Docker</span><span class="sep">◆</span>
-                <span>PyTorch</span><span class="sep">◆</span>
-                <span>Whisper</span><span class="sep">◆</span>
-                <span>LLM</span><span class="sep">◆</span>
-                <span>NLP</span><span class="sep">◆</span>
-                <!-- Duplicate for seamless loop -->
-                <span>Python</span><span class="sep">◆</span>
-                <span>Java</span><span class="sep">◆</span>
-                <span>Spring Boot</span><span class="sep">◆</span>
-                <span>FastAPI</span><span class="sep">◆</span>
-                <span>LangChain</span><span class="sep">◆</span>
-                <span>LangGraph</span><span class="sep">◆</span>
-                <span>Kubernetes</span><span class="sep">◆</span>
-                <span>Docker</span><span class="sep">◆</span>
-                <span>PyTorch</span><span class="sep">◆</span>
-                <span>Whisper</span><span class="sep">◆</span>
-                <span>LLM</span><span class="sep">◆</span>
-                <span>NLP</span><span class="sep">◆</span>
+                <div class="activity-section">
+                    <p class="activity-title">📋 Recent activity</p>
+                    <div class="timeline" id="timeline"></div>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Latest Blog Posts -->
-    <section class="section section--alt">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">From the Blog</span>
-                <h2 class="section-title">Latest Thoughts</h2>
-            </div>
-            <div class="blog-grid">
-                <a href="blog.html#world-models" class="blog-card">
-                    <time>2025</time>
-                    <h3>World Models & the Path to AGI</h3>
-                    <p>Connecting historical scientific paradigms to modern AI limitations — and what it means for building truly intelligent systems.</p>
-                    <span class="link-arrow">Read →</span>
-                </a>
-                <a href="blog.html#multi-agent" class="blog-card">
-                    <time>2025</time>
-                    <h3>Designing Multi-Agent LLM Systems</h3>
-                    <p>Lessons learned from building production-grade agent architectures with MCP and A2A protocols.</p>
-                    <span class="link-arrow">Read →</span>
-                </a>
-                <a href="blog.html#mobile-ai" class="blog-card">
-                    <time>2025</time>
-                    <h3>Deploying Speech Models on Mobile</h3>
-                    <p>Practical strategies for running Whisper and SenseVoice on iOS/Android for CJK language processing.</p>
-                    <span class="link-arrow">Read →</span>
-                </a>
-            </div>
-            <div class="section-footer">
-                <a href="blog.html" class="link-arrow">All Posts →</a>
-            </div>
-        </div>
-    </section>
+            <!-- PROJECTS TAB -->
+            <div class="tab-content" id="tab-projects"></div>
 
-    <!-- Contact CTA -->
-    <section class="section section--cta">
-        <div class="container">
-            <h2 class="cta-title">Let's build something<br><em>extraordinary</em> together.</h2>
-            <div class="cta-links">
-                <a href="https://github.com/dungca1512" target="_blank" class="btn btn-primary">GitHub</a>
-                <a href="mailto:dungca1512@gmail.com" class="btn btn-ghost">Email Me →</a>
-            </div>
-        </div>
-    </section>
+            <!-- BLOG TAB -->
+            <div class="tab-content" id="tab-blog"></div>
 
-    <!-- Footer -->
+            <!-- README TAB -->
+            <div class="tab-content" id="tab-readme"></div>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-inner">
-            <span>© 2026 DungCA</span>
+            <span>© 2025 Dũng Ca · Built with ☕ and curiosity</span>
             <div class="footer-links">
                 <a href="https://github.com/dungca1512" target="_blank">GitHub</a>
-                <a href="https://linkedin.com/dungca" target="_blank">LinkedIn</a>
+                <a href="mailto:dungca1512@gmail.com">Email</a>
             </div>
         </div>
     </footer>
 
+    <script src="js/data.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
