@@ -9,202 +9,439 @@
     <meta property="og:description" content="Building intelligent systems with LLMs, multi-agent architectures & on-device AI.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dungca1512.github.io">
-    <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <style>
+        :root {
+            --bg0: #0d1117; --bg1: #161b22; --bg2: #1c2129; --bg3: #22272e;
+            --bg-inset: #010409;
+            --bd: #30363d; --bd2: #3d444d;
+            --t1: #f0f6fc; --t2: #9198a1; --t3: #656d76;
+            --blue: #58a6ff; --green: #3fb950; --purple: #bc8cff;
+            --orange: #f0883e; --red: #f85149; --yellow: #d29922;
+            --c0: #161b22; --c1: #0e4429; --c2: #006d32; --c3: #26a641; --c4: #39d353;
+            --ff: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            --fm: 'JetBrains Mono', monospace;
+            --fd: 'Playfair Display', Georgia, serif;
+            --r: 8px; --max: 1280px;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family:var(--ff); font-size:14px; line-height:1.6; color:var(--t1); background:var(--bg0); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+        a { color:var(--blue); text-decoration:none; }
+        a:hover { text-decoration:underline; }
+        button { background:none; border:none; cursor:pointer; color:inherit; font-family:inherit; }
+        ::selection { background:var(--blue); color:var(--bg0); }
+
+        /* ===== TOPBAR ===== */
+        .topbar { position:sticky; top:0; z-index:100; background:var(--bg1); border-bottom:1px solid var(--bd); }
+        .topbar.scrolled { box-shadow:0 2px 16px rgba(0,0,0,0.5); }
+        .topbar-inner { max-width:var(--max); margin:0 auto; padding:0 24px; height:60px; display:flex; align-items:center; gap:24px; }
+        .topbar-logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:17px; color:var(--t1); text-decoration:none; flex-shrink:0; }
+        .topbar-logo:hover { text-decoration:none; opacity:0.85; }
+        .topbar-logo svg { opacity:0.9; }
+        .topbar-nav { display:flex; gap:2px; margin-left:auto; }
+        .topbar-nav a { padding:8px 16px; border-radius:6px; font-size:13px; font-weight:600; color:var(--t2); text-decoration:none; transition:all 0.15s; }
+        .topbar-nav a:hover { background:var(--bg2); color:var(--t1); text-decoration:none; }
+        .topbar-nav a.active { color:var(--t1); background:rgba(255,255,255,0.06); }
+        .topbar-toggle { display:none; flex-direction:column; gap:5px; padding:8px; margin-left:auto; }
+        .topbar-toggle span { display:block; width:18px; height:2px; background:var(--t1); border-radius:2px; transition:all 0.3s; transform-origin:center; }
+        .topbar-toggle.open span:nth-child(1) { transform:rotate(45deg) translate(2.5px,2.5px); }
+        .topbar-toggle.open span:nth-child(2) { opacity:0; }
+        .topbar-toggle.open span:nth-child(3) { transform:rotate(-45deg) translate(2.5px,-2.5px); }
+        .mob-menu { display:none; flex-direction:column; background:var(--bg1); border-bottom:1px solid var(--bd); padding:0 24px; max-height:0; overflow:hidden; transition:all 0.3s; }
+        .mob-menu.open { max-height:200px; padding:8px 24px 16px; }
+        .mob-menu a { padding:10px 12px; border-radius:6px; font-size:14px; font-weight:600; color:var(--t2); text-decoration:none; }
+        .mob-menu a:hover, .mob-menu a.active { background:var(--bg2); color:var(--t1); text-decoration:none; }
+
+        /* ===== BANNER ===== */
+        .banner { height:220px; position:relative; overflow:hidden; background:linear-gradient(135deg, #0d1117 0%, #10151c 20%, #141a2e 45%, #1a1a30 55%, #151d2a 80%, #0d1117 100%); }
+        .banner::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 500px 250px at 25% 80%, rgba(88,166,255,0.07), transparent), radial-gradient(ellipse 400px 250px at 75% 20%, rgba(188,140,255,0.05), transparent), radial-gradient(ellipse 300px 200px at 50% 50%, rgba(63,185,80,0.03), transparent); }
+        .banner-dots { position:absolute; inset:0; opacity:0.03; background-image: radial-gradient(circle 1px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size:24px 24px; }
+
+        /* ===== PROFILE LAYOUT ===== */
+        .profile { max-width:var(--max); margin:0 auto; padding:0 24px; display:grid; grid-template-columns:280px 1fr; gap:32px; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar { margin-top:-64px; position:relative; z-index:10; }
+        .avatar { width:240px; height:240px; border-radius:50%; border:4px solid var(--bg0); overflow:hidden; margin-bottom:16px; position:relative; box-shadow:0 8px 40px rgba(0,0,0,0.5); background:var(--bg1); }
+        .avatar-inner { width:100%; height:100%; background:linear-gradient(135deg, #1a1e3a, #2d1b3d, #1a2332); display:flex; align-items:center; justify-content:center; font-family:var(--fd); font-size:88px; color:rgba(255,255,255,0.12); font-weight:700; user-select:none; }
+        .avatar-dot { position:absolute; bottom:18px; right:18px; width:24px; height:24px; border-radius:50%; background:var(--green); border:3.5px solid var(--bg0); }
+        .name { font-size:26px; font-weight:800; letter-spacing:-0.02em; line-height:1.2; }
+        .uname { font-size:18px; font-weight:300; color:var(--t2); margin-bottom:10px; }
+        .bio { font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px; }
+        .contact-btn { display:block; width:100%; padding:8px 16px; background:var(--bg2); border:1px solid var(--bd); border-radius:6px; color:var(--t1); font-size:13px; font-weight:600; font-family:var(--ff); cursor:pointer; text-align:center; transition:all 0.15s; margin-bottom:16px; text-decoration:none; }
+        .contact-btn:hover { background:var(--bg3); border-color:var(--bd2); text-decoration:none; }
+        .stats { display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap; align-items:center; font-size:13px; color:var(--t2); }
+        .stats b { color:var(--t1); font-weight:700; margin-right:2px; }
+        .stats .dot { color:var(--t3); margin:0 2px; }
+        .meta { display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+        .meta-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--t2); }
+        .meta-row svg { flex-shrink:0; opacity:0.5; }
+        .sb-section { margin-bottom:22px; }
+        .sb-title { font-size:14px; font-weight:700; margin-bottom:8px; }
+        .lang-bar { display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:8px; gap:2px; }
+        .lang-seg { cursor:pointer; transition:opacity 0.15s; }
+        .lang-seg:hover { opacity:0.75; }
+        .lang-list { display:flex; flex-wrap:wrap; gap:4px 16px; }
+        .lang-item { display:flex; align-items:center; gap:6px; font-size:12px; }
+        .lang-circle { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+        .lang-item .pct { color:var(--t3); margin-left:auto; }
+        .badges { display:flex; flex-wrap:wrap; gap:6px; }
+        .badge { font-family:var(--fm); font-size:11px; font-weight:500; padding:4px 10px; border-radius:20px; border:1px solid var(--bd); color:var(--t2); transition:all 0.2s; }
+        .badge:hover { border-color:var(--blue); color:var(--blue); }
+
+        /* ===== MAIN ===== */
+        .main { padding-top:20px; min-width:0; padding-bottom:60px; }
+        .tabs { display:flex; border-bottom:1px solid var(--bd); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
+        .tabs::-webkit-scrollbar { display:none; }
+        .tab { padding:10px 16px; font-size:13px; font-weight:600; color:var(--t2); border-bottom:2px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:color 0.15s; }
+        .tab:hover { color:var(--t1); }
+        .tab.on { color:var(--t1); border-bottom-color:var(--orange); }
+        .tab .cnt { font-size:11px; background:var(--bg2); padding:1px 7px; border-radius:20px; font-weight:700; }
+
+        .pane { display:none; }
+        .pane.on { display:block; animation:fu 0.25s ease; }
+        @keyframes fu { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+        /* ===== PINNED REPOS ===== */
+        .pin-label { font-size:14px; color:var(--t2); margin-bottom:10px; }
+        .pin-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px; }
+        .repo { background:var(--bg1); border:1px solid var(--bd); border-radius:var(--r); padding:16px; display:flex; flex-direction:column; transition:all 0.15s; }
+        .repo:hover { border-color:var(--bd2); box-shadow:0 4px 16px rgba(0,0,0,0.3); }
+        .repo-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+        .repo-top svg { color:var(--t3); flex-shrink:0; }
+        .repo-name { font-size:14px; font-weight:700; color:var(--blue); }
+        .repo-desc { font-size:12px; color:var(--t2); line-height:1.6; flex:1; margin-bottom:10px; }
+        .repo-bot { display:flex; align-items:center; gap:14px; font-size:12px; color:var(--t2); flex-wrap:wrap; }
+        .repo-lang { display:flex; align-items:center; gap:4px; }
+        .repo-lang .d { width:8px; height:8px; border-radius:50%; }
+
+        /* ===== CONTRIB GRAPH ===== */
+        .contrib { margin-bottom:28px; }
+        .contrib-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px; font-size:14px; color:var(--t2); }
+        .contrib-head b { color:var(--t1); }
+        .contrib-wrap { background:var(--bg1); border:1px solid var(--bd); border-radius:var(--r); padding:16px; overflow-x:auto; }
+        .contrib-grid { display:grid; grid-template-rows:repeat(7,11px); grid-auto-flow:column; gap:3px; width:max-content; }
+        .c { width:11px; height:11px; border-radius:2px; background:var(--c0); }
+        .c:hover { outline:1px solid var(--t2); outline-offset:-1px; }
+        .c.l1 { background:var(--c1); } .c.l2 { background:var(--c2); } .c.l3 { background:var(--c3); } .c.l4 { background:var(--c4); }
+        .contrib-leg { display:flex; align-items:center; gap:3px; justify-content:flex-end; margin-top:8px; font-size:10px; color:var(--t3); }
+        .contrib-leg .sq { width:11px; height:11px; border-radius:2px; }
+
+        /* ===== TIMELINE ===== */
+        .activity { margin-bottom:28px; }
+        .activity-label { font-size:14px; color:var(--t2); margin-bottom:14px; }
+        .tl { position:relative; padding-left:26px; }
+        .tl::before { content:''; position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:var(--bd); border-radius:1px; }
+        .tl-item { position:relative; padding-bottom:22px; }
+        .tl-item:last-child { padding-bottom:0; }
+        .tl-dot { position:absolute; left:-22px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid var(--bd); background:var(--bg0); }
+        .tl-dot.g { border-color:var(--green); background:var(--green); }
+        .tl-dot.b { border-color:var(--blue); background:var(--blue); }
+        .tl-dot.p { border-color:var(--purple); background:var(--purple); }
+        .tl-dot.o { border-color:var(--orange); background:var(--orange); }
+        .tl-date { font-size:11px; color:var(--t3); font-family:var(--fm); margin-bottom:3px; }
+        .tl-text { font-size:13px; color:var(--t2); line-height:1.6; }
+        .tl-text strong { color:var(--t1); font-weight:700; }
+
+        /* ===== PROJECT CARDS ===== */
+        .pj { margin-bottom:20px; }
+        .pj-card { background:var(--bg1); border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; transition:border-color 0.2s; }
+        .pj-card:hover { border-color:var(--bd2); }
+        .pj-banner { height:120px; display:flex; align-items:center; justify-content:center; position:relative; }
+        .pj-banner svg { color:rgba(255,255,255,0.12); }
+        .pj-body { padding:20px; }
+        .pj-body h3 { font-size:18px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .pj-body h3 .vis { font-size:11px; font-weight:500; padding:2px 8px; border:1px solid var(--bd); border-radius:20px; color:var(--t3); }
+        .pj-body > p { font-size:13px; color:var(--t2); line-height:1.7; margin-bottom:14px; }
+        .pj-techs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+        .pj-techs .badge { font-size:12px; padding:4px 12px; }
+        .pj-stats { display:flex; gap:16px; padding-top:14px; border-top:1px solid var(--bd); font-size:12px; color:var(--t2); flex-wrap:wrap; }
+        .pj-stats span { display:flex; align-items:center; gap:4px; }
+        .dl { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+        /* ===== BLOG ===== */
+        .post-list { display:flex; flex-direction:column; }
+        .post { display:grid; grid-template-columns:1fr auto; gap:16px; padding:16px 12px; border-bottom:1px solid var(--bd); transition:background 0.15s; align-items:start; border-radius:var(--r); }
+        .post:last-child { border-bottom:none; }
+        .post:hover { background:rgba(255,255,255,0.02); }
+        .post-title { font-size:16px; font-weight:700; color:var(--blue); margin-bottom:4px; line-height:1.4; }
+        .post-exc { font-size:13px; color:var(--t2); line-height:1.6; margin-bottom:8px; }
+        .post-tags { display:flex; gap:6px; flex-wrap:wrap; }
+        .post-tag { font-family:var(--fm); font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; background:rgba(88,166,255,0.08); color:var(--blue); }
+        .post-date { font-size:11px; color:var(--t3); font-family:var(--fm); white-space:nowrap; margin-top:2px; }
+
+        /* ===== README ===== */
+        .readme { background:var(--bg1); border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; }
+        .readme-head { padding:10px 16px; border-bottom:1px solid var(--bd); display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; }
+        .readme-md { padding:24px; }
+        .readme-md h1 { font-family:var(--fd); font-size:26px; font-weight:700; margin-bottom:6px; padding-bottom:10px; border-bottom:1px solid var(--bd); }
+        .readme-md h2 { font-size:18px; font-weight:700; margin-top:24px; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--bd); }
+        .readme-md h3 { font-size:15px; font-weight:700; margin-top:18px; margin-bottom:6px; }
+        .readme-md p { font-size:14px; color:var(--t2); line-height:1.8; margin-bottom:10px; }
+        .readme-md ul { padding-left:22px; margin-bottom:10px; }
+        .readme-md li { font-size:14px; color:var(--t2); line-height:1.8; margin-bottom:3px; }
+        .readme-md li strong { color:var(--t1); }
+        .readme-md code { font-family:var(--fm); font-size:12px; background:var(--bg-inset); padding:2px 6px; border-radius:4px; color:var(--t2); }
+        .readme-md blockquote { border-left:3px solid var(--blue); padding:8px 16px; margin:14px 0; background:rgba(88,166,255,0.03); border-radius:0 var(--r) var(--r) 0; }
+        .readme-md blockquote p { margin:0; font-style:italic; }
+        .sbadges { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0; }
+        .sbadge { display:inline-flex; height:22px; border-radius:4px; overflow:hidden; font-size:11px; font-weight:600; font-family:var(--fm); }
+        .sbadge-l { padding:0 7px; display:flex; align-items:center; background:var(--bg2); color:var(--t2); }
+        .sbadge-v { padding:0 7px; display:flex; align-items:center; }
+        .sbadge-v.gr { background:rgba(63,185,80,0.15); color:var(--green); }
+        .sbadge-v.bl { background:rgba(88,166,255,0.15); color:var(--blue); }
+        .sbadge-v.pu { background:rgba(188,140,255,0.15); color:var(--purple); }
+
+        /* ===== FOOTER ===== */
+        .footer { border-top:1px solid var(--bd); padding:24px; margin-top:40px; }
+        .footer-in { max-width:var(--max); margin:0 auto; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--t3); flex-wrap:wrap; gap:12px; }
+        .footer-in a { color:var(--t2); text-decoration:none; margin-left:20px; }
+        .footer-in a:hover { color:var(--t1); text-decoration:underline; }
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:920px) {
+            .topbar-nav { display:none; }
+            .topbar-toggle { display:flex; }
+            .mob-menu { display:flex; }
+            .profile { grid-template-columns:1fr; }
+            .sidebar { margin-top:-50px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+            .avatar { width:160px; height:160px; }
+            .avatar-inner { font-size:64px; }
+            .avatar-dot { width:20px; height:20px; bottom:12px; right:12px; }
+            .stats { justify-content:center; }
+            .meta { align-items:center; }
+            .badges { justify-content:center; }
+            .lang-list { justify-content:center; }
+            .pin-grid { grid-template-columns:1fr; }
+            .banner { height:160px; }
+        }
+        @media(max-width:600px) {
+            .topbar-inner { padding:0 14px; }
+            .profile { padding:0 14px; }
+            .post { grid-template-columns:1fr; }
+            .post-date { order:-1; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- TOP BAR -->
-    <header class="topbar" id="topbar">
-        <div class="topbar-inner">
-            <a href="index.html" class="topbar-logo">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                dungca1512
-            </a>
-            <nav class="topbar-nav" id="topbarNav">
-                <a href="#" class="active" data-tab="overview">Overview</a>
-                <a href="#" data-tab="projects">Projects</a>
-                <a href="#" data-tab="blog">Blog</a>
-            </nav>
-            <button class="topbar-toggle" id="topbarToggle" aria-label="Toggle menu">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-        <div class="mobile-dropdown" id="mobileDropdown">
-            <a href="#" data-tab="overview" class="active">Overview</a>
-            <a href="#" data-tab="projects">Projects</a>
-            <a href="#" data-tab="blog">Blog</a>
-        </div>
-    </header>
-
-    <!-- PROFILE BANNER -->
-    <div class="profile-banner">
-        <div class="profile-banner-grid"></div>
+<!-- TOPBAR -->
+<header class="topbar" id="topbar">
+    <div class="topbar-inner">
+        <a href="#" class="topbar-logo" onclick="go('overview');return false;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            dungca1512
+        </a>
+        <nav class="topbar-nav" id="tnav">
+            <a href="#" data-t="overview" class="active">Overview</a>
+            <a href="#" data-t="projects">Projects</a>
+            <a href="#" data-t="blog">Blog</a>
+        </nav>
+        <button class="topbar-toggle" id="tbtn" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
-
-    <!-- PROFILE CONTENT -->
-    <div class="profile-section">
-        <!-- LEFT SIDEBAR -->
-        <aside class="profile-sidebar">
-            <div class="avatar-wrapper">
-                <div class="avatar-inner">D</div>
-                <div class="avatar-status" title="Available"></div>
-            </div>
-
-            <h1 class="profile-name">Dũng Ca</h1>
-            <p class="profile-username">dungca1512</p>
-            <p class="profile-bio">AI/ML Engineer • Building intelligent systems with LLMs, multi-agent architectures & on-device AI. 🇻🇳 🇯🇵</p>
-
-            <a href="mailto:dungca1512@gmail.com" class="profile-btn">✉️ Contact me</a>
-
-            <div class="profile-stats">
-                <span class="profile-stat"><strong>12</strong> repositories</span>
-                <span class="profile-stat-sep">·</span>
-                <span class="profile-stat"><strong>48</strong> stars</span>
-                <span class="profile-stat-sep">·</span>
-                <span class="profile-stat"><strong>6</strong> followers</span>
-            </div>
-
-            <div class="profile-meta">
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Hanoi, Vietnam
-                </div>
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    dungca1512@gmail.com
-                </div>
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    <a href="https://dungca1512.github.io" target="_blank">dungca1512.github.io</a>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Languages</h3>
-                <div class="lang-bar">
-                    <div class="lang-bar-segment" style="width:42%;background:#3572A5" title="Python 42%"></div>
-                    <div class="lang-bar-segment" style="width:28%;background:#b07219" title="Java 28%"></div>
-                    <div class="lang-bar-segment" style="width:12%;background:#f1e05a" title="JavaScript 12%"></div>
-                    <div class="lang-bar-segment" style="width:8%;background:#89e051" title="Shell 8%"></div>
-                    <div class="lang-bar-segment" style="width:6%;background:#e34c26" title="HTML/CSS 6%"></div>
-                    <div class="lang-bar-segment" style="width:4%;background:#555555" title="C 4%"></div>
-                </div>
-                <div class="lang-list">
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#3572A5"></div> Python</div><span>42%</span></div>
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#b07219"></div> Java</div><span>28%</span></div>
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#f1e05a"></div> JavaScript</div><span>12%</span></div>
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#89e051"></div> Shell</div><span>8%</span></div>
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#e34c26"></div> HTML/CSS</div><span>6%</span></div>
-                    <div class="lang-item"><div class="lang-item-left"><div class="lang-dot" style="background:#555555"></div> C</div><span>4%</span></div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Tech Stack</h3>
-                <div class="tech-badges">
-                    <span class="tech-badge">LangChain</span>
-                    <span class="tech-badge">LangGraph</span>
-                    <span class="tech-badge">PyTorch</span>
-                    <span class="tech-badge">Spring Boot</span>
-                    <span class="tech-badge">FastAPI</span>
-                    <span class="tech-badge">Docker</span>
-                    <span class="tech-badge">K8s</span>
-                    <span class="tech-badge">Redis</span>
-                    <span class="tech-badge">Whisper</span>
-                    <span class="tech-badge">MCP</span>
-                    <span class="tech-badge">A2A</span>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Speaks</h3>
-                <div class="tech-badges">
-                    <span class="tech-badge">🇻🇳 Vietnamese</span>
-                    <span class="tech-badge">🇺🇸 English</span>
-                    <span class="tech-badge">🇯🇵 Japanese</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="profile-main">
-            <!-- TAB NAV -->
-            <div class="tab-nav">
-                <button class="tab-btn active" data-tab="overview">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/></svg>
-                    Overview
-                </button>
-                <button class="tab-btn" data-tab="projects">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                    Projects <span class="tab-count">4</span>
-                </button>
-                <button class="tab-btn" data-tab="blog">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                    Blog <span class="tab-count">6</span>
-                </button>
-                <button class="tab-btn" data-tab="readme">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    README
-                </button>
-            </div>
-
-            <!-- OVERVIEW TAB -->
-            <div class="tab-content active" id="tab-overview">
-                <p class="pinned-header">📌 Pinned</p>
-                <div class="pinned-grid" id="pinnedGrid"></div>
-
-                <div class="contrib-section">
-                    <div class="contrib-header">
-                        <h3>🟩 Contribution activity</h3>
-                        <p class="contrib-count"><strong>847</strong> contributions in the last year</p>
-                    </div>
-                    <div class="contrib-graph-wrapper">
-                        <div class="contrib-graph" id="contribGraph"></div>
-                        <div class="contrib-legend">
-                            Less
-                            <div class="contrib-legend-cell" style="background:var(--contrib-0)"></div>
-                            <div class="contrib-legend-cell" style="background:var(--contrib-1)"></div>
-                            <div class="contrib-legend-cell" style="background:var(--contrib-2)"></div>
-                            <div class="contrib-legend-cell" style="background:var(--contrib-3)"></div>
-                            <div class="contrib-legend-cell" style="background:var(--contrib-4)"></div>
-                            More
-                        </div>
-                    </div>
-                </div>
-
-                <div class="activity-section">
-                    <p class="activity-title">📋 Recent activity</p>
-                    <div class="timeline" id="timeline"></div>
-                </div>
-            </div>
-
-            <!-- PROJECTS TAB -->
-            <div class="tab-content" id="tab-projects"></div>
-
-            <!-- BLOG TAB -->
-            <div class="tab-content" id="tab-blog"></div>
-
-            <!-- README TAB -->
-            <div class="tab-content" id="tab-readme"></div>
-        </main>
+    <div class="mob-menu" id="mmenu">
+        <a href="#" data-t="overview" class="active">Overview</a>
+        <a href="#" data-t="projects">Projects</a>
+        <a href="#" data-t="blog">Blog</a>
     </div>
+</header>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-inner">
-            <span>© 2025 Dũng Ca · Built with ☕ and curiosity</span>
-            <div class="footer-links">
-                <a href="https://github.com/dungca1512" target="_blank">GitHub</a>
-                <a href="mailto:dungca1512@gmail.com">Email</a>
+<!-- BANNER -->
+<div class="banner"><div class="banner-dots"></div></div>
+
+<!-- PROFILE -->
+<div class="profile">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="avatar">
+            <div class="avatar-inner">D</div>
+            <div class="avatar-dot" title="Available"></div>
+        </div>
+        <h1 class="name">Dũng Ca</h1>
+        <p class="uname">dungca1512</p>
+        <p class="bio">AI/ML Engineer · Building intelligent systems with LLMs, multi-agent architectures & on-device AI 🇻🇳🇯🇵</p>
+        <a href="mailto:dungca1512@gmail.com" class="contact-btn">✉️ Contact me</a>
+        <div class="stats"><b>12</b> repos <span class="dot">·</span> <b>48</b> stars <span class="dot">·</span> <b>6</b> followers</div>
+        <div class="meta">
+            <div class="meta-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Hanoi, Vietnam</div>
+            <div class="meta-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> dungca1512@gmail.com</div>
+            <div class="meta-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <a href="https://dungca1512.github.io">dungca1512.github.io</a></div>
+        </div>
+        <div class="sb-section">
+            <h3 class="sb-title">Languages</h3>
+            <div class="lang-bar">
+                <div class="lang-seg" style="width:42%;background:#3572A5" title="Python 42%"></div>
+                <div class="lang-seg" style="width:28%;background:#b07219" title="Java 28%"></div>
+                <div class="lang-seg" style="width:12%;background:#f1e05a" title="JavaScript 12%"></div>
+                <div class="lang-seg" style="width:8%;background:#89e051" title="Shell 8%"></div>
+                <div class="lang-seg" style="width:6%;background:#e34c26" title="HTML/CSS 6%"></div>
+                <div class="lang-seg" style="width:4%;background:#555" title="C 4%"></div>
+            </div>
+            <div class="lang-list">
+                <span class="lang-item"><span class="lang-circle" style="background:#3572A5"></span> Python <span class="pct">42%</span></span>
+                <span class="lang-item"><span class="lang-circle" style="background:#b07219"></span> Java <span class="pct">28%</span></span>
+                <span class="lang-item"><span class="lang-circle" style="background:#f1e05a"></span> JS <span class="pct">12%</span></span>
+                <span class="lang-item"><span class="lang-circle" style="background:#89e051"></span> Shell <span class="pct">8%</span></span>
+                <span class="lang-item"><span class="lang-circle" style="background:#e34c26"></span> HTML <span class="pct">6%</span></span>
+                <span class="lang-item"><span class="lang-circle" style="background:#555"></span> C <span class="pct">4%</span></span>
             </div>
         </div>
-    </footer>
+        <div class="sb-section">
+            <h3 class="sb-title">Tech Stack</h3>
+            <div class="badges">
+                <span class="badge">LangChain</span><span class="badge">LangGraph</span><span class="badge">PyTorch</span>
+                <span class="badge">Spring Boot</span><span class="badge">FastAPI</span><span class="badge">Docker</span>
+                <span class="badge">K8s</span><span class="badge">Redis</span><span class="badge">Whisper</span>
+                <span class="badge">MCP</span><span class="badge">A2A</span>
+            </div>
+        </div>
+        <div class="sb-section">
+            <h3 class="sb-title">Speaks</h3>
+            <div class="badges">
+                <span class="badge">🇻🇳 Vietnamese</span><span class="badge">🇺🇸 English</span><span class="badge">🇯🇵 Japanese</span>
+            </div>
+        </div>
+    </aside>
 
-    <script src="js/data.js"></script>
-    <script src="js/main.js"></script>
+    <!-- MAIN -->
+    <main class="main">
+        <div class="tabs">
+            <button class="tab on" data-t="overview"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/></svg> Overview</button>
+            <button class="tab" data-t="projects"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5"/></svg> Projects <span class="cnt">4</span></button>
+            <button class="tab" data-t="blog"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Blog <span class="cnt">6</span></button>
+            <button class="tab" data-t="readme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> README</button>
+        </div>
+
+        <!-- OVERVIEW -->
+        <div class="pane on" id="p-overview">
+            <p class="pin-label">📌 Pinned</p>
+            <div class="pin-grid" id="pins"></div>
+            <div class="contrib">
+                <div class="contrib-head"><span>🟩 Contribution activity</span><span><b>847</b> contributions in the last year</span></div>
+                <div class="contrib-wrap">
+                    <div class="contrib-grid" id="cgraph"></div>
+                    <div class="contrib-leg">Less <div class="sq" style="background:var(--c0)"></div><div class="sq" style="background:var(--c1)"></div><div class="sq" style="background:var(--c2)"></div><div class="sq" style="background:var(--c3)"></div><div class="sq" style="background:var(--c4)"></div> More</div>
+                </div>
+            </div>
+            <div class="activity">
+                <p class="activity-label">📋 Recent activity</p>
+                <div class="tl" id="tl"></div>
+            </div>
+        </div>
+
+        <!-- PROJECTS -->
+        <div class="pane" id="p-projects"></div>
+
+        <!-- BLOG -->
+        <div class="pane" id="p-blog"></div>
+
+        <!-- README -->
+        <div class="pane" id="p-readme"></div>
+    </main>
+</div>
+
+<footer class="footer"><div class="footer-in"><span>© 2025 Dũng Ca · Built with ☕ and curiosity</span><span><a href="https://github.com/dungca1512" target="_blank">GitHub</a><a href="mailto:dungca1512@gmail.com">Email</a></span></div></footer>
+
+<script>
+// ===== DATA =====
+const repos=[
+  {n:'ai-gateway',d:'Multi-provider AI orchestration with circuit breakers, rate limiting & intelligent routing across OpenAI, Gemini, Claude & local models',l:[{n:'Java',c:'#b07219'},{n:'Python',c:'#3572A5'}],s:18,f:3},
+  {n:'nihongo-learn',d:'AI-powered Japanese learning platform with hybrid LLM + SudachiPy analysis and on-device speech recognition',l:[{n:'Python',c:'#3572A5'}],s:12,f:2},
+  {n:'devops-ai-agent',d:'Multi-agent incident response system with MCP, A2A protocols, LangChain & LangGraph orchestration',l:[{n:'Python',c:'#3572A5'}],s:10,f:1},
+  {n:'mobile-ocr',d:'Cross-platform OCR app for iOS & Android with on-device ML for multilingual text recognition',l:[{n:'Python',c:'#3572A5'},{n:'JS',c:'#f1e05a'}],s:8,f:0}
+];
+
+const tl_data=[
+  {c:'g',dt:'Feb 2025',t:'Pushed 14 commits to <strong>ai-gateway</strong> — added Gemini Pro 2.5 support and streaming response handling'},
+  {c:'b',dt:'Feb 2025',t:'Created repository <strong>devops-ai-agent</strong> — multi-agent incident response with MCP + A2A'},
+  {c:'p',dt:'Jan 2025',t:'Published blog post: <strong>"World Models & the Path to AGI"</strong>'},
+  {c:'o',dt:'Jan 2025',t:'Released <strong>v2.0</strong> of <strong>nihongo-learn</strong> — added Whisper-based speech recognition for mobile'},
+  {c:'g',dt:'Dec 2024',t:'Pushed 23 commits to <strong>ai-gateway</strong> — implemented circuit breaker patterns and Redis caching'},
+  {c:'b',dt:'Nov 2024',t:'Opened PR on <strong>nihongo-learn</strong> — hybrid SudachiPy + LLM vocabulary extraction pipeline'}
+];
+
+const projects=[
+  {n:'ai-gateway',vis:'Public',bg:'linear-gradient(135deg,#0f4c75,#1b262c)',ic:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',d:'A multi-provider AI orchestration system that intelligently routes requests across OpenAI, Gemini, Claude, and local models. Built with reactive Java Spring Boot WebFlux for high-throughput request handling and Python FastAPI for model-specific processing. Features circuit breaker patterns, Redis-backed caching, and Docker containerization.',tc:['Java','Spring Boot WebFlux','Python','FastAPI','Redis','Docker'],ls:[{n:'Java',c:'#b07219',p:'55%'},{n:'Python',c:'#3572A5',p:'35%'}],s:18,f:3,u:'Feb 2025'},
+  {n:'nihongo-learn',vis:'Public',bg:'linear-gradient(135deg,#c0392b,#2c1320)',ic:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',d:'AI-powered Japanese learning platform combining LLM creativity with deterministic SudachiPy morphological analysis. Integrates on-device speech recognition using Whisper and SenseVoice for CJK languages on mobile.',tc:['Python','SudachiPy','Whisper','SenseVoice','iOS','Android'],ls:[{n:'Python',c:'#3572A5',p:'80%'}],s:12,f:2,u:'Jan 2025'},
+  {n:'devops-ai-agent',vis:'Public',bg:'linear-gradient(135deg,#6c3483,#1a1a2e)',ic:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8l3 3-3 3M13 14h4"/>',d:'Multi-agent incident response system using MCP and A2A protocols with LangChain and LangGraph. Agents collaborate to detect, diagnose, and respond to infrastructure incidents with human-in-the-loop checkpoints.',tc:['LangChain','LangGraph','MCP','A2A','Python'],ls:[{n:'Python',c:'#3572A5',p:'92%'}],s:10,f:1,u:'Feb 2025'},
+  {n:'mobile-ocr',vis:'Public',bg:'linear-gradient(135deg,#1e8449,#0b2e1a)',ic:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',d:'Cross-platform OCR for iOS and Android with on-device ML for Vietnamese, Japanese, Chinese, Korean text recognition. Optimized for 0.5B-1.5B parameter models.',tc:['iOS','Android','Computer Vision','ML'],ls:[{n:'Python',c:'#3572A5',p:'60%'},{n:'JS',c:'#f1e05a',p:'25%'}],s:8,f:0,u:'Dec 2024'}
+];
+
+const posts=[
+  {t:'World Models & the Path to AGI',e:'Connecting historical scientific paradigms to modern AI limitations — what would it take to build systems that truly understand the world?',tg:['AGI','World Models','Research'],d:'Jan 2025'},
+  {t:'Designing Multi-Agent LLM Systems',e:'Lessons from production: why MCP and A2A protocols matter, handling agent failures, and human-in-the-loop design.',tg:['Multi-Agent','MCP','LangGraph'],d:'Jan 2025'},
+  {t:'Deploying Speech Models on Mobile',e:'Running Whisper and SenseVoice on iOS/Android — model quantization and on-device optimization for CJK languages.',tg:['Mobile AI','Whisper','Optimization'],d:'Dec 2024'},
+  {t:'Chain of Thought: Beyond the Basics',e:'Advanced prompt engineering — when CoT helps, when it hurts, and combining it with structured output.',tg:['Prompt Engineering','CoT'],d:'Nov 2024'},
+  {t:'Building a Resilient AI Gateway',e:'Architecture decisions: reactive WebFlux, circuit breakers, and intelligent routing strategies.',tg:['Architecture','Java','System Design'],d:'Oct 2024'},
+  {t:'Hybrid AI + Code for Japanese NLP',e:'Why pure LLM extraction fails and how combining AI with SudachiPy morphological analysis works.',tg:['NLP','Japanese','SudachiPy'],d:'Sep 2024'}
+];
+
+// ===== RENDER =====
+const ri='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5"/></svg>';
+
+document.getElementById('pins').innerHTML=repos.map(r=>`<div class="repo"><div class="repo-top">${ri}<span class="repo-name">${r.n}</span></div><p class="repo-desc">${r.d}</p><div class="repo-bot">${r.l.map(l=>`<span class="repo-lang"><span class="d" style="background:${l.c}"></span>${l.n}</span>`).join('')}<span>⭐${r.s}</span>${r.f?`<span>🍴${r.f}</span>`:''}</div></div>`).join('');
+
+document.getElementById('tl').innerHTML=tl_data.map(t=>`<div class="tl-item"><div class="tl-dot ${t.c}"></div><div class="tl-date">${t.dt}</div><div class="tl-text">${t.t}</div></div>`).join('');
+
+document.getElementById('p-projects').innerHTML=projects.map(p=>`<div class="pj"><div class="pj-card"><div class="pj-banner" style="background:${p.bg}"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">${p.ic}</svg></div><div class="pj-body"><h3>${p.n} <span class="vis">${p.vis}</span></h3><p>${p.d}</p><div class="pj-techs">${p.tc.map(t=>`<span class="badge">${t}</span>`).join('')}</div><div class="pj-stats">${p.ls.map(l=>`<span><span class="dl" style="background:${l.c}"></span>${l.n} ${l.p}</span>`).join('')}<span>⭐${p.s}</span>${p.f?`<span>🍴${p.f}</span>`:''}<span>Updated ${p.u}</span></div></div></div></div>`).join('');
+
+document.getElementById('p-blog').innerHTML='<div class="post-list">'+posts.map(p=>`<div class="post"><div><div class="post-title">${p.t}</div><div class="post-exc">${p.e}</div><div class="post-tags">${p.tg.map(t=>`<span class="post-tag">${t}</span>`).join('')}</div></div><span class="post-date">${p.d}</span></div>`).join('')+'</div>';
+
+document.getElementById('p-readme').innerHTML=`<div class="readme"><div class="readme-head"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> README.md</div><div class="readme-md">
+<h1>👋 Hi, I'm Dũng Ca</h1>
+<div class="sbadges"><div class="sbadge"><span class="sbadge-l">Focus</span><span class="sbadge-v bl">AI/ML Engineering</span></div><div class="sbadge"><span class="sbadge-l">Location</span><span class="sbadge-v gr">Hanoi, Vietnam</span></div><div class="sbadge"><span class="sbadge-l">Status</span><span class="sbadge-v pu">Open to collaborate</span></div></div>
+<blockquote><p>Building production-grade AI systems that combine the creativity of LLMs with the reliability of deterministic engineering.</p></blockquote>
+<h2>🔭 What I'm Working On</h2>
+<ul><li><strong>AI Gateway</strong> — Multi-provider LLM orchestration (Java Spring Boot WebFlux + Python FastAPI)</li><li><strong>DevOps AI Agent</strong> — Multi-agent incident response with MCP, A2A, LangChain & LangGraph</li><li><strong>Japanese Learning Platform</strong> — Hybrid AI + deterministic NLP with on-device speech recognition</li></ul>
+<h2>🌱 Currently Learning</h2>
+<ul><li>Kubernetes deployment strategies</li><li>World models and implications for AGI</li><li>Java multithreading — synchronization, thread pools, concurrent patterns</li><li>Mobile AI deployment (Whisper, SenseVoice)</li></ul>
+<h2>🛠️ Tech Stack</h2>
+<h3>Languages & Frameworks</h3><p><code>Python</code> <code>Java</code> <code>Spring Boot WebFlux</code> <code>FastAPI</code> <code>C</code></p>
+<h3>AI / ML</h3><p><code>LangChain</code> <code>LangGraph</code> <code>PyTorch</code> <code>Whisper</code> <code>SenseVoice</code> <code>LoRA/QLoRA</code> <code>SudachiPy</code></p>
+<h3>Infrastructure</h3><p><code>Docker</code> <code>Kubernetes</code> <code>Redis</code> <code>GitHub Actions</code> <code>CI/CD</code></p>
+<h3>Protocols</h3><p><code>MCP</code> <code>A2A (Agent-to-Agent)</code></p>
+<h2>🌐 Languages</h2><p>🇻🇳 Vietnamese (native) · 🇺🇸 English (fluent) · 🇯🇵 Japanese (conversational)</p>
+<h2>📫 Contact</h2><p><a href="mailto:dungca1512@gmail.com">📧 dungca1512@gmail.com</a> · <a href="https://github.com/dungca1512">🐙 GitHub</a></p>
+</div></div>`;
+
+// Contrib graph
+(function(){
+    const g=document.getElementById('cgraph');let s=42;
+    function r(){s=(s*16807)%2147483647;return s/2147483647;}
+    for(let w=0;w<52;w++)for(let d=0;d<7;d++){
+        const e=document.createElement('div');e.className='c';
+        const v=r(),th=0.3+(w/52)*0.25;
+        if(v>=th*0.4){if(v<th*0.65)e.classList.add('l1');else if(v<th*0.8)e.classList.add('l2');else if(v<th*0.92)e.classList.add('l3');else e.classList.add('l4');}
+        g.appendChild(e);
+    }
+})();
+
+// ===== TAB SWITCHING =====
+function go(t){
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+    const el=document.getElementById('p-'+t);if(el)el.classList.add('on');
+    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    document.querySelectorAll('[data-t]').forEach(a=>{if(a.tagName==='A')a.classList.toggle('active',a.dataset.t===t);});
+    document.getElementById('mmenu').classList.remove('open');
+    document.getElementById('tbtn').classList.remove('open');
+}
+
+document.querySelectorAll('[data-t]').forEach(el=>{
+    el.addEventListener('click',e=>{e.preventDefault();go(el.dataset.t);});
+});
+
+// Topbar scroll
+window.addEventListener('scroll',()=>{document.getElementById('topbar').classList.toggle('scrolled',scrollY>10);},{passive:true});
+
+// Mobile toggle
+document.getElementById('tbtn').addEventListener('click',()=>{
+    document.getElementById('tbtn').classList.toggle('open');
+    document.getElementById('mmenu').classList.toggle('open');
+});
+</script>
 </body>
 </html>
