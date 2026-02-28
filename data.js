@@ -6,6 +6,7 @@ const PORTFOLIO_DATA = {
 
     profile: {
         name: 'Công Anh Dũng',
+        avatarUrl: 'https://avatars.githubusercontent.com/dungca1512?v=4',
         location: {
             en: 'Hanoi, Vietnam',
             vi: 'Hà Nội, Việt Nam'

@@ -31,6 +31,12 @@ function normalize(user, repos) {
     return {
         generatedAt: new Date().toISOString(),
         source: `https://api.github.com/users/${username}`,
+        profile: {
+            username: user.login,
+            name: user.name,
+            avatar_url: user.avatar_url,
+            html_url: user.html_url
+        },
         stats: {
             publicRepos: user.public_repos,
             followers: user.followers,

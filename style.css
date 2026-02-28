@@ -250,6 +250,52 @@ a {
     box-shadow: var(--shadow-card);
 }
 
+.hero-person {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 8px 10px;
+    border: 1px solid #dce4de;
+    border-radius: 999px;
+    background: #fbfcf8;
+}
+
+.hero-avatar-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #cfdbd3;
+    background: #e6eeeb;
+}
+
+.hero-avatar {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.hero-person-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    gap: 2px;
+}
+
+.hero-person-meta strong {
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.hero-person-meta span {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+}
+
 .hero-copy h1 {
     font-size: clamp(2rem, 4.8vw, 3.35rem);
     line-height: 1.12;
@@ -805,20 +851,11 @@ a {
     color: var(--ink);
 }
 
-.reveal {
-    opacity: 1;
-    transform: none;
-}
-
-.js-animate .reveal {
-    opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
+.reveal,
+.js-animate .reveal,
 .js-animate .reveal.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
 }
 
 @media (max-width: 1180px) {
@@ -925,6 +962,11 @@ a {
     .contact-card,
     .case-card {
         padding: 18px;
+    }
+
+    .hero-person {
+        width: 100%;
+        border-radius: 14px;
     }
 
     .hero-copy h1 {

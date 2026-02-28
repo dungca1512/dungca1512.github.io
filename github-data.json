@@ -1,6 +1,12 @@
 {
-  "generatedAt": "2026-02-28T02:02:28.813Z",
+  "generatedAt": "2026-02-28T04:58:55.224Z",
   "source": "https://api.github.com/users/dungca1512",
+  "profile": {
+    "username": "dungca1512",
+    "name": "Công Anh Dũng",
+    "avatar_url": "https://avatars.githubusercontent.com/u/86945632?v=4",
+    "html_url": "https://github.com/dungca1512"
+  },
   "stats": {
     "publicRepos": 56,
     "followers": 3,
@@ -9,13 +15,22 @@
     "recentRepos": 13
   },
   "repos": {
+    "dungca1512": {
+      "name": "dungca1512",
+      "html_url": "https://github.com/dungca1512/dungca1512",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-02-28T03:59:10Z",
+      "description": null
+    },
     "dungca1512.github.io": {
       "name": "dungca1512.github.io",
       "html_url": "https://github.com/dungca1512/dungca1512.github.io",
-      "language": "CSS",
+      "language": "JavaScript",
       "stargazers_count": 0,
       "forks_count": 0,
-      "pushed_at": "2026-02-28T01:49:52Z",
+      "pushed_at": "2026-02-28T03:13:38Z",
       "description": null
     },
     "whisper-finetune-ja": {
@@ -25,15 +40,6 @@
       "stargazers_count": 0,
       "forks_count": 0,
       "pushed_at": "2026-02-26T09:39:23Z",
-      "description": null
-    },
-    "dungca1512": {
-      "name": "dungca1512",
-      "html_url": "https://github.com/dungca1512/dungca1512",
-      "language": null,
-      "stargazers_count": 0,
-      "forks_count": 0,
-      "pushed_at": "2026-02-06T08:00:33Z",
       "description": null
     },
     "newspulse-reco-engine": {

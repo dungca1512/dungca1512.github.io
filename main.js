@@ -79,6 +79,17 @@ function renderHero() {
     byId('profileLocation').textContent = t(PORTFOLIO_DATA.profile.location);
     byId('profileStatus').textContent = t(PORTFOLIO_DATA.profile.status);
 
+    const avatarEl = byId('heroAvatar');
+    if (avatarEl) {
+        const fallbackAvatar = PORTFOLIO_DATA.profile.avatarUrl || `https://avatars.githubusercontent.com/${PORTFOLIO_DATA.github.username}?v=4`;
+        const profileAvatar = state.github?.profile?.avatar_url || fallbackAvatar;
+        avatarEl.src = profileAvatar;
+        avatarEl.onerror = () => {
+            avatarEl.onerror = null;
+            avatarEl.src = fallbackAvatar;
+        };
+    }
+
     byId('heroTrust').innerHTML = PORTFOLIO_DATA.heroTrust
         .map((item) => `<li>${t(item)}</li>`)
         .join('');
@@ -336,6 +347,12 @@ function normalizeGithubData(user, repos) {
 
     return {
         generatedAt: new Date().toISOString(),
+        profile: {
+            username: user.login,
+            name: user.name,
+            avatar_url: user.avatar_url,
+            html_url: user.html_url
+        },
         stats: {
             publicRepos: user.public_repos,
             followers: user.followers,
