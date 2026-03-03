@@ -1,7 +1,8 @@
 const PORTFOLIO_DATA = {
     github: {
         username: 'dungca1512',
-        dataFile: 'github-data.json'
+        dataFile: 'github-data.json',
+        excludeFromAnalytics: ['dungca1512', 'dungca1512.github.io']
     },
 
     profile: {
@@ -147,23 +148,23 @@ const PORTFOLIO_DATA = {
 
     focus: [
         {
-            en: 'Shipping ai-gateway for multi-provider LLM routing with fallback, rate-limit, and cache layers',
-            vi: 'Xây dựng `ai-gateway` để định tuyến LLM đa nhà cung cấp, kèm fallback, rate-limit và cache.'
+            en: 'Productizing whisper-finetune-ja-train with reproducible training configs and checkpoint tracking for Japanese ASR',
+            vi: 'Hoàn thiện `whisper-finetune-ja-train` với cấu hình huấn luyện tái lập được và theo dõi checkpoint cho ASR tiếng Nhật.'
         },
         {
-            en: 'Building research-agent workflows with LangChain + LangGraph for web and ArXiv research automation',
-            vi: 'Xây luồng `research-agent` bằng LangChain + LangGraph để tự động hóa quy trình nghiên cứu từ Web và ArXiv.'
+            en: 'Expanding TensorTonic-Solutions to sharpen tensor optimization and model reasoning fundamentals',
+            vi: 'Mở rộng `TensorTonic-Solutions` để rèn luyện tối ưu tensor và tư duy mô hình nền tảng.'
         },
         {
-            en: 'Training and exporting Whisper Tiny for Japanese ASR using ReazonSpeech data',
-            vi: 'Huấn luyện và xuất mô hình Whisper Tiny cho ASR tiếng Nhật dựa trên dữ liệu ReazonSpeech.'
+            en: 'Evolving ai-gateway with stronger observability and cost-aware fallback policies across providers',
+            vi: 'Nâng cấp `ai-gateway` với quan sát tốt hơn và chính sách fallback theo chi phí giữa các provider.'
         }
     ],
 
     metrics: [
         {
             source: 'stats.publicRepos',
-            fallback: '56',
+            fallback: '58',
             label: {
                 en: 'Public repositories on GitHub',
                 vi: 'Repository công khai trên GitHub'
@@ -171,7 +172,7 @@ const PORTFOLIO_DATA = {
         },
         {
             source: 'stats.nonForkRepos',
-            fallback: '45',
+            fallback: '47',
             label: {
                 en: 'Owned repositories (non-fork)',
                 vi: 'Repo tự phát triển (không tính fork)'
@@ -179,7 +180,7 @@ const PORTFOLIO_DATA = {
         },
         {
             source: 'stats.recentRepos',
-            fallback: '13',
+            fallback: '15',
             label: {
                 en: 'Repositories updated during 2025-2026',
                 vi: 'Repository được cập nhật trong giai đoạn 2025-2026'
@@ -289,6 +290,26 @@ const PORTFOLIO_DATA = {
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
                     url: 'https://github.com/dungca1512/whisper-finetune-ja'
+                }
+            ]
+        },
+        {
+            repo: 'whisper-finetune-ja-train',
+            name: 'Whisper JA Train Pipeline',
+            period: '2026',
+            summary: {
+                en: 'Training-focused repository for Japanese Whisper fine-tuning experiments with clean run configuration and iteration flow.',
+                vi: 'Repository tập trung huấn luyện cho thí nghiệm tinh chỉnh Whisper tiếng Nhật với cấu hình chạy rõ ràng và vòng lặp tối ưu.'
+            },
+            outcome: {
+                en: 'Outcome: separated model training workflow from downstream packaging to speed up experiments and keep ASR training runs consistent.',
+                vi: 'Kết quả: tách riêng luồng huấn luyện khỏi phần đóng gói downstream để tăng tốc thử nghiệm và giữ các lần chạy ASR ổn định.'
+            },
+            stack: ['Python', 'Whisper', 'Hugging Face', 'ASR Training'],
+            links: [
+                {
+                    label: { en: 'Repository', vi: 'Mã nguồn' },
+                    url: 'https://github.com/dungca1512/whisper-finetune-ja-train'
                 }
             ]
         },
@@ -431,6 +452,19 @@ const PORTFOLIO_DATA = {
     ],
 
     writing: [
+        {
+            year: '2026',
+            title: {
+                en: 'Whisper JA Training Runbook',
+                vi: 'Runbook huấn luyện Whisper JA'
+            },
+            summary: {
+                en: 'Notes on training-first workflow design, experiment iteration, and checkpoint hygiene for Japanese ASR.',
+                vi: 'Ghi chú về thiết kế luồng huấn luyện ưu tiên thực nghiệm, vòng lặp thử nghiệm và quản lý checkpoint cho ASR tiếng Nhật.'
+            },
+            tags: ['ASR', 'Training Pipeline', 'Whisper'],
+            url: 'https://github.com/dungca1512/whisper-finetune-ja-train'
+        },
         {
             year: '2026',
             title: {

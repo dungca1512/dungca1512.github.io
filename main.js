@@ -90,8 +90,18 @@ function resolveMetricValue(metric) {
     return metric.fallback;
 }
 
-function calculateAnalytics() {
+function getAnalyticsRepos() {
     const repos = Object.values(state.github?.repos || {});
+    if (!repos.length) {
+        return [];
+    }
+
+    const excludedRepos = new Set(PORTFOLIO_DATA.github.excludeFromAnalytics || []);
+    return repos.filter((repo) => !excludedRepos.has(repo.name));
+}
+
+function calculateAnalytics() {
+    const repos = getAnalyticsRepos();
     if (!repos.length) {
         return null;
     }

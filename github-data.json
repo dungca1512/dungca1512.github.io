@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T04:58:55.224Z",
+  "generatedAt": "2026-03-03T03:25:20.695Z",
   "source": "https://api.github.com/users/dungca1512",
   "profile": {
     "username": "dungca1512",
@@ -8,20 +8,29 @@
     "html_url": "https://github.com/dungca1512"
   },
   "stats": {
-    "publicRepos": 56,
+    "publicRepos": 58,
     "followers": 3,
-    "following": 12,
-    "nonForkRepos": 45,
-    "recentRepos": 13
+    "following": 13,
+    "nonForkRepos": 47,
+    "recentRepos": 15
   },
   "repos": {
-    "dungca1512": {
-      "name": "dungca1512",
-      "html_url": "https://github.com/dungca1512/dungca1512",
-      "language": null,
+    "TensorTonic-Solutions": {
+      "name": "TensorTonic-Solutions",
+      "html_url": "https://github.com/dungca1512/TensorTonic-Solutions",
+      "language": "Python",
       "stargazers_count": 0,
       "forks_count": 0,
-      "pushed_at": "2026-02-28T03:59:10Z",
+      "pushed_at": "2026-03-02T14:49:55Z",
+      "description": "My solutions to TensorTonic problems"
+    },
+    "whisper-finetune-ja-train": {
+      "name": "whisper-finetune-ja-train",
+      "html_url": "https://github.com/dungca1512/whisper-finetune-ja-train",
+      "language": "Python",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-03-01T13:50:36Z",
       "description": null
     },
     "dungca1512.github.io": {
@@ -30,7 +39,16 @@
       "language": "JavaScript",
       "stargazers_count": 0,
       "forks_count": 0,
-      "pushed_at": "2026-02-28T03:13:38Z",
+      "pushed_at": "2026-02-28T11:56:46Z",
+      "description": null
+    },
+    "dungca1512": {
+      "name": "dungca1512",
+      "html_url": "https://github.com/dungca1512/dungca1512",
+      "language": null,
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-02-28T03:59:10Z",
       "description": null
     },
     "whisper-finetune-ja": {
