@@ -13,8 +13,8 @@ const PORTFOLIO_DATA = {
             vi: 'Hà Nội, Việt Nam'
         },
         status: {
-            en: 'Open to AI/ML Engineer opportunities',
-            vi: 'Sẵn sàng cho các cơ hội AI/ML Engineer mới'
+            en: 'AI/ML Systems Architect · Infrastructure & MLOps @ eUp Group',
+            vi: 'AI/ML Systems Architect · Hạ tầng & MLOps @ eUp Group'
         }
     },
 
@@ -35,14 +35,14 @@ const PORTFOLIO_DATA = {
             updated: { en: 'Updated', vi: 'Cập nhật' }
         },
         hero: {
-            eyebrow: { en: 'AI/ML ENGINEER', vi: 'AI/ML ENGINEER' },
+            eyebrow: { en: 'AI/ML SYSTEMS ARCHITECT', vi: 'AI/ML SYSTEMS ARCHITECT' },
             title: {
-                en: 'Building reliable AI products that ship, scale, and deliver business outcomes.',
-                vi: 'Xây dựng sản phẩm AI đáng tin cậy, triển khai thực chiến, mở rộng ổn định và tạo kết quả kinh doanh rõ ràng.'
+                en: 'I own AI infrastructure end-to-end — from cloud provisioning to production ML serving.',
+                vi: 'Tôi sở hữu hạ tầng AI từ đầu đến cuối — từ provisioning cloud đến triển khai ML thực chiến.'
             },
             lead: {
-                en: 'I design production systems that combine LLM reasoning, deterministic engineering, and clean DevOps.',
-                vi: 'Tôi thiết kế hệ thống AI vận hành thực tế, kết hợp năng lực suy luận của LLM với kỹ thuật phần mềm chặt chẽ và DevOps bài bản.'
+                en: 'DevOps & MLOps engineer shipping ASR, TTS, pronunciation scoring, and embedding services on Kubernetes for users across VN, JP, and KR. CLI-first, cost-conscious, and framework-driven in every decision.',
+                vi: 'Kỹ sư DevOps & MLOps triển khai các dịch vụ ASR, TTS, chấm phát âm và embedding trên Kubernetes cho người dùng VN, JP, KR. Định hướng CLI-first, tối ưu chi phí và ra quyết định theo framework.'
             },
             primaryCta: { en: 'View Projects', vi: 'Xem dự án' },
             secondaryCta: { en: 'GitHub', vi: 'GitHub' }
@@ -50,15 +50,15 @@ const PORTFOLIO_DATA = {
         panel: {
             title: { en: 'Current Mission', vi: 'Mục tiêu hiện tại' },
             heading: {
-                en: 'Production AI systems with measurable reliability.',
-                vi: 'Xây dựng hệ thống AI vận hành thực tế với độ tin cậy đo lường được.'
+                en: 'Reliable, cost-efficient AI infrastructure running in production.',
+                vi: 'Hạ tầng AI tin cậy, tối ưu chi phí, vận hành thực tế.'
             }
         },
         impact: {
             kicker: { en: 'Impact', vi: 'Kết quả' },
             title: {
-                en: 'Engineering with outcomes, not demos.',
-                vi: 'Làm kỹ thuật dựa trên kết quả thực tế, không dừng ở demo.'
+                en: 'Infrastructure ownership, measured in shipped systems.',
+                vi: 'Sở hữu hạ tầng, đo bằng số hệ thống đã triển khai.'
             }
         },
         analytics: {
@@ -93,15 +93,15 @@ const PORTFOLIO_DATA = {
         expertise: {
             kicker: { en: 'Core Expertise', vi: 'Năng lực cốt lõi' },
             title: {
-                en: 'How I approach AI product engineering.',
-                vi: 'Cách tôi triển khai kỹ thuật cho sản phẩm AI.'
+                en: 'How I build and operate AI infrastructure.',
+                vi: 'Cách tôi xây dựng và vận hành hạ tầng AI.'
             }
         },
         projects: {
             kicker: { en: 'Selected Work', vi: 'Dự án tiêu biểu' },
             title: {
-                en: 'Portfolio projects in AI, ML, and system design.',
-                vi: 'Các dự án AI, ML và thiết kế hệ thống tiêu biểu.'
+                en: 'Infrastructure, ML serving, and platform engineering work.',
+                vi: 'Các dự án hạ tầng, ML serving và platform engineering tiêu biểu.'
             }
         },
         caseStudy: {
@@ -111,87 +111,87 @@ const PORTFOLIO_DATA = {
         playbook: {
             kicker: { en: 'Engineering Playbook', vi: 'Nguyên tắc triển khai' },
             title: {
-                en: 'Execution principles for production AI.',
-                vi: 'Các nguyên tắc khi xây dựng hệ thống AI vận hành thực tế.'
+                en: 'Operating principles for production AI infrastructure.',
+                vi: 'Các nguyên tắc vận hành hạ tầng AI thực chiến.'
             }
         },
         writing: {
             kicker: { en: 'Writing', vi: 'Bài viết' },
             title: {
-                en: 'Notes on architecture, ML systems, and agent design.',
-                vi: 'Ghi chép về kiến trúc, hệ thống ML và thiết kế agent.'
+                en: 'Notes on infrastructure, MLOps, and cost engineering.',
+                vi: 'Ghi chép về hạ tầng, MLOps và tối ưu chi phí.'
             }
         },
         contact: {
             kicker: { en: 'Contact', vi: 'Liên hệ' },
             title: {
-                en: 'Building an AI product or platform?',
-                vi: 'Bạn đang xây dựng sản phẩm hoặc nền tảng AI?'
+                en: 'Building AI infrastructure or an ML platform?',
+                vi: 'Bạn đang xây dựng hạ tầng AI hoặc nền tảng ML?'
             },
             text: {
-                en: 'I am available for AI engineering roles and technical collaborations focused on production LLM systems, ML platforms, and intelligent applications.',
-                vi: 'Tôi sẵn sàng cho các vị trí AI Engineer và cơ hội hợp tác kỹ thuật, tập trung vào hệ LLM vận hành thực tế, nền tảng ML và ứng dụng AI thông minh.'
+                en: 'I am available for AI/ML infrastructure, DevOps, and MLOps roles focused on production model serving, Kubernetes platforms, and cost-efficient cloud architecture.',
+                vi: 'Tôi sẵn sàng cho các vị trí hạ tầng AI/ML, DevOps và MLOps, tập trung vào triển khai mô hình thực tế, nền tảng Kubernetes và kiến trúc cloud tối ưu chi phí.'
             },
             footer: {
-                en: 'Built for AI/ML engineering opportunities.',
-                vi: 'Portfolio này được xây dựng cho các cơ hội nghề nghiệp AI/ML Engineering.'
+                en: 'Built for AI/ML infrastructure & MLOps opportunities.',
+                vi: 'Portfolio này được xây dựng cho các cơ hội nghề nghiệp về hạ tầng AI/ML & MLOps.'
             }
         }
     },
 
     heroTrust: [
-        { en: 'LLM Platform Engineering', vi: 'Kỹ thuật nền tảng LLM' },
-        { en: 'ASR Fine-tuning', vi: 'Tinh chỉnh ASR' },
-        { en: 'RAG + Research Agents', vi: 'RAG + Agent nghiên cứu' },
-        { en: 'Streaming Data Systems', vi: 'Hệ thống dữ liệu streaming' }
+        { en: 'Kubernetes & GitOps (GKE)', vi: 'Kubernetes & GitOps (GKE)' },
+        { en: 'Production ML Serving', vi: 'Triển khai ML thực chiến' },
+        { en: 'Cloud Cost Engineering', vi: 'Tối ưu chi phí hạ tầng' },
+        { en: 'Multi-cloud Infrastructure', vi: 'Hạ tầng đa cloud' }
     ],
 
     focus: [
         {
-            en: 'Productizing whisper-finetune-ja-train with reproducible training configs and checkpoint tracking for Japanese ASR',
-            vi: 'Hoàn thiện `whisper-finetune-ja-train` với cấu hình huấn luyện tái lập được và theo dõi checkpoint cho ASR tiếng Nhật.'
+            en: 'Migrating remaining production ML services from Docker Swarm to GKE with Helm and ArgoCD App-of-Apps',
+            vi: 'Di trú các dịch vụ ML production còn lại từ Docker Swarm sang GKE bằng Helm và ArgoCD App-of-Apps.'
         },
         {
-            en: 'Expanding TensorTonic-Solutions to sharpen tensor optimization and model reasoning fundamentals',
-            vi: 'Mở rộng `TensorTonic-Solutions` để rèn luyện tối ưu tensor và tư duy mô hình nền tảng.'
+            en: 'Hardening the internal Qwen3 embedding service and its RAG code-review pipeline',
+            vi: 'Củng cố dịch vụ embedding Qwen3 nội bộ và pipeline review code dựa trên RAG.'
         },
         {
-            en: 'Evolving ai-gateway with stronger observability and cost-aware fallback policies across providers',
-            vi: 'Nâng cấp `ai-gateway` với quan sát tốt hơn và chính sách fallback theo chi phí giữa các provider.'
+            en: 'Earning AWS Solutions Architect Associate (SAA-C03) to round out multi-cloud depth',
+            vi: 'Hoàn thành chứng chỉ AWS Solutions Architect Associate (SAA-C03) để củng cố chiều sâu đa cloud.'
         }
     ],
 
     metrics: [
         {
-            source: 'stats.publicRepos',
-            fallback: '58',
+            source: 'stats.clustersManaged',
+            fallback: '5',
             label: {
-                en: 'Public repositories on GitHub',
-                vi: 'Repository công khai trên GitHub'
+                en: 'Kubernetes clusters operated (GKE, DO, bare-metal, k3d, OrbStack)',
+                vi: 'Cụm Kubernetes vận hành (GKE, DO, bare-metal, k3d, OrbStack)'
             }
         },
         {
-            source: 'stats.nonForkRepos',
-            fallback: '47',
+            source: 'stats.cloudPlatforms',
+            fallback: '5',
             label: {
-                en: 'Owned repositories (non-fork)',
-                vi: 'Repo tự phát triển (không tính fork)'
+                en: 'Cloud platforms in production (GCP, DigitalOcean, OCI, Cloudflare, AWS)',
+                vi: 'Nền tảng cloud dùng thực tế (GCP, DigitalOcean, OCI, Cloudflare, AWS)'
             }
         },
         {
-            source: 'stats.recentRepos',
-            fallback: '15',
+            source: 'stats.mlServices',
+            fallback: '4',
             label: {
-                en: 'Repositories updated during 2025-2026',
-                vi: 'Repository được cập nhật trong giai đoạn 2025-2026'
+                en: 'Production ML services shipped (ASR, TTS, Pronunciation, Embedding)',
+                vi: 'Dịch vụ ML đã triển khai (ASR, TTS, Chấm phát âm, Embedding)'
             }
         },
         {
-            source: 'stats.followers',
+            source: 'stats.hfModels',
             fallback: '3',
             label: {
-                en: 'GitHub followers',
-                vi: 'Người theo dõi trên GitHub'
+                en: 'Japanese ASR models published on Hugging Face',
+                vi: 'Mô hình ASR tiếng Nhật đã công bố trên Hugging Face'
             }
         }
     ],
@@ -200,52 +200,82 @@ const PORTFOLIO_DATA = {
         {
             icon: '01',
             title: {
-                en: 'LLM Platform Engineering',
-                vi: 'Kỹ thuật nền tảng LLM'
+                en: 'Solution Architecture & Cost Engineering',
+                vi: 'Kiến trúc giải pháp & Tối ưu chi phí'
             },
             description: {
-                en: 'Provider abstraction, OpenAI-compatible APIs, fallback and retry patterns, and reliability controls for LLM traffic.',
-                vi: 'Trừu tượng hóa nhà cung cấp, API tương thích OpenAI, fallback/retry và các cơ chế tăng độ tin cậy cho lưu lượng LLM.'
+                en: 'System design for ML serving, multi-criteria GPU sizing frameworks, and root-cause analysis — e.g. choosing GCP L4 over A100/H100 to avoid over-provisioning.',
+                vi: 'Thiết kế hệ thống cho ML serving, framework chọn GPU đa tiêu chí và phân tích nguyên nhân gốc — ví dụ chọn GCP L4 thay vì A100/H100 để tránh over-provisioning.'
             }
         },
         {
             icon: '02',
             title: {
-                en: 'Research Automation Agents',
-                vi: 'Agent tự động hóa nghiên cứu'
+                en: 'Cloud & Kubernetes Infrastructure',
+                vi: 'Hạ tầng Cloud & Kubernetes'
             },
             description: {
-                en: 'LangChain and LangGraph workflows that combine iterative search, ArXiv retrieval, and citation-ready reporting.',
-                vi: 'Thiết kế luồng LangChain/LangGraph kết hợp tìm kiếm lặp, truy xuất ArXiv và tạo báo cáo có trích dẫn.'
+                en: 'End-to-end ownership: Terraform/Ansible provisioning, Docker, and Kubernetes on GKE, DigitalOcean, and bare-metal kubeadm — with ArgoCD GitOps and Cloudflare Tunnel.',
+                vi: 'Sở hữu toàn trình: provisioning Terraform/Ansible, Docker và Kubernetes trên GKE, DigitalOcean và bare-metal kubeadm — kèm GitOps ArgoCD và Cloudflare Tunnel.'
             }
         },
         {
             icon: '03',
             title: {
-                en: 'Applied Speech/NLP Systems',
-                vi: 'Hệ thống Speech/NLP ứng dụng'
+                en: 'ML Serving & MLOps',
+                vi: 'ML Serving & MLOps'
             },
             description: {
-                en: 'ASR fine-tuning and translation pipelines with practical training, evaluation, and deployment workflows.',
-                vi: 'Xây pipeline ASR và dịch máy với quy trình huấn luyện, đánh giá và triển khai thực tế.'
+                en: 'Shipping ASR (faster-whisper/CTranslate2), TTS, pronunciation scoring (wav2vec2), and embedding (Qwen3) services with full CI/CT/CD pipelines and quality gates.',
+                vi: 'Triển khai dịch vụ ASR (faster-whisper/CTranslate2), TTS, chấm phát âm (wav2vec2) và embedding (Qwen3) với pipeline CI/CT/CD đầy đủ và các cổng kiểm soát chất lượng.'
             }
         }
     ],
 
     projects: [
         {
+            repo: 'pronunciation-scoring-api',
+            name: 'Pronunciation Scoring API',
+            period: 'eUp · 2025-2026',
+            summary: {
+                en: 'FastAPI service scoring Japanese pronunciation with wav2vec2 CTC forced alignment, a G2P caching layer, and GPU micro-batching for HeyJapan learners.',
+                vi: 'Dịch vụ FastAPI chấm phát âm tiếng Nhật bằng wav2vec2 CTC forced alignment, lớp cache G2P và micro-batching trên GPU phục vụ người học HeyJapan.'
+            },
+            outcome: {
+                en: 'Outcome: targeted sub-3s latency for 20 concurrent users on a single GCP L4 / RTX 4000 Ada, sized from a multi-criteria GPU cost framework instead of over-provisioning A100/H100.',
+                vi: 'Kết quả: hướng tới độ trễ <3s cho 20 người dùng đồng thời trên một GPU GCP L4 / RTX 4000 Ada, chọn theo framework chi phí GPU đa tiêu chí thay vì over-provisioning A100/H100.'
+            },
+            stack: ['Python', 'FastAPI', 'wav2vec2', 'GPU (GCP L4)', 'Docker'],
+            links: []
+        },
+        {
+            repo: 'internal-embedding-service',
+            name: 'Internal Embedding Service',
+            period: 'eUp · 2025',
+            summary: {
+                en: 'Self-hosted Qwen3-Embedding-4B exposing an OpenAI-compatible /v1/embeddings endpoint on an RTX 4080, replacing the OpenAI Embedding API for internal workloads.',
+                vi: 'Tự host Qwen3-Embedding-4B, cung cấp endpoint /v1/embeddings tương thích OpenAI trên RTX 4080, thay thế hoàn toàn OpenAI Embedding API cho workload nội bộ.'
+            },
+            outcome: {
+                en: 'Outcome: removed an external API dependency and powered a RAG code-review pipeline (harvest -> embed -> LanceDB -> Qodo PR Agent) gated by a GitLab CI exit-code check.',
+                vi: 'Kết quả: loại bỏ phụ thuộc API bên ngoài và cấp nguồn cho pipeline review code bằng RAG (harvest -> embed -> LanceDB -> Qodo PR Agent), kiểm soát bằng GitLab CI exit-code gate.'
+            },
+            stack: ['Qwen3-Embedding-4B', 'FastAPI', 'LanceDB', 'Docker Compose', 'GitLab CI', 'RTX 4080'],
+            links: []
+        },
+        {
             repo: 'ai-gateway',
             name: 'AI Gateway',
             period: '2025',
             summary: {
-                en: 'Production-style gateway using Java Spring WebFlux and Python FastAPI to unify AI model access behind one API.',
-                vi: 'Xây AI Gateway theo chuẩn vận hành thực tế bằng Java Spring WebFlux + Python FastAPI để hợp nhất truy cập mô hình AI qua một API duy nhất.'
+                en: 'Reactive Spring WebFlux gateway plus a Python FastAPI worker that unify multi-provider LLM access (OpenAI, Gemini, Anthropic, DashScope) behind one API.',
+                vi: 'Gateway reactive Spring WebFlux kết hợp worker Python FastAPI, hợp nhất truy cập LLM đa nhà cung cấp (OpenAI, Gemini, Anthropic, DashScope) sau một API duy nhất.'
             },
             outcome: {
-                en: 'Outcome: unified 4 backends (OpenAI, Gemini, Claude, local worker) and implemented 6 reliability controls (routing, fallback/retry, rate-limit, cache, circuit-breaker, observability).',
-                vi: 'Kết quả: hợp nhất 4 backend (OpenAI, Gemini, Claude, local worker) và triển khai 6 cơ chế đảm bảo độ tin cậy (routing, fallback/retry, rate-limit, cache, circuit-breaker, observability).'
+                en: 'Outcome: added Resilience4j circuit breaker, bulkhead, retry, and per-request token tracking so LLM traffic degrades gracefully during provider instability.',
+                vi: 'Kết quả: bổ sung circuit breaker, bulkhead, retry (Resilience4j) và theo dõi token theo từng request để lưu lượng LLM suy giảm an toàn khi provider gặp sự cố.'
             },
-            stack: ['Java', 'Spring WebFlux', 'Python', 'FastAPI', 'Redis', 'Bucket4j'],
+            stack: ['Java', 'Spring WebFlux', 'Resilience4j', 'Python', 'FastAPI', 'Redis'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
@@ -254,22 +284,22 @@ const PORTFOLIO_DATA = {
             ]
         },
         {
-            repo: 'research-agent',
-            name: 'Research Agent',
+            repo: 'newspulse-reco-engine',
+            name: 'NewsPulse Reco Engine',
             period: '2025',
             summary: {
-                en: 'LangChain + LangGraph research assistant for automated literature discovery and synthesis.',
-                vi: 'Xây trợ lý nghiên cứu bằng LangChain + LangGraph để tự động tìm kiếm và tổng hợp tài liệu.'
+                en: 'Event-driven Vietnamese news platform: crawling, Spark ETL, Kafka streaming, embeddings, trend detection, and FCM push via an n8n orchestration flow.',
+                vi: 'Nền tảng tin tức tiếng Việt theo hướng sự kiện: thu thập, Spark ETL, streaming Kafka, embeddings, phát hiện xu hướng và đẩy FCM qua luồng orchestration n8n.'
             },
             outcome: {
-                en: 'Outcome: operationalized a 4-step loop (decompose -> search -> synthesize -> report) with 2 retrieval channels (Web + ArXiv).',
-                vi: 'Kết quả: vận hành hóa vòng lặp 4 bước (phân rã -> tìm kiếm -> tổng hợp -> báo cáo) với 2 kênh truy xuất (Web + ArXiv).'
+                en: 'Outcome: designed a 7-module pipeline spanning Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.',
+                vi: 'Kết quả: thiết kế pipeline 7 module gồm Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.'
             },
-            stack: ['Python', 'LangChain', 'LangGraph', 'ArXiv', 'Gemini API'],
+            stack: ['Scala', 'Kafka', 'Spark', 'Elasticsearch', 'n8n', 'Firebase FCM'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
-                    url: 'https://github.com/dungca1512/research-agent'
+                    url: 'https://github.com/dungca1512/newspulse-reco-engine'
                 }
             ]
         },
@@ -278,58 +308,18 @@ const PORTFOLIO_DATA = {
             name: 'Whisper Finetune JA',
             period: '2026',
             summary: {
-                en: 'Fine-tuning pipeline for Whisper Tiny focused on Japanese ASR with ReazonSpeech data.',
-                vi: 'Xây pipeline tinh chỉnh Whisper Tiny cho ASR tiếng Nhật với dữ liệu ReazonSpeech.'
+                en: 'Reproducible fine-tuning pipeline for Japanese Whisper ASR on ReazonSpeech data, with training, export, and inference scripts.',
+                vi: 'Pipeline tinh chỉnh tái lập được cho ASR tiếng Nhật trên Whisper với dữ liệu ReazonSpeech, kèm script huấn luyện, export và inference.'
             },
             outcome: {
-                en: 'Outcome: built 8 core training/deployment scripts (train, config, data, model, trainer, export, inference, setup) for reproducible ASR experiments.',
-                vi: 'Kết quả: hoàn thiện bộ 8 script huấn luyện/triển khai cốt lõi (train, config, data, model, trainer, export, inference, setup) giúp thí nghiệm ASR tái lập được.'
+                en: 'Outcome: published 3 Whisper-based Japanese ASR models on Hugging Face (one LoRA variant with 40+ downloads) from a clean, repeatable training flow.',
+                vi: 'Kết quả: công bố 3 mô hình ASR tiếng Nhật dựa trên Whisper trên Hugging Face (một biến thể LoRA 40+ lượt tải) từ luồng huấn luyện gọn gàng, tái lập được.'
             },
-            stack: ['Python', 'Whisper', 'ReazonSpeech', 'Hugging Face', 'ASR'],
+            stack: ['Python', 'Whisper', 'CTranslate2', 'ReazonSpeech', 'Hugging Face'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
                     url: 'https://github.com/dungca1512/whisper-finetune-ja'
-                }
-            ]
-        },
-        {
-            repo: 'whisper-finetune-ja-train',
-            name: 'Whisper JA Train Pipeline',
-            period: '2026',
-            summary: {
-                en: 'Training-focused repository for Japanese Whisper fine-tuning experiments with clean run configuration and iteration flow.',
-                vi: 'Repository tập trung huấn luyện cho thí nghiệm tinh chỉnh Whisper tiếng Nhật với cấu hình chạy rõ ràng và vòng lặp tối ưu.'
-            },
-            outcome: {
-                en: 'Outcome: separated model training workflow from downstream packaging to speed up experiments and keep ASR training runs consistent.',
-                vi: 'Kết quả: tách riêng luồng huấn luyện khỏi phần đóng gói downstream để tăng tốc thử nghiệm và giữ các lần chạy ASR ổn định.'
-            },
-            stack: ['Python', 'Whisper', 'Hugging Face', 'ASR Training'],
-            links: [
-                {
-                    label: { en: 'Repository', vi: 'Mã nguồn' },
-                    url: 'https://github.com/dungca1512/whisper-finetune-ja-train'
-                }
-            ]
-        },
-        {
-            repo: 'newspulse-reco-engine',
-            name: 'NewsPulse Reco Engine',
-            period: '2025',
-            summary: {
-                en: 'Vietnamese news intelligence platform for crawling, processing, semantic retrieval, and trend detection.',
-                vi: 'Phát triển nền tảng phân tích tin tức tiếng Việt gồm thu thập dữ liệu, xử lý, truy xuất ngữ nghĩa và phát hiện xu hướng.'
-            },
-            outcome: {
-                en: 'Outcome: designed a 7-module architecture spanning Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API.',
-                vi: 'Kết quả: thiết kế kiến trúc 7 module gồm Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API.'
-            },
-            stack: ['Scala', 'Kafka', 'Spark', 'Python Embeddings', 'Elasticsearch', 'Spring Boot'],
-            links: [
-                {
-                    label: { en: 'Repository', vi: 'Mã nguồn' },
-                    url: 'https://github.com/dungca1512/newspulse-reco-engine'
                 }
             ]
         }
@@ -337,62 +327,62 @@ const PORTFOLIO_DATA = {
 
     caseStudy: {
         title: {
-            en: 'AI Gateway: architecting resilient multi-provider LLM infrastructure',
-            vi: 'AI Gateway: thiết kế hạ tầng LLM đa nhà cung cấp, ưu tiên độ ổn định'
+            en: 'AI Gateway: a resilient reactive layer for multi-provider LLM traffic',
+            vi: 'AI Gateway: tầng reactive chịu lỗi cho lưu lượng LLM đa nhà cung cấp'
         },
         subtitle: {
-            en: 'How I converted fragmented model integrations into a unified, fault-tolerant platform.',
-            vi: 'Cách tôi chuyển từ các tích hợp mô hình rời rạc sang một nền tảng thống nhất và chịu lỗi tốt.'
+            en: 'How I turned fragmented model integrations into a unified, fault-tolerant gateway.',
+            vi: 'Cách tôi chuyển các tích hợp mô hình rời rạc thành một gateway thống nhất, chịu lỗi tốt.'
         },
         repoUrl: 'https://github.com/dungca1512/ai-gateway',
         highlights: [
             {
-                en: 'Unified 4 model backends under one API contract',
-                vi: 'Hợp nhất 4 backend mô hình dưới một chuẩn API duy nhất'
+                en: 'Reactive Spring WebFlux gateway routing OpenAI / Gemini / Anthropic / DashScope traffic',
+                vi: 'Gateway reactive Spring WebFlux định tuyến lưu lượng OpenAI / Gemini / Anthropic / DashScope'
             },
             {
-                en: 'Implemented 6 reliability controls for production traffic',
-                vi: 'Triển khai 6 cơ chế tăng độ tin cậy cho lưu lượng thực tế'
+                en: 'Resilience4j circuit breaker, bulkhead, and retry for graceful degradation',
+                vi: 'Circuit breaker, bulkhead và retry (Resilience4j) để suy giảm an toàn'
             },
             {
-                en: 'Separated gateway concerns (Java) from AI worker concerns (Python)',
-                vi: 'Tách rõ trách nhiệm giữa gateway (Java) và AI worker (Python)'
+                en: 'Per-request token-usage tracking under one OpenAI-compatible API contract',
+                vi: 'Theo dõi token theo từng request dưới một chuẩn API tương thích OpenAI'
             }
         ],
         blocks: [
             {
                 title: { en: 'Problem', vi: 'Bài toán' },
                 text: {
-                    en: 'Teams needed one stable API across multiple LLM providers, but each provider had different request/response semantics and failure patterns.',
-                    vi: 'Đội ngũ cần một API ổn định để làm việc với nhiều nhà cung cấp LLM, nhưng mỗi bên lại có định dạng request/response và kiểu lỗi khác nhau.'
+                    en: 'Teams needed one stable API across multiple LLM providers, but each had different request/response semantics, rate limits, and failure patterns.',
+                    vi: 'Các đội cần một API ổn định cho nhiều nhà cung cấp LLM, nhưng mỗi bên có định dạng request/response, rate limit và kiểu lỗi khác nhau.'
                 }
             },
             {
                 title: { en: 'Architecture', vi: 'Kiến trúc' },
                 text: {
-                    en: 'Built a Java Spring WebFlux gateway for routing, resilience, and policy control, plus a Python FastAPI worker for local model and embedding tasks.',
-                    vi: 'Thiết kế gateway Java Spring WebFlux để xử lý routing, resilience và policy control; đồng thời dùng worker Python FastAPI cho mô hình nội bộ và tác vụ embedding.'
+                    en: 'A Java Spring WebFlux gateway handles routing, resilience, and policy control; a Python FastAPI worker serves local models and embedding tasks behind it.',
+                    vi: 'Gateway Java Spring WebFlux xử lý routing, resilience và policy control; phía sau là worker Python FastAPI phục vụ mô hình nội bộ và tác vụ embedding.'
                 }
             },
             {
                 title: { en: 'Trade-offs', vi: 'Đánh đổi kỹ thuật' },
                 text: {
-                    en: 'Prioritized reliability and observability over minimal complexity. Added more moving parts, but gained consistent behavior during provider instability.',
-                    vi: 'Ưu tiên độ tin cậy và khả năng quan sát thay vì tối giản tuyệt đối. Hệ thống có nhiều thành phần hơn nhưng ổn định hơn khi provider gặp sự cố.'
+                    en: 'Chose reliability and observability over minimal complexity — more moving parts, but consistent behavior when a provider degrades or rate-limits.',
+                    vi: 'Ưu tiên độ tin cậy và khả năng quan sát thay vì tối giản — nhiều thành phần hơn nhưng ổn định khi provider suy giảm hoặc bị rate-limit.'
                 }
             },
             {
                 title: { en: 'Result', vi: 'Kết quả' },
                 text: {
-                    en: 'Delivered a reusable gateway baseline for future AI products, reducing integration overhead and standardizing production controls.',
-                    vi: 'Xây dựng được nền tảng gateway có thể tái sử dụng cho các sản phẩm AI tiếp theo, giảm chi phí tích hợp và chuẩn hóa cơ chế kiểm soát production.'
+                    en: 'A reusable gateway baseline for future AI products that reduces integration overhead and standardizes production controls.',
+                    vi: 'Một nền tảng gateway tái sử dụng cho các sản phẩm AI tiếp theo, giảm chi phí tích hợp và chuẩn hóa cơ chế kiểm soát production.'
                 }
             },
             {
                 title: { en: "What I'd improve next", vi: 'Bước cải tiến tiếp theo' },
                 text: {
-                    en: 'Add per-provider latency dashboards, token-cost analytics, and automated fallback policy tuning based on live traffic signals.',
-                    vi: 'Bổ sung dashboard độ trễ theo từng nhà cung cấp, phân tích chi phí token và tự động tinh chỉnh chính sách fallback dựa trên tín hiệu lưu lượng thực tế.'
+                    en: 'Per-provider latency dashboards, token-cost analytics, and automated fallback tuning driven by live traffic signals.',
+                    vi: 'Dashboard độ trễ theo từng provider, phân tích chi phí token và tự động tinh chỉnh fallback dựa trên tín hiệu lưu lượng thực tế.'
                 }
             }
         ]
@@ -401,52 +391,52 @@ const PORTFOLIO_DATA = {
     playbook: [
         {
             title: {
-                en: 'Start from reliability goals',
-                vi: 'Bắt đầu từ mục tiêu độ tin cậy'
+                en: 'Decide with frameworks, not gut',
+                vi: 'Quyết định theo framework, không cảm tính'
             },
             description: {
-                en: 'Define latency targets and fallback behavior first, then design model routing and retry strategy around those constraints.',
-                vi: 'Xác định mục tiêu độ trễ và hành vi fallback trước, rồi mới thiết kế chiến lược routing/retry theo các ràng buộc đó.'
+                en: 'Compare GPU and cloud options on price, data-center location, SLA, and VN-JP-KR latency together — never on raw price alone.',
+                vi: 'So sánh phương án GPU và cloud trên giá, vị trí data center, SLA và độ trễ VN-JP-KR cùng lúc — không chỉ nhìn giá thuần.'
             }
         },
         {
             title: {
-                en: 'Blend probabilistic + deterministic logic',
-                vi: 'Kết hợp AI tạo sinh với logic xác định'
+                en: 'Cost-conscious by default',
+                vi: 'Tối ưu chi phí mặc định'
             },
             description: {
-                en: 'Use generative models where they shine, then enforce validators, parsing rules, and schema checks before outputs are trusted.',
-                vi: 'Dùng mô hình sinh ở phần phù hợp, sau đó kiểm soát bằng validator, quy tắc parse và kiểm tra schema trước khi tin cậy kết quả.'
+                en: 'Size hardware to the workload (wav2vec2 ~315M in FP16 fits an L4) and prove CPU-vs-GPU trade-offs with benchmarks before provisioning anything.',
+                vi: 'Chọn phần cứng vừa với workload (wav2vec2 ~315M FP16 đủ trên L4) và chứng minh đánh đổi CPU-vs-GPU bằng benchmark trước khi provisioning.'
             }
         },
         {
             title: {
-                en: 'Instrument every critical path',
-                vi: 'Gắn quan sát cho mọi luồng quan trọng'
+                en: 'CLI-first, reproducible operations',
+                vi: 'CLI-first, vận hành tái lập được'
             },
             description: {
-                en: 'Trace requests, model responses, and agent transitions so failures can be reproduced and debugged fast.',
-                vi: 'Theo vết request, phản hồi mô hình và các trạng thái chuyển của agent để tái hiện lỗi và debug nhanh.'
+                en: 'Automate provisioning and deploys with Terraform, Ansible, and GitOps so any environment is rebuildable from code.',
+                vi: 'Tự động hóa provisioning và deploy bằng Terraform, Ansible và GitOps để mọi môi trường đều dựng lại được từ code.'
             }
         },
         {
             title: {
-                en: 'Design for graceful degradation',
-                vi: 'Thiết kế để suy giảm an toàn'
+                en: 'Ship through GitOps and quality gates',
+                vi: 'Triển khai qua GitOps và cổng chất lượng'
             },
             description: {
-                en: 'Treat provider downtime and weak model outputs as normal conditions with predefined fallback paths.',
-                vi: 'Xem downtime của provider và đầu ra yếu là tình huống bình thường, luôn có đường fallback định nghĩa sẵn.'
+                en: 'Deliver via ArgoCD App-of-Apps and CI exit-code gates that fail fast on corruption or regressions before they reach users.',
+                vi: 'Giao hàng qua ArgoCD App-of-Apps và CI exit-code gate, fail nhanh khi có lỗi hỏng dữ liệu hoặc hồi quy trước khi tới người dùng.'
             }
         },
         {
             title: {
-                en: 'Keep humans in control',
-                vi: 'Giữ con người trong vòng kiểm soát'
+                en: 'Instrument and degrade gracefully',
+                vi: 'Gắn quan sát và suy giảm an toàn'
             },
             description: {
-                en: 'Critical actions need explicit approval points and logs that make each decision path auditable.',
-                vi: 'Các hành động quan trọng cần điểm phê duyệt rõ ràng và log đủ chi tiết để kiểm toán toàn bộ luồng quyết định.'
+                en: 'Observe every service with kube-prometheus-stack and treat provider or GPU failure as normal, with predefined fallback paths.',
+                vi: 'Quan sát mọi dịch vụ bằng kube-prometheus-stack, xem lỗi provider hay GPU là bình thường và luôn có đường fallback định sẵn.'
             }
         }
     ],
@@ -455,53 +445,53 @@ const PORTFOLIO_DATA = {
         {
             year: '2026',
             title: {
-                en: 'Whisper JA Training Runbook',
-                vi: 'Runbook huấn luyện Whisper JA'
+                en: 'GPU Cost Engineering: sizing ML serving without over-provisioning',
+                vi: 'Tối ưu chi phí GPU: chọn GPU cho ML serving mà không over-provisioning'
             },
             summary: {
-                en: 'Notes on training-first workflow design, experiment iteration, and checkpoint hygiene for Japanese ASR.',
-                vi: 'Ghi chú về thiết kế luồng huấn luyện ưu tiên thực nghiệm, vòng lặp thử nghiệm và quản lý checkpoint cho ASR tiếng Nhật.'
+                en: 'A multi-criteria framework (price, region, SLA, latency) for picking GPUs — and why L4 beat A100/H100 for light inference workloads.',
+                vi: 'Framework đa tiêu chí (giá, vùng, SLA, độ trễ) để chọn GPU — và vì sao L4 thắng A100/H100 cho workload inference nhẹ.'
             },
-            tags: ['ASR', 'Training Pipeline', 'Whisper'],
-            url: 'https://github.com/dungca1512/whisper-finetune-ja-train'
+            tags: ['Cost Engineering', 'GPU', 'MLOps'],
+            url: 'https://github.com/dungca1512'
         },
         {
             year: '2026',
             title: {
-                en: 'Whisper Tiny Japanese Finetune Notes',
-                vi: 'Ghi chú tinh chỉnh Whisper Tiny cho tiếng Nhật'
+                en: 'Pronunciation Scoring on a single L4',
+                vi: 'Chấm phát âm trên một GPU L4'
             },
             summary: {
-                en: 'Training and export workflow for Japanese ASR fine-tuning with reproducible scripts and deployment-ready artifacts.',
-                vi: 'Quy trình huấn luyện và xuất mô hình cho ASR tiếng Nhật với script tái lập được và artifact sẵn sàng triển khai.'
+                en: 'Hitting sub-3s latency at 20 concurrency with wav2vec2 forced alignment, G2P caching, and GPU micro-batching.',
+                vi: 'Đạt độ trễ <3s ở 20 người dùng đồng thời với wav2vec2 forced alignment, cache G2P và micro-batching GPU.'
             },
-            tags: ['ASR', 'Whisper', 'Fine-tuning'],
-            url: 'https://github.com/dungca1512/whisper-finetune-ja'
+            tags: ['wav2vec2', 'FastAPI', 'GPU'],
+            url: 'https://github.com/dungca1512'
         },
         {
             year: '2025',
             title: {
-                en: 'Research Agent Workflow Design',
-                vi: 'Thiết kế luồng cho Research Agent'
+                en: 'Docker Swarm to GKE: migrating production ML services',
+                vi: 'Từ Docker Swarm sang GKE: di trú dịch vụ ML production'
             },
             summary: {
-                en: 'How iterative web + ArXiv search loops are orchestrated to produce citation-friendly technical reports.',
-                vi: 'Cách điều phối vòng lặp tìm kiếm Web + ArXiv để tạo báo cáo kỹ thuật có trích dẫn rõ ràng.'
+                en: 'Notes on moving live ML workloads to Kubernetes with Helm, ArgoCD App-of-Apps, and a bare-metal kubeadm homelab for testing.',
+                vi: 'Ghi chú về việc đưa workload ML đang chạy lên Kubernetes với Helm, ArgoCD App-of-Apps và homelab kubeadm bare-metal để thử nghiệm.'
             },
-            tags: ['LangChain', 'LangGraph', 'Research Automation'],
-            url: 'https://github.com/dungca1512/research-agent'
+            tags: ['Kubernetes', 'GKE', 'GitOps'],
+            url: 'https://github.com/dungca1512'
         },
         {
             year: '2025',
             title: {
-                en: 'AI Gateway Architecture Snapshot',
-                vi: 'Tổng quan kiến trúc AI Gateway'
+                en: 'AI Gateway: reactive resilience for LLM traffic',
+                vi: 'AI Gateway: resilience reactive cho lưu lượng LLM'
             },
             summary: {
-                en: 'A practical breakdown of provider routing, resilience controls, and unified API patterns for LLM products.',
-                vi: 'Phân tích thực tế về định tuyến nhà cung cấp, các cơ chế resilience và mẫu API thống nhất cho sản phẩm LLM.'
+                en: 'A practical breakdown of provider routing, Resilience4j controls, and a unified API contract for multi-provider LLM products.',
+                vi: 'Phân tích thực tế về định tuyến provider, các cơ chế Resilience4j và chuẩn API thống nhất cho sản phẩm LLM đa nhà cung cấp.'
             },
-            tags: ['LLM Infra', 'WebFlux', 'System Design'],
+            tags: ['WebFlux', 'Resilience4j', 'LLM Infra'],
             url: 'https://github.com/dungca1512/ai-gateway'
         }
     ],
