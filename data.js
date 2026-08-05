@@ -41,8 +41,8 @@ const PORTFOLIO_DATA = {
                 vi: 'Tôi sở hữu hạ tầng AI từ đầu đến cuối — từ provisioning cloud đến triển khai ML thực chiến.'
             },
             lead: {
-                en: 'DevOps & MLOps engineer shipping ASR, TTS, pronunciation scoring, and embedding services on Kubernetes for users across VN, JP, and KR. CLI-first, cost-conscious, and framework-driven in every decision.',
-                vi: 'Kỹ sư DevOps & MLOps triển khai các dịch vụ ASR, TTS, chấm phát âm và embedding trên Kubernetes cho người dùng VN, JP, KR. Định hướng CLI-first, tối ưu chi phí và ra quyết định theo framework.'
+                en: 'DevOps & MLOps engineer shipping ASR, TTS, pronunciation scoring, embedding, and agentic RAG services on Kubernetes, GCP, and AWS for users across VN, JP, and KR. CLI-first, cost-conscious, and framework-driven in every decision.',
+                vi: 'Kỹ sư DevOps & MLOps triển khai các dịch vụ ASR, TTS, chấm phát âm, embedding và agentic RAG trên Kubernetes, GCP và AWS cho người dùng VN, JP, KR. Định hướng CLI-first, tối ưu chi phí và ra quyết định theo framework.'
             },
             primaryCta: { en: 'View Projects', vi: 'Xem dự án' },
             secondaryCta: { en: 'GitHub', vi: 'GitHub' }
@@ -142,8 +142,9 @@ const PORTFOLIO_DATA = {
     heroTrust: [
         { en: 'Kubernetes & GitOps (GKE)', vi: 'Kubernetes & GitOps (GKE)' },
         { en: 'Production ML Serving', vi: 'Triển khai ML thực chiến' },
+        { en: 'Agentic RAG & LLM Systems', vi: 'Hệ thống Agentic RAG & LLM' },
         { en: 'Cloud Cost Engineering', vi: 'Tối ưu chi phí hạ tầng' },
-        { en: 'Multi-cloud Infrastructure', vi: 'Hạ tầng đa cloud' }
+        { en: 'Multi-cloud (GCP · AWS · OCI)', vi: 'Đa cloud (GCP · AWS · OCI)' }
     ],
 
     focus: [
@@ -154,6 +155,14 @@ const PORTFOLIO_DATA = {
         {
             en: 'Hardening the internal Qwen3 embedding service and its RAG code-review pipeline',
             vi: 'Củng cố dịch vụ embedding Qwen3 nội bộ và pipeline review code dựa trên RAG.'
+        },
+        {
+            en: 'Extending CD and observability onto AWS — EC2 deployment automation with GitHub Actions and CloudWatch dashboards',
+            vi: 'Mở rộng CD và observability sang AWS — tự động deploy EC2 bằng GitHub Actions kèm dashboard CloudWatch.'
+        },
+        {
+            en: 'Designing agentic RAG systems where code owns orchestration and retrieval, and the LLM only phrases the answer',
+            vi: 'Thiết kế hệ thống agentic RAG với code sở hữu điều phối và truy xuất, LLM chỉ diễn đạt câu trả lời.'
         },
         {
             en: 'Earning AWS Solutions Architect Associate (SAA-C03) to round out multi-cloud depth',
@@ -180,10 +189,10 @@ const PORTFOLIO_DATA = {
         },
         {
             source: 'stats.mlServices',
-            fallback: '4',
+            fallback: '5',
             label: {
-                en: 'Production ML services shipped (ASR, TTS, Pronunciation, Embedding)',
-                vi: 'Dịch vụ ML đã triển khai (ASR, TTS, Chấm phát âm, Embedding)'
+                en: 'Production AI services shipped (ASR, TTS, Pronunciation, Embedding, Agentic RAG)',
+                vi: 'Dịch vụ AI đã triển khai (ASR, TTS, Chấm phát âm, Embedding, Agentic RAG)'
             }
         },
         {
@@ -215,8 +224,8 @@ const PORTFOLIO_DATA = {
                 vi: 'Hạ tầng Cloud & Kubernetes'
             },
             description: {
-                en: 'End-to-end ownership: Terraform/Ansible provisioning, Docker, and Kubernetes on GKE, DigitalOcean, and bare-metal kubeadm — with ArgoCD GitOps and Cloudflare Tunnel.',
-                vi: 'Sở hữu toàn trình: provisioning Terraform/Ansible, Docker và Kubernetes trên GKE, DigitalOcean và bare-metal kubeadm — kèm GitOps ArgoCD và Cloudflare Tunnel.'
+                en: 'End-to-end ownership: Terraform/Ansible provisioning, Docker, and Kubernetes on GKE, DigitalOcean, and bare-metal kubeadm — plus AWS EC2 deployment automation, ArgoCD GitOps, and Cloudflare Tunnel.',
+                vi: 'Sở hữu toàn trình: provisioning Terraform/Ansible, Docker và Kubernetes trên GKE, DigitalOcean và bare-metal kubeadm — cùng tự động deploy AWS EC2, GitOps ArgoCD và Cloudflare Tunnel.'
             }
         },
         {
@@ -226,8 +235,19 @@ const PORTFOLIO_DATA = {
                 vi: 'ML Serving & MLOps'
             },
             description: {
-                en: 'Shipping ASR (faster-whisper/CTranslate2), TTS, pronunciation scoring (wav2vec2), and embedding (Qwen3) services with full CI/CT/CD pipelines and quality gates.',
-                vi: 'Triển khai dịch vụ ASR (faster-whisper/CTranslate2), TTS, chấm phát âm (wav2vec2) và embedding (Qwen3) với pipeline CI/CT/CD đầy đủ và các cổng kiểm soát chất lượng.'
+                en: 'Shipping ASR (faster-whisper/CTranslate2), TTS, pronunciation scoring (wav2vec2), and embedding (Qwen3) services with full CI/CT/CD pipelines, quality gates, and Prometheus/CloudWatch observability.',
+                vi: 'Triển khai dịch vụ ASR (faster-whisper/CTranslate2), TTS, chấm phát âm (wav2vec2) và embedding (Qwen3) với pipeline CI/CT/CD đầy đủ, các cổng kiểm soát chất lượng và observability Prometheus/CloudWatch.'
+            }
+        },
+        {
+            icon: '04',
+            title: {
+                en: 'Agentic RAG & LLM Application Architecture',
+                vi: 'Agentic RAG & Kiến trúc ứng dụng LLM'
+            },
+            description: {
+                en: 'Multi-agent orchestration (Google ADK) with hybrid keyword/semantic retrieval, rule-based slot-filling, and grounding verification — so code owns every figure and the LLM only phrases it. Provider-agnostic serving across Gemini, Claude, and self-hosted vLLM/Ollama.',
+                vi: 'Điều phối multi-agent (Google ADK) với truy xuất hybrid keyword/semantic, slot-filling theo luật và kiểm chứng grounding — code sở hữu mọi con số, LLM chỉ diễn đạt câu chữ. Phục vụ không phụ thuộc provider: Gemini, Claude và vLLM/Ollama tự host.'
             }
         }
     ],
@@ -442,6 +462,32 @@ const PORTFOLIO_DATA = {
     ],
 
     writing: [
+        {
+            year: '2026',
+            title: {
+                en: 'Why I stopped letting the agent orchestrate itself',
+                vi: 'Vì sao tôi không để agent tự điều phối nữa'
+            },
+            summary: {
+                en: 'A hybrid pattern for agentic RAG: the framework owns the runtime, code owns orchestration and every number, and the LLM is restricted to phrasing — with grounding verification as the enforcement layer.',
+                vi: 'Mẫu kiến trúc lai cho agentic RAG: framework sở hữu runtime, code sở hữu điều phối và mọi con số, LLM chỉ được diễn đạt câu chữ — với kiểm chứng grounding làm lớp cưỡng chế.'
+            },
+            tags: ['Agentic RAG', 'Google ADK', 'Anti-hallucination'],
+            url: 'https://github.com/dungca1512'
+        },
+        {
+            year: '2026',
+            title: {
+                en: 'Provider-agnostic LLM serving: cloud API or local vLLM behind one env var',
+                vi: 'Phục vụ LLM không phụ thuộc provider: cloud API hay vLLM local chỉ đổi một biến môi trường'
+            },
+            summary: {
+                en: 'Designing the LLM layer as an interface so a CPU-only VM ships on a cloud API today and swaps to on-premise vLLM later without touching application code.',
+                vi: 'Thiết kế tầng LLM như một interface để máy chủ CPU-only hôm nay chạy bằng cloud API và sau này chuyển sang vLLM on-premise mà không sửa code ứng dụng.'
+            },
+            tags: ['LLM Infra', 'vLLM', 'Portability'],
+            url: 'https://github.com/dungca1512'
+        },
         {
             year: '2026',
             title: {
