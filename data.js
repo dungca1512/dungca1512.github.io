@@ -143,6 +143,7 @@ const PORTFOLIO_DATA = {
         { en: 'Kubernetes & GitOps (GKE)', vi: 'Kubernetes & GitOps (GKE)' },
         { en: 'Production ML Serving', vi: 'Triển khai ML thực chiến' },
         { en: 'Agentic RAG & LLM Systems', vi: 'Hệ thống Agentic RAG & LLM' },
+        { en: 'IaC (Terraform · Ansible)', vi: 'IaC (Terraform · Ansible)' },
         { en: 'Cloud Cost Engineering', vi: 'Tối ưu chi phí hạ tầng' },
         { en: 'Multi-cloud (GCP · AWS · OCI)', vi: 'Đa cloud (GCP · AWS · OCI)' }
     ],
@@ -157,8 +158,8 @@ const PORTFOLIO_DATA = {
             vi: 'Củng cố dịch vụ embedding Qwen3 nội bộ và pipeline review code dựa trên RAG.'
         },
         {
-            en: 'Extending CD and observability onto AWS — EC2 deployment automation with GitHub Actions and CloudWatch dashboards',
-            vi: 'Mở rộng CD và observability sang AWS — tự động deploy EC2 bằng GitHub Actions kèm dashboard CloudWatch.'
+            en: 'Treating the home LAN like production — Ansible IaC for the Raspberry Pi, Slack ChatOps alerts, and GPG-encrypted config backups',
+            vi: 'Vận hành LAN ở nhà như production — Ansible IaC cho Raspberry Pi, cảnh báo Slack ChatOps và backup cấu hình mã hóa GPG.'
         },
         {
             en: 'Designing agentic RAG systems where code owns orchestration and retrieval, and the LLM only phrases the answer',
@@ -213,8 +214,8 @@ const PORTFOLIO_DATA = {
                 vi: 'Kiến trúc giải pháp & Tối ưu chi phí'
             },
             description: {
-                en: 'System design for ML serving, multi-criteria GPU sizing frameworks, and root-cause analysis — e.g. choosing GCP L4 over A100/H100 to avoid over-provisioning.',
-                vi: 'Thiết kế hệ thống cho ML serving, framework chọn GPU đa tiêu chí và phân tích nguyên nhân gốc — ví dụ chọn GCP L4 thay vì A100/H100 để tránh over-provisioning.'
+                en: 'System design for ML serving, benchmark-driven GPU sizing, and root-cause analysis — a measured p95 of 1.86s at 20 concurrent users (~8% GPU utilization) proved a commodity CUDA GPU was enough where an H100 plan would have cost ~$2,475/mo.',
+                vi: 'Thiết kế hệ thống cho ML serving, chọn GPU dựa trên benchmark và phân tích nguyên nhân gốc — p95 đo được 1.86s với 20 người dùng đồng thời (~8% GPU) chứng minh chỉ cần GPU CUDA phổ thông, trong khi phương án H100 tốn ~$2,475/tháng.'
             }
         },
         {
@@ -262,10 +263,10 @@ const PORTFOLIO_DATA = {
                 vi: 'Dịch vụ FastAPI chấm phát âm tiếng Nhật bằng wav2vec2 CTC forced alignment, lớp cache G2P và micro-batching trên GPU phục vụ người học HeyJapan.'
             },
             outcome: {
-                en: 'Outcome: targeted sub-3s latency for 20 concurrent users on a single GCP L4 / RTX 4000 Ada, sized from a multi-criteria GPU cost framework instead of over-provisioning A100/H100.',
-                vi: 'Kết quả: hướng tới độ trễ <3s cho 20 người dùng đồng thời trên một GPU GCP L4 / RTX 4000 Ada, chọn theo framework chi phí GPU đa tiêu chí thay vì over-provisioning A100/H100.'
+                en: 'Outcome: benchmarked at p95 1.86s for 20 concurrent users (15s audio) using ~8% of the GPU and ~2GB VRAM, so one commodity CUDA GPU carries the workload; CPU-only serving was ruled out with data (~1 req/s throughput wall from the Python GIL and memory bandwidth).',
+                vi: 'Kết quả: benchmark đạt p95 1.86s với 20 người dùng đồng thời (audio 15s), chỉ dùng ~8% GPU và ~2GB VRAM nên một GPU CUDA phổ thông là đủ; phương án CPU-only bị loại bằng số liệu (trần throughput ~1 req/s do Python GIL và băng thông bộ nhớ).'
             },
-            stack: ['Python', 'FastAPI', 'wav2vec2', 'GPU (GCP L4)', 'Docker'],
+            stack: ['Python', 'FastAPI', 'wav2vec2', 'CUDA GPU', 'Docker'],
             links: []
         },
         {
@@ -284,6 +285,41 @@ const PORTFOLIO_DATA = {
             links: []
         },
         {
+            repo: 'homelab',
+            name: 'Homelab Kubernetes & GitOps Platform',
+            period: '2025-2026',
+            summary: {
+                en: 'A 3-node Kubernetes v1.31 cluster bootstrapped by hand with kubeadm instead of a managed distro: Flannel CNI, MetalLB (L2), ingress-nginx, local-path storage, and a self-hosted registry.',
+                vi: 'Cụm Kubernetes v1.31 ba node dựng tay bằng kubeadm thay vì dùng distro managed: Flannel CNI, MetalLB (L2), ingress-nginx, local-path storage và registry tự host.'
+            },
+            outcome: {
+                en: 'Outcome: deploys are git push only via ArgoCD App-of-Apps (prune + selfHeal), observability from kube-prometheus-stack and Loki/Promtail, and ~2,400 lines of engineering notes where every lesson is tied to a real cluster failure.',
+                vi: 'Kết quả: deploy chỉ bằng git push qua ArgoCD App-of-Apps (prune + selfHeal), observability từ kube-prometheus-stack và Loki/Promtail, kèm ~2.400 dòng ghi chú kỹ thuật với mỗi bài học gắn với một sự cố cluster thật.'
+            },
+            stack: ['kubeadm', 'ArgoCD', 'MetalLB', 'Prometheus', 'Grafana', 'Loki'],
+            links: [
+                {
+                    label: { en: 'Repository', vi: 'Mã nguồn' },
+                    url: 'https://github.com/dungca1512/homelab'
+                }
+            ]
+        },
+        {
+            repo: 'homelab-iac',
+            name: 'Raspberry Pi Homelab — Ansible IaC & Slack ChatOps',
+            period: '2026',
+            summary: {
+                en: 'The Raspberry Pi serving my whole LAN turned into infrastructure as code: one idempotent Ansible playbook rebuilds it from a bare OS (fstab mounts, Docker CE, journald caps, cloudflared, Tailscale, AdGuard Home, cleanup cron).',
+                vi: 'Chiếc Raspberry Pi phục vụ toàn bộ LAN được chuyển thành infrastructure as code: một playbook Ansible idempotent dựng lại từ OS trắng (mount fstab, Docker CE, giới hạn journald, cloudflared, Tailscale, AdGuard Home, cron dọn rác).'
+            },
+            outcome: {
+                en: 'Outcome: LAN-wide DNS on AdGuard Home cut resolver latency 199ms -> 27ms; Slack ChatOps on a Cloudflare Worker gives a /homelab status command and Block Kit alerts that separate power loss from internet loss with outage duration and diagnosed cause; ansible-lint/yamllint/gitleaks CI plus GPG-encrypted backups make a dead SD card a rebuild, not an investigation.',
+                vi: 'Kết quả: DNS toàn LAN trên AdGuard Home giảm độ trễ resolver 199ms -> 27ms; Slack ChatOps qua Cloudflare Worker cung cấp lệnh /homelab xem trạng thái và alert Block Kit phân biệt mất điện với mất mạng kèm thời lượng và nguyên nhân được chẩn đoán; CI ansible-lint/yamllint/gitleaks cùng backup mã hóa GPG biến thẻ SD chết thành việc dựng lại, không phải điều tra.'
+            },
+            stack: ['Ansible', 'Docker', 'AdGuard Home / DoH', 'Cloudflare Worker', 'Tailscale', 'Slack API'],
+            links: []
+        },
+        {
             repo: 'ai-gateway',
             name: 'AI Gateway',
             period: '2025',
@@ -292,10 +328,10 @@ const PORTFOLIO_DATA = {
                 vi: 'Gateway reactive Spring WebFlux kết hợp worker Python FastAPI, hợp nhất truy cập LLM đa nhà cung cấp (OpenAI, Gemini, Anthropic, DashScope) sau một API duy nhất.'
             },
             outcome: {
-                en: 'Outcome: added Resilience4j circuit breaker, bulkhead, retry, and per-request token tracking so LLM traffic degrades gracefully during provider instability.',
-                vi: 'Kết quả: bổ sung circuit breaker, bulkhead, retry (Resilience4j) và theo dõi token theo từng request để lưu lượng LLM suy giảm an toàn khi provider gặp sự cố.'
+                en: 'Outcome: circuit breaker, bulkhead, retry, and per-request token tracking keep LLM traffic degrading gracefully during provider instability; a manual gcloud runbook was replaced by Terraform (API enablement, GKE Autopilot, Artifact Registry, static IP outside the cluster lifecycle) so the whole platform rebuilds with apply and costs near $0 after destroy.',
+                vi: 'Kết quả: circuit breaker, bulkhead, retry và theo dõi token theo request giúp lưu lượng LLM suy giảm an toàn khi provider gặp sự cố; runbook gcloud thủ công được thay bằng Terraform (bật API, GKE Autopilot, Artifact Registry, static IP nằm ngoài lifecycle cluster) nên toàn bộ nền tảng dựng lại bằng apply và gần như $0 sau khi destroy.'
             },
-            stack: ['Java', 'Spring WebFlux', 'Resilience4j', 'Python', 'FastAPI', 'Redis'],
+            stack: ['Java', 'Spring WebFlux', 'Resilience4j', 'FastAPI', 'Terraform', 'GKE'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
@@ -332,14 +368,18 @@ const PORTFOLIO_DATA = {
                 vi: 'Pipeline tinh chỉnh tái lập được cho ASR tiếng Nhật trên Whisper với dữ liệu ReazonSpeech, kèm script huấn luyện, export và inference.'
             },
             outcome: {
-                en: 'Outcome: published 3 Whisper-based Japanese ASR models on Hugging Face (one LoRA variant with 40+ downloads) from a clean, repeatable training flow.',
-                vi: 'Kết quả: công bố 3 mô hình ASR tiếng Nhật dựa trên Whisper trên Hugging Face (một biến thể LoRA 40+ lượt tải) từ luồng huấn luyện gọn gàng, tái lập được.'
+                en: 'Outcome: a full CI/CT/CD loop (GitHub Actions orchestration, Kaggle training, Hugging Face Hub hosting, quality gate for model promotion) published 3 Japanese ASR models, with the LoRA variant at 40+ downloads and an INT8 CTranslate2 export for cheap inference.',
+                vi: 'Kết quả: vòng CI/CT/CD hoàn chỉnh (điều phối GitHub Actions, huấn luyện trên Kaggle, hosting Hugging Face Hub, quality gate để promote model) đã công bố 3 mô hình ASR tiếng Nhật, biến thể LoRA đạt 40+ lượt tải và bản export CTranslate2 INT8 cho inference giá rẻ.'
             },
-            stack: ['Python', 'Whisper', 'CTranslate2', 'ReazonSpeech', 'Hugging Face'],
+            stack: ['PyTorch', 'LoRA/PEFT', 'CTranslate2 INT8', 'Kaggle', 'GitHub Actions', 'Hugging Face'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
                     url: 'https://github.com/dungca1512/whisper-finetune-ja'
+                },
+                {
+                    label: { en: 'Models on Hugging Face', vi: 'Model trên Hugging Face' },
+                    url: 'https://huggingface.co/dungca'
                 }
             ]
         }
@@ -425,8 +465,8 @@ const PORTFOLIO_DATA = {
                 vi: 'Tối ưu chi phí mặc định'
             },
             description: {
-                en: 'Size hardware to the workload (wav2vec2 ~315M in FP16 fits an L4) and prove CPU-vs-GPU trade-offs with benchmarks before provisioning anything.',
-                vi: 'Chọn phần cứng vừa với workload (wav2vec2 ~315M FP16 đủ trên L4) và chứng minh đánh đổi CPU-vs-GPU bằng benchmark trước khi provisioning.'
+                en: 'Size hardware to the measured workload (wav2vec2 ~315M in FP16 needs ~2GB VRAM) and settle CPU-vs-GPU trade-offs with a benchmark before provisioning anything.',
+                vi: 'Chọn phần cứng theo workload đo được (wav2vec2 ~315M FP16 chỉ cần ~2GB VRAM) và giải quyết đánh đổi CPU-vs-GPU bằng benchmark trước khi provisioning.'
             }
         },
         {
@@ -491,27 +531,27 @@ const PORTFOLIO_DATA = {
         {
             year: '2026',
             title: {
-                en: 'GPU Cost Engineering: sizing ML serving without over-provisioning',
-                vi: 'Tối ưu chi phí GPU: chọn GPU cho ML serving mà không over-provisioning'
+                en: 'GPU Cost Engineering: let the benchmark pick the hardware',
+                vi: 'Tối ưu chi phí GPU: để benchmark chọn phần cứng'
             },
             summary: {
-                en: 'A multi-criteria framework (price, region, SLA, latency) for picking GPUs — and why L4 beat A100/H100 for light inference workloads.',
-                vi: 'Framework đa tiêu chí (giá, vùng, SLA, độ trễ) để chọn GPU — và vì sao L4 thắng A100/H100 cho workload inference nhẹ.'
+                en: 'Measuring before buying: p95 1.86s at 20 concurrent users on ~8% of a commodity GPU, why the H100 line item (~$2,475/mo) was never justified, and how CPU-only serving died on a ~1 req/s throughput wall.',
+                vi: 'Đo trước khi mua: p95 1.86s với 20 người dùng đồng thời chỉ dùng ~8% một GPU phổ thông, vì sao khoản H100 (~$2,475/tháng) không bao giờ hợp lý, và vì sao CPU-only chết ở trần throughput ~1 req/s.'
             },
-            tags: ['Cost Engineering', 'GPU', 'MLOps'],
+            tags: ['Cost Engineering', 'GPU', 'Benchmarking'],
             url: 'https://github.com/dungca1512'
         },
         {
             year: '2026',
             title: {
-                en: 'Pronunciation Scoring on a single L4',
-                vi: 'Chấm phát âm trên một GPU L4'
+                en: 'Home infrastructure deserves production discipline',
+                vi: 'Hạ tầng ở nhà cũng đáng được đối xử như production'
             },
             summary: {
-                en: 'Hitting sub-3s latency at 20 concurrency with wav2vec2 forced alignment, G2P caching, and GPU micro-batching.',
-                vi: 'Đạt độ trễ <3s ở 20 người dùng đồng thời với wav2vec2 forced alignment, cache G2P và micro-batching GPU.'
+                en: 'Rewriting a hand-configured Raspberry Pi as one idempotent Ansible playbook: DNS latency 199ms -> 27ms, Slack ChatOps for status and outage alerts, lint/secret-scan CI gates, and GPG-encrypted backups with a recovery runbook.',
+                vi: 'Viết lại chiếc Raspberry Pi cấu hình tay thành một playbook Ansible idempotent: độ trễ DNS 199ms -> 27ms, Slack ChatOps để xem trạng thái và cảnh báo sự cố, CI lint/quét secret và backup mã hóa GPG kèm runbook phục hồi.'
             },
-            tags: ['wav2vec2', 'FastAPI', 'GPU'],
+            tags: ['Ansible', 'IaC', 'ChatOps'],
             url: 'https://github.com/dungca1512'
         },
         {
