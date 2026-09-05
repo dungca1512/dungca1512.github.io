@@ -3,163 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Anh Dũng | AI/ML Systems Architect — Infrastructure & MLOps</title>
+    <title>Công Anh Dũng | AI/ML Systems Architect — Infrastructure &amp; MLOps</title>
     <meta name="description" content="AI/ML Systems Architect owning DevOps and infrastructure end-to-end: Terraform/Ansible IaC, Kubernetes (GKE + bare-metal kubeadm), ArgoCD GitOps, multi-cloud, production ML serving (ASR, TTS, pronunciation scoring, embeddings), and benchmark-driven GPU cost engineering.">
+    <meta name="theme-color" content="#0a0b0c">
     <meta property="og:title" content="Công Anh Dũng | AI/ML Systems Architect">
-    <meta property="og:description" content="DevOps & MLOps portfolio: Terraform/Ansible IaC, Kubernetes & ArgoCD GitOps, multi-cloud infrastructure, benchmark-driven GPU cost engineering, and production ML model serving.">
+    <meta property="og:description" content="DevOps &amp; MLOps portfolio: Terraform/Ansible IaC, Kubernetes &amp; ArgoCD GitOps, multi-cloud infrastructure, benchmark-driven GPU cost engineering, and production ML model serving.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://portfolio-dungca.ai-innovation-homelab.org">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260817a">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260905d">
 </head>
 <body>
-    <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
-    <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+    <a class="skip-link" href="#experience">Skip to content</a>
 
     <header class="site-header" id="siteHeader">
         <div class="container header-inner">
-            <a class="brand" href="#home">Công Anh Dũng</a>
+            <a class="brand" href="#home">
+                <span class="brand-name">cong_anh_dung</span>
+                <span class="brand-role">ai/ml systems architect</span>
+            </a>
 
             <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="siteNav">
                 <span></span><span></span><span></span>
             </button>
 
             <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
+                <a href="#experience" data-nav="experience" data-i18n="nav.experience">Experience</a>
                 <a href="#projects" data-nav="projects" data-i18n="nav.projects">Projects</a>
                 <a href="#case-study" data-nav="case-study" data-i18n="nav.caseStudy">Case Study</a>
-                <a href="#analytics" data-nav="analytics" data-i18n="nav.analytics">Analytics</a>
                 <a href="#expertise" data-nav="expertise" data-i18n="nav.expertise">Expertise</a>
+                <a href="#analytics" data-nav="analytics" data-i18n="nav.analytics">Analytics</a>
                 <a href="#writing" data-nav="writing" data-i18n="nav.writing">Writing</a>
                 <a href="#contact" data-nav="contact" data-i18n="nav.contact">Contact</a>
             </nav>
 
-            <div class="lang-switch" role="group" aria-label="Language switch">
-                <button class="lang-btn" type="button" data-lang="en">EN</button>
-                <button class="lang-btn" type="button" data-lang="vi">VI</button>
+            <div class="header-tools">
+                <div class="lang-switch" role="group" aria-label="Language switch">
+                    <button class="lang-btn" type="button" data-lang="en">en</button>
+                    <button class="lang-btn" type="button" data-lang="vi">vi</button>
+                </div>
+                <a class="header-cta" href="mailto:dungca1512@gmail.com" data-i18n="common.hireMe">Hire Me</a>
             </div>
-
-            <a class="header-cta" href="mailto:dungca1512@gmail.com" data-i18n="common.hireMe">Hire Me</a>
         </div>
     </header>
 
     <main id="home">
-        <section class="hero section">
+        <section class="hero">
             <div class="container hero-grid">
-                <div class="hero-copy reveal">
-                    <div class="hero-person">
-                        <div class="hero-avatar-wrap">
-                            <img
-                                id="heroAvatar"
-                                class="hero-avatar"
-                                src="profile.jpeg"
-                                alt="Portrait of Công Anh Dũng"
-                                loading="lazy"
-                                referrerpolicy="no-referrer"
-                            >
-                        </div>
-                        <div class="hero-person-meta">
-                            <strong>Công Anh Dũng</strong>
-                            <span>AI/ML Systems Architect</span>
-                        </div>
-                    </div>
+                <div class="hero-copy">
                     <p class="eyebrow" data-i18n="hero.eyebrow">AI/ML SYSTEMS ARCHITECT</p>
                     <h1 data-i18n="hero.title">I own AI infrastructure end-to-end — from cloud provisioning to production ML serving.</h1>
                     <p class="hero-lead" data-i18n="hero.lead">DevOps &amp; MLOps engineer shipping ASR, TTS, pronunciation scoring, embedding, and agentic RAG services on Kubernetes and AWS for users across VN, JP, and KR.</p>
+
+                    <pre class="stack-diagram" aria-label="Delivery path from infrastructure as code to production inference"><code><span class="sd-key">provision</span>   terraform · ansible
+<span class="sd-key">deliver</span>     k8s (gke · kubeadm) · argocd · helm
+<span class="sd-key">serve</span>       asr · tts · scoring · embedding
+<span class="sd-key">models</span>      faster-whisper · wav2vec2 · qwen3
+<span class="sd-key">observe</span>     prometheus · grafana · loki</code></pre>
+
                     <div class="hero-actions">
                         <a class="btn btn-primary" href="#projects" data-i18n="hero.primaryCta">View Projects</a>
                         <a class="btn btn-ghost" href="https://github.com/dungca1512" target="_blank" rel="noopener noreferrer" data-i18n="hero.secondaryCta">GitHub</a>
                     </div>
-                    <ul class="hero-trust" id="heroTrust"></ul>
                 </div>
 
-                <aside class="hero-panel reveal">
-                    <p class="panel-title" data-i18n="panel.title">Current Mission</p>
-                    <h2 data-i18n="panel.heading">Production AI systems with measurable reliability.</h2>
-                    <ul class="focus-list" id="focusList"></ul>
-                    <div class="panel-meta">
-                        <span id="profileLocation">Hanoi, Vietnam</span>
-                        <span class="dot"></span>
-                        <span id="profileStatus">Open to collaboration</span>
+                <aside class="spec-sheet" aria-label="Profile summary">
+                    <div class="spec-id">
+                        <img
+                            id="heroAvatar"
+                            class="hero-avatar"
+                            src="profile.jpeg"
+                            alt="Portrait of Công Anh Dũng"
+                            width="88"
+                            height="88"
+                            referrerpolicy="no-referrer"
+                        >
+                        <div class="spec-id-meta">
+                            <strong>Công Anh Dũng</strong>
+                            <span id="profileLocation">Hanoi, Vietnam</span>
+                            <span class="spec-status" id="profileStatus">Open to collaboration</span>
+                        </div>
                     </div>
+
+                    <dl class="spec-rows">
+                        <div class="spec-row">
+                            <dt data-i18n="panel.title">Current Mission</dt>
+                            <dd><ul class="focus-list" id="focusList"></ul></dd>
+                        </div>
+                        <div class="spec-row">
+                            <dt data-i18n="hero.stackLabel">Stack</dt>
+                            <dd><ul class="trust-list" id="heroTrust"></ul></dd>
+                        </div>
+                    </dl>
                 </aside>
             </div>
         </section>
 
-        <section class="metrics section" id="impact">
+        <section class="strip" id="impact" aria-label="Impact metrics">
             <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="impact.kicker">Impact</p>
-                    <h2 data-i18n="impact.title">Infrastructure ownership, measured in shipped systems.</h2>
-                </div>
                 <div class="metrics-grid" id="metricsGrid"></div>
             </div>
         </section>
 
-        <section class="section analytics" id="analytics">
+        <section class="section" id="experience">
             <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="analytics.kicker">Data Snapshot</p>
-                    <h2 data-i18n="analytics.title">GitHub activity and repository signals.</h2>
+                <div class="section-head">
+                    <span class="section-index">01</span>
+                    <div>
+                        <p class="kicker" data-i18n="experience.kicker">Experience</p>
+                        <h2 data-i18n="experience.title">Three years shipping and operating AI systems in production.</h2>
+                    </div>
                 </div>
-                <div class="analytics-meta reveal" style="--reveal-delay:0ms">
-                    <span data-i18n="analytics.liveLabel">Live GitHub Snapshot</span>
-                    <strong id="analyticsUpdatedAt">-</strong>
-                </div>
-                <div class="analytics-kpis" id="analyticsKpis"></div>
-                <div class="analytics-grid">
-                    <article class="analytics-card analytics-card-wide reveal" style="--reveal-delay:140ms">
-                        <h3 data-i18n="analytics.languageMix">Language Mix</h3>
-                        <div class="donut-layout">
-                            <div class="donut-chart" id="languageDonut"></div>
-                            <div class="chart-area" id="languageChart"></div>
-                        </div>
-                    </article>
-                    <article class="analytics-card reveal" style="--reveal-delay:220ms">
-                        <h3 data-i18n="analytics.velocityChart">Update Velocity (12 Months)</h3>
-                        <div class="chart-area" id="velocityChart"></div>
-                    </article>
-                    <article class="analytics-card reveal" style="--reveal-delay:300ms">
-                        <h3 data-i18n="analytics.freshnessChart">Repository Freshness</h3>
-                        <div class="chart-area" id="freshnessChart"></div>
-                    </article>
-                    <article class="analytics-card analytics-card-wide reveal" style="--reveal-delay:380ms">
-                        <h3 data-i18n="analytics.topRepos">Most Active Repositories</h3>
-                        <div class="chart-area" id="topReposTable"></div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="expertise">
-            <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="expertise.kicker">Core Expertise</p>
-                    <h2 data-i18n="expertise.title">How I build and operate AI infrastructure.</h2>
-                </div>
-                <div class="expertise-grid" id="expertiseGrid"></div>
+                <ol class="experience-list" id="experienceList"></ol>
+                <dl class="credential-rows" id="credentialRows"></dl>
             </div>
         </section>
 
         <section class="section" id="projects">
             <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="projects.kicker">Selected Work</p>
-                    <h2 data-i18n="projects.title">Portfolio projects in AI, ML, and system design.</h2>
+                <div class="section-head">
+                    <span class="section-index">02</span>
+                    <div>
+                        <p class="kicker" data-i18n="projects.kicker">Selected Work</p>
+                        <h2 data-i18n="projects.title">Portfolio projects in AI, ML, and system design.</h2>
+                    </div>
                 </div>
-                <div class="projects-grid" id="projectsGrid"></div>
+                <div class="project-table" id="projectsGrid"></div>
             </div>
         </section>
 
         <section class="section case-study" id="case-study">
             <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="caseStudy.kicker">Flagship Case Study</p>
-                    <h2 id="caseStudyHeading">AI Gateway</h2>
+                <div class="section-head">
+                    <span class="section-index">03</span>
+                    <div>
+                        <p class="kicker" data-i18n="caseStudy.kicker">Flagship Case Study</p>
+                        <h2 id="caseStudyHeading">AI Gateway</h2>
+                    </div>
                 </div>
 
-                <article class="case-card reveal">
+                <article class="case-card">
                     <header class="case-header">
                         <div>
                             <p class="case-label" data-i18n="caseStudy.label">From architecture to execution</p>
@@ -174,28 +159,92 @@
             </div>
         </section>
 
+        <section class="section" id="expertise">
+            <div class="container">
+                <div class="section-head">
+                    <span class="section-index">04</span>
+                    <div>
+                        <p class="kicker" data-i18n="expertise.kicker">Core Expertise</p>
+                        <h2 data-i18n="expertise.title">How I build and operate AI infrastructure.</h2>
+                    </div>
+                </div>
+                <div class="expertise-grid" id="expertiseGrid"></div>
+
+                <div class="skill-matrix">
+                    <h3 data-i18n="skills.label">Technical Skills</h3>
+                    <dl class="skill-rows" id="skillMatrix"></dl>
+                </div>
+            </div>
+        </section>
+
         <section class="section playbook" id="playbook">
-            <div class="container playbook-grid">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="playbook.kicker">Engineering Playbook</p>
-                    <h2 data-i18n="playbook.title">Execution principles for production AI.</h2>
+            <div class="container">
+                <div class="section-head">
+                    <span class="section-index">05</span>
+                    <div>
+                        <p class="kicker" data-i18n="playbook.kicker">Engineering Playbook</p>
+                        <h2 data-i18n="playbook.title">Execution principles for production AI.</h2>
+                    </div>
                 </div>
                 <ol class="playbook-list" id="playbookList"></ol>
             </div>
         </section>
 
+        <section class="section analytics" id="analytics">
+            <div class="container">
+                <div class="section-head">
+                    <span class="section-index">06</span>
+                    <div>
+                        <p class="kicker" data-i18n="analytics.kicker">Data Snapshot</p>
+                        <h2 data-i18n="analytics.title">GitHub activity and repository signals.</h2>
+                    </div>
+                    <p class="analytics-meta">
+                        <span data-i18n="analytics.liveLabel">Live GitHub Snapshot</span>
+                        <strong id="analyticsUpdatedAt">-</strong>
+                    </p>
+                </div>
+
+                <p class="analytics-scope" data-i18n="analytics.scopeNote">Scope: public repositories with commits since 2025.</p>
+
+                <div class="analytics-kpis" id="analyticsKpis"></div>
+
+                <div class="analytics-grid">
+                    <article class="analytics-card">
+                        <h3 data-i18n="analytics.velocityChart">Update Velocity (12 Months)</h3>
+                        <div class="chart-area" id="velocityChart"></div>
+                    </article>
+                    <article class="analytics-card">
+                        <h3 data-i18n="analytics.languageMix">Language Mix</h3>
+                        <div class="chart-area" id="languageChart"></div>
+                    </article>
+                    <article class="analytics-card">
+                        <h3 data-i18n="analytics.freshnessChart">Repository Freshness</h3>
+                        <div class="chart-area" id="freshnessChart"></div>
+                    </article>
+                </div>
+
+                <div class="analytics-table">
+                    <h3 data-i18n="analytics.topRepos">Most Active Repositories</h3>
+                    <div class="chart-area" id="topReposTable"></div>
+                </div>
+            </div>
+        </section>
+
         <section class="section" id="writing">
             <div class="container">
-                <div class="section-head reveal">
-                    <p class="kicker" data-i18n="writing.kicker">Writing</p>
-                    <h2 data-i18n="writing.title">Notes on infrastructure, MLOps, and cost engineering.</h2>
+                <div class="section-head">
+                    <span class="section-index">07</span>
+                    <div>
+                        <p class="kicker" data-i18n="writing.kicker">Writing</p>
+                        <h2 data-i18n="writing.title">Notes on infrastructure, MLOps, and cost engineering.</h2>
+                    </div>
                 </div>
                 <div class="writing-grid" id="writingGrid"></div>
             </div>
         </section>
 
         <section class="section contact" id="contact">
-            <div class="container contact-card reveal">
+            <div class="container contact-card">
                 <p class="kicker" data-i18n="contact.kicker">Contact</p>
                 <h2 data-i18n="contact.title">Building an AI product or platform?</h2>
                 <p class="contact-text" data-i18n="contact.text">I am available for AI/ML infrastructure, DevOps, and MLOps roles focused on production model serving, Kubernetes platforms, and cost-efficient cloud architecture.</p>
@@ -206,7 +255,7 @@
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <p id="footerText">© 2026 Công Anh Dũng. Built for AI/ML infrastructure & MLOps opportunities.</p>
+            <p id="footerText">© 2026 Công Anh Dũng. Built for AI/ML infrastructure &amp; MLOps opportunities.</p>
             <div class="footer-links">
                 <a href="https://github.com/dungca1512" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://www.linkedin.com/in/dungca/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
@@ -215,7 +264,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260817a"></script>
-    <script src="main.js?v=20260817a"></script>
+    <script src="data.js?v=20260905d"></script>
+    <script src="main.js?v=20260905d"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ const state = {
     revealObserver: null
 };
 
-const ANALYTICS_COLORS = ['#0f766e', '#2563eb', '#f97316', '#7c3aed', '#0ea5e9', '#84cc16', '#6b7280'];
+const ANALYTICS_COLORS = ['#c8944b', '#a67a3d', '#8a6631', '#6d5228', '#514020', '#3a3028', '#2b2c2e'];
 
 function getValueByPath(obj, path) {
     return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
@@ -97,7 +97,20 @@ function getAnalyticsRepos() {
     }
 
     const excludedRepos = new Set(PORTFOLIO_DATA.github.excludeFromAnalytics || []);
-    return repos.filter((repo) => !excludedRepos.has(repo.name));
+    const since = PORTFOLIO_DATA.github.analyticsSince
+        ? Date.parse(PORTFOLIO_DATA.github.analyticsSince)
+        : NaN;
+
+    return repos.filter((repo) => {
+        if (excludedRepos.has(repo.name)) {
+            return false;
+        }
+        if (Number.isNaN(since)) {
+            return true;
+        }
+        const touched = Date.parse(repo.pushed_at || repo.updated_at || '');
+        return Number.isNaN(touched) ? false : touched >= since;
+    });
 }
 
 function calculateAnalytics() {
@@ -201,21 +214,19 @@ function renderAnalytics() {
     }
 
     const kpiEl = byId('analyticsKpis');
-    const languageDonutEl = byId('languageDonut');
     const languageEl = byId('languageChart');
     const yearlyEl = byId('velocityChart');
     const freshnessEl = byId('freshnessChart');
     const topReposEl = byId('topReposTable');
     const analytics = calculateAnalytics();
 
-    if (!kpiEl || !languageDonutEl || !languageEl || !yearlyEl || !freshnessEl || !topReposEl) {
+    if (!kpiEl || !languageEl || !yearlyEl || !freshnessEl || !topReposEl) {
         return;
     }
 
     if (!analytics) {
         const emptyText = t(PORTFOLIO_DATA.i18n.analytics.noData);
         kpiEl.innerHTML = '';
-        languageDonutEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         languageEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         yearlyEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
         freshnessEl.innerHTML = `<div class="chart-empty">${emptyText}</div>`;
@@ -238,23 +249,6 @@ function renderAnalytics() {
         `)
         .join('');
 
-    let cumulative = 0;
-    const donutGradient = analytics.languages
-        .map((item) => {
-            const start = cumulative;
-            cumulative += item.pct;
-            return `${item.color} ${start}% ${cumulative}%`;
-        })
-        .join(', ');
-
-    languageDonutEl.innerHTML = `
-        <div class="donut-ring" style="--donut-gradient:${donutGradient}">
-            <div class="donut-center">
-                <strong>${analytics.total}</strong>
-                <span>${t(PORTFOLIO_DATA.i18n.analytics.repoCount)}</span>
-            </div>
-        </div>
-    `;
 
     const langMax = Math.max(...analytics.languages.map((item) => item.count), 1);
     languageEl.innerHTML = `
@@ -262,7 +256,7 @@ function renderAnalytics() {
             ${analytics.languages.map((item) => `
                 <div class="chart-row">
                     <span class="chart-row-label" title="${item.name}"><span class="lang-swatch" style="background:${item.color}"></span>${item.name}</span>
-                    <span class="chart-track"><span class="chart-fill" style="width:${(item.count / langMax) * 100}%"></span></span>
+                    <span class="chart-track"><span class="chart-fill" style="width:${(item.count / langMax) * 100}%;background:${item.color}"></span></span>
                     <span class="chart-row-value">${item.count} (${Math.round(item.pct)}%)</span>
                 </div>
             `).join('')}
@@ -367,6 +361,93 @@ function renderMetrics() {
         .join('');
 }
 
+function renderExperience() {
+    const list = byId('experienceList');
+    if (!list) {
+        return;
+    }
+
+    list.innerHTML = (PORTFOLIO_DATA.experience || [])
+        .map((role, index) => {
+            const highlights = (role.highlights || [])
+                .map((item) => `<li>${t(item)}</li>`)
+                .join('');
+            const stack = (role.stack || [])
+                .map((item) => `<li>${item}</li>`)
+                .join('');
+
+            return `
+                <li class="experience-row reveal${role.current ? ' is-current' : ''}" style="--reveal-delay:${index * 70}ms">
+                    <div class="experience-when">
+                        <span class="experience-period">${role.period}</span>
+                        <span class="experience-company">${role.company}</span>
+                    </div>
+                    <div class="experience-what">
+                        <h3>${t(role.role)}</h3>
+                        <p class="experience-summary">${t(role.summary)}</p>
+                        <ul class="experience-highlights">${highlights}</ul>
+                        <ul class="experience-stack">${stack}</ul>
+                    </div>
+                </li>
+            `;
+        })
+        .join('');
+}
+
+function renderCredentials() {
+    const rows = byId('credentialRows');
+    if (!rows) {
+        return;
+    }
+
+    const education = PORTFOLIO_DATA.education;
+    const certification = PORTFOLIO_DATA.certification;
+    const labels = PORTFOLIO_DATA.i18n.experience;
+    const parts = [];
+
+    if (education) {
+        parts.push(`
+            <div class="credential-row">
+                <dt>${t(labels.educationLabel)}</dt>
+                <dd>
+                    <strong>${t(education.school)}</strong>
+                    <span>${t(education.degree)} · ${education.period}</span>
+                </dd>
+            </div>
+        `);
+    }
+
+    if (certification) {
+        parts.push(`
+            <div class="credential-row">
+                <dt>${t(labels.certLabel)}</dt>
+                <dd>
+                    <strong>${certification.name}</strong>
+                    <span>${t(certification.status)}</span>
+                </dd>
+            </div>
+        `);
+    }
+
+    rows.innerHTML = parts.join('');
+}
+
+function renderSkillMatrix() {
+    const matrix = byId('skillMatrix');
+    if (!matrix) {
+        return;
+    }
+
+    matrix.innerHTML = (PORTFOLIO_DATA.skillGroups || [])
+        .map((group) => `
+            <div class="skill-row">
+                <dt>${t(group.label)}</dt>
+                <dd><ul>${group.items.map((item) => `<li>${item}</li>`).join('')}</ul></dd>
+            </div>
+        `)
+        .join('');
+}
+
 function renderExpertise() {
     byId('expertiseGrid').innerHTML = PORTFOLIO_DATA.expertise
         .map((item, index) => `
@@ -406,16 +487,22 @@ function renderProjects() {
             }
 
             return `
-                <article class="project-card reveal" style="--reveal-delay:${index * 100}ms">
+                <article class="project-row reveal" style="--reveal-delay:${index * 60}ms">
                     <div class="project-head">
                         <h3>${project.name}</h3>
                         <span class="project-period">${project.period}</span>
                     </div>
-                    <p class="project-summary">${t(project.summary)}</p>
-                    <p class="project-impact">${t(project.outcome)}</p>
-                    ${repoMeta.length ? `<p class="project-repo-meta">${repoMeta.join(' · ')}</p>` : ''}
-                    <ul class="project-stack">${stack}</ul>
-                    <div class="project-links">${links}</div>
+                    <div class="project-body">
+                        <p class="project-summary">${t(project.summary)}</p>
+                        <p class="project-impact">${t(project.outcome)}</p>
+                        <ul class="project-stack">${stack}</ul>
+                    </div>
+                    <div class="project-aside">
+                        ${repoMeta.length
+                            ? `<p class="project-repo-meta">${repoMeta.join('<br>')}</p>`
+                            : `<p class="project-repo-meta is-private">${t(PORTFOLIO_DATA.i18n.common.privateWork)}</p>`}
+                        <div class="project-links">${links}</div>
+                    </div>
                 </article>
             `;
         })
@@ -486,7 +573,10 @@ function renderDynamicSections() {
     renderHero();
     renderMetrics();
     renderAnalytics();
+    renderExperience();
+    renderCredentials();
     renderExpertise();
+    renderSkillMatrix();
     renderProjects();
     renderCaseStudy();
     renderPlaybook();

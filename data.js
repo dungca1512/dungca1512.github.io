@@ -2,7 +2,10 @@ const PORTFOLIO_DATA = {
     github: {
         username: 'dungca1512',
         dataFile: 'github-data.json',
-        excludeFromAnalytics: ['dungca1512', 'dungca1512.github.io']
+        excludeFromAnalytics: ['dungca1512', 'dungca1512.github.io'],
+        // Only count repositories still being touched. Everything older is
+        // university coursework and does not represent current capability.
+        analyticsSince: '2025-01-01'
     },
 
     profile: {
@@ -20,6 +23,7 @@ const PORTFOLIO_DATA = {
 
     i18n: {
         nav: {
+            experience: { en: 'Experience', vi: 'Kinh nghiệm' },
             projects: { en: 'Projects', vi: 'Dự án' },
             caseStudy: { en: 'Case Study', vi: 'Nghiên cứu tình huống' },
             analytics: { en: 'Analytics', vi: 'Phân tích' },
@@ -32,7 +36,8 @@ const PORTFOLIO_DATA = {
             repository: { en: 'Repository', vi: 'Mã nguồn' },
             stars: { en: 'Stars', vi: 'Sao' },
             forks: { en: 'Forks', vi: 'Fork' },
-            updated: { en: 'Updated', vi: 'Cập nhật' }
+            updated: { en: 'Updated', vi: 'Cập nhật' },
+            privateWork: { en: 'Private — no public repo', vi: 'Nội bộ — không có repo công khai' }
         },
         hero: {
             eyebrow: { en: 'AI/ML SYSTEMS ARCHITECT', vi: 'AI/ML SYSTEMS ARCHITECT' },
@@ -45,7 +50,8 @@ const PORTFOLIO_DATA = {
                 vi: 'Kỹ sư DevOps & MLOps triển khai các dịch vụ ASR, TTS, chấm phát âm, embedding và agentic RAG trên Kubernetes, GCP và AWS cho người dùng VN, JP, KR. Định hướng CLI-first, tối ưu chi phí và ra quyết định theo framework.'
             },
             primaryCta: { en: 'View Projects', vi: 'Xem dự án' },
-            secondaryCta: { en: 'GitHub', vi: 'GitHub' }
+            secondaryCta: { en: 'GitHub', vi: 'GitHub' },
+            stackLabel: { en: 'Stack', vi: 'Công nghệ' }
         },
         panel: {
             title: { en: 'Current Mission', vi: 'Mục tiêu hiện tại' },
@@ -87,8 +93,24 @@ const PORTFOLIO_DATA = {
             tableLanguage: { en: 'Language', vi: 'Ngôn ngữ' },
             tableUpdated: { en: 'Last Update', vi: 'Cập nhật gần nhất' },
             tableStars: { en: 'Stars', vi: 'Sao' },
+            scopeNote: {
+                en: 'Scope: public repositories with commits since 2025. Earlier coursework repositories are excluded, and production work at eUp, AMELA and FPT lives in private repositories.',
+                vi: 'Phạm vi: các repo công khai có commit từ 2025 trở lại đây. Repo bài tập cũ được loại trừ, và công việc production tại eUp, AMELA, FPT nằm trong repo nội bộ.'
+            },
             noData: { en: 'Loading GitHub data...', vi: 'Đang tải dữ liệu GitHub...' },
             unknown: { en: 'Unknown', vi: 'Không xác định' }
+        },
+        experience: {
+            kicker: { en: 'Experience', vi: 'Kinh nghiệm' },
+            title: {
+                en: 'Three years shipping and operating AI systems in production.',
+                vi: 'Ba năm xây dựng và vận hành hệ thống AI trong môi trường thực tế.'
+            },
+            educationLabel: { en: 'Education', vi: 'Học vấn' },
+            certLabel: { en: 'Certification', vi: 'Chứng chỉ' }
+        },
+        skills: {
+            label: { en: 'Technical Skills', vi: 'Kỹ năng kỹ thuật' }
         },
         expertise: {
             kicker: { en: 'Core Expertise', vi: 'Năng lực cốt lõi' },
@@ -171,29 +193,152 @@ const PORTFOLIO_DATA = {
         }
     ],
 
+    experience: [
+        {
+            company: 'eUp Group',
+            role: {
+                en: 'AI/ML Systems Architect — Infrastructure & MLOps',
+                vi: 'AI/ML Systems Architect — Hạ tầng & MLOps'
+            },
+            period: 'Jan 2025 — Present',
+            current: true,
+            summary: {
+                en: 'Own AI infrastructure end-to-end for the HeyJapan product line — provisioning, delivery, model serving and observability — and architect the speech, translation and lesson-generation systems on top of it.',
+                vi: 'Sở hữu toàn trình hạ tầng AI cho dòng sản phẩm HeyJapan — provisioning, delivery, model serving và observability — đồng thời thiết kế các hệ thống speech, dịch thuật và sinh bài học chạy trên đó.'
+            },
+            highlights: [
+                {
+                    en: 'Architected a multi-market speech scoring platform (JLPT, TOPIK, HSKK, English): 4 FastAPI/Gunicorn services with multi-engine STT — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — behind automatic fallback.',
+                    vi: 'Thiết kế nền tảng chấm điểm phát âm đa thị trường (JLPT, TOPIK, HSKK, tiếng Anh): 4 dịch vụ FastAPI/Gunicorn với STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — kèm cơ chế fallback tự động.'
+                },
+                {
+                    en: 'Ruled out a ~$2,475/mo H100 plan with a benchmark instead of an opinion: p95 1.86s at 20 concurrent users on ~8% of a commodity CUDA GPU. Also ran the RCA that closed a 3x ASR latency gap between two environments.',
+                    vi: 'Loại phương án H100 ~$2,475/tháng bằng số liệu chứ không bằng cảm tính: p95 1.86s với 20 người dùng đồng thời, chỉ dùng ~8% một GPU CUDA phổ thông. Đồng thời chủ trì RCA khép lại chênh lệch latency ASR gấp 3 lần giữa hai môi trường.'
+                },
+                {
+                    en: 'Migrated production ML services from Docker Swarm to Kubernetes (GKE and bare-metal kubeadm) with Terraform, Ansible, Helm and ArgoCD App-of-Apps; Prometheus, Grafana and Loki for observability.',
+                    vi: 'Di trú các dịch vụ ML production từ Docker Swarm sang Kubernetes (GKE và bare-metal kubeadm) với Terraform, Ansible, Helm và ArgoCD App-of-Apps; observability bằng Prometheus, Grafana và Loki.'
+                },
+                {
+                    en: 'Replaced the OpenAI Embedding API with a self-hosted Qwen3-Embedding-4B service and built the RAG code-review pipeline it feeds, gated by an exit-code check in GitLab CI.',
+                    vi: 'Thay thế OpenAI Embedding API bằng dịch vụ Qwen3-Embedding-4B tự host và xây pipeline review code RAG chạy trên đó, kiểm soát bằng exit-code gate trong GitLab CI.'
+                },
+                {
+                    en: 'Build and release engineering: Jenkins signed tags, GitLab CI with pytest and Docker-in-Docker, Harbor registry, gitleaks and Qodana quality gates.',
+                    vi: 'Kỹ thuật build và release: Jenkins signed tag, GitLab CI với pytest và Docker-in-Docker, registry Harbor, quality gate gitleaks và Qodana.'
+                }
+            ],
+            stack: ['Terraform', 'Ansible', 'Kubernetes', 'ArgoCD', 'FastAPI', 'CTranslate2', 'Prometheus']
+        },
+        {
+            company: 'AMELA Technology',
+            role: { en: 'AI Engineer', vi: 'AI Engineer' },
+            period: 'Nov 2024 — Jan 2025',
+            summary: {
+                en: 'Delivered computer vision and retrieval-augmented generation features for client products.',
+                vi: 'Triển khai các tính năng thị giác máy tính và RAG cho sản phẩm khách hàng.'
+            },
+            highlights: [
+                {
+                    en: 'Built a Japanese handwriting OCR pipeline, from data preparation through model training to a serving endpoint.',
+                    vi: 'Xây dựng pipeline OCR chữ viết tay tiếng Nhật, từ chuẩn bị dữ liệu, huấn luyện mô hình đến endpoint phục vụ.'
+                },
+                {
+                    en: 'Shipped RAG chatbots over client document sets, and an AI-guided cosmetic eyeliner feature driven by facial landmark detection.',
+                    vi: 'Triển khai chatbot RAG trên tập tài liệu khách hàng và tính năng kẻ eyeliner có AI dẫn đường dựa trên nhận diện điểm mốc khuôn mặt.'
+                }
+            ],
+            stack: ['PyTorch', 'OCR', 'RAG', 'OpenCV']
+        },
+        {
+            company: 'FPT Smart Cloud',
+            role: { en: 'AI Engineer Intern', vi: 'Thực tập sinh AI Engineer' },
+            period: 'Mar 2023 — Nov 2024',
+            summary: {
+                en: 'Worked on FPT AI Enhance, the conversation analytics platform serving Home Credit, FE Credit, MB Bank, FPT Long Chau and FPT Shop.',
+                vi: 'Tham gia FPT AI Enhance — nền tảng phân tích hội thoại phục vụ Home Credit, FE Credit, MB Bank, FPT Long Châu và FPT Shop.'
+            },
+            highlights: [
+                {
+                    en: 'Developed conversation analytics features on production call-centre data for enterprise banking and retail customers.',
+                    vi: 'Phát triển các tính năng phân tích hội thoại trên dữ liệu tổng đài thực tế cho khách hàng ngân hàng và bán lẻ quy mô lớn.'
+                },
+                {
+                    en: 'Implemented LLM guardrails, and built virtual assistant chatbots for the State Securities Commission of Vietnam.',
+                    vi: 'Xây dựng guardrail cho LLM và phát triển chatbot trợ lý ảo cho Ủy ban Chứng khoán Nhà nước Việt Nam.'
+                }
+            ],
+            stack: ['Python', 'NLP', 'LLM Guardrails', 'Chatbot']
+        }
+    ],
+
+    education: {
+        school: {
+            en: 'VNU University of Science (HUS)',
+            vi: 'Trường Đại học Khoa học Tự nhiên, ĐHQGHN'
+        },
+        degree: {
+            en: 'Computer and Information Science',
+            vi: 'Khoa học Máy tính và Thông tin'
+        },
+        period: 'Mar 2019 — Jun 2025'
+    },
+
+    certification: {
+        name: 'AWS Certified Solutions Architect — Associate (SAA-C03)',
+        status: { en: 'In progress', vi: 'Đang theo học' }
+    },
+
+    skillGroups: [
+        {
+            label: { en: 'Infrastructure & Platform', vi: 'Hạ tầng & Nền tảng' },
+            items: ['Terraform', 'Ansible', 'Kubernetes (GKE · kubeadm · Autopilot)', 'ArgoCD', 'Helm', 'Kustomize', 'Docker', 'Harbor', 'Cloudflare Tunnel', 'Tailscale']
+        },
+        {
+            label: { en: 'Cloud', vi: 'Cloud' },
+            items: ['GCP (GKE · Vertex AI · Artifact Registry)', 'AWS (EC2 · CloudWatch)', 'DigitalOcean', 'OCI', 'Workload Identity', 'Preemptible pools', 'vast.ai']
+        },
+        {
+            label: { en: 'ML & Speech', vi: 'ML & Xử lý tiếng nói' },
+            items: ['faster-whisper / CTranslate2', 'Kotoba-Whisper', 'SenseVoice ONNX', 'ReazonSpeech', 'wav2vec2 CTC (GOP)', 'LoRA / PEFT', 'espeak-ng G2P', 'Praat / parselmouth', 'SudachiPy · MeCab · pykakasi']
+        },
+        {
+            label: { en: 'LLM & Agents', vi: 'LLM & Agent' },
+            items: ['LangChain / LangGraph', 'Google ADK', 'MCP', 'A2A Protocol', 'Gemini · Claude · GPT · Qwen', 'vLLM · Ollama', 'Qwen3 Embedding', 'LanceDB · Milvus']
+        },
+        {
+            label: { en: 'Backend & Data', vi: 'Backend & Dữ liệu' },
+            items: ['Python · FastAPI', 'Java 17/21 · Spring WebFlux', 'Scala 3', 'Next.js', 'Kafka', 'Spark Streaming', 'Delta Lake', 'Elasticsearch', 'Redis', 'PostgreSQL']
+        },
+        {
+            label: { en: 'Delivery & Observability', vi: 'Delivery & Giám sát' },
+            items: ['GitLab CI (pytest · DinD)', 'GitHub Actions', 'Jenkins', 'Prometheus', 'Grafana', 'Loki', 'gitleaks', 'Qodana', 'n8n']
+        }
+    ],
+
     metrics: [
         {
-            source: 'stats.clustersManaged',
-            fallback: '5',
+            source: 'stats.yearsExperience',
+            fallback: '3+',
             label: {
-                en: 'Kubernetes clusters operated (GKE, DO, bare-metal, k3d, OrbStack)',
-                vi: 'Cụm Kubernetes vận hành (GKE, DO, bare-metal, k3d, OrbStack)'
+                en: 'Years building and operating AI systems in production',
+                vi: 'Năm xây dựng và vận hành hệ thống AI trong production'
+            }
+        },
+        {
+            source: 'stats.scoringServices',
+            fallback: '4',
+            label: {
+                en: 'Speech scoring services live across JP, KR, CN and EN markets',
+                vi: 'Dịch vụ chấm phát âm đang chạy cho thị trường Nhật, Hàn, Trung và tiếng Anh'
             }
         },
         {
             source: 'stats.cloudPlatforms',
             fallback: '5',
             label: {
-                en: 'Cloud platforms in production (GCP, DigitalOcean, OCI, Cloudflare, AWS)',
-                vi: 'Nền tảng cloud dùng thực tế (GCP, DigitalOcean, OCI, Cloudflare, AWS)'
-            }
-        },
-        {
-            source: 'stats.mlServices',
-            fallback: '5',
-            label: {
-                en: 'Production AI services shipped (ASR, TTS, Pronunciation, Embedding, Agentic RAG)',
-                vi: 'Dịch vụ AI đã triển khai (ASR, TTS, Chấm phát âm, Embedding, Agentic RAG)'
+                en: 'Cloud platforms in production (GCP, AWS, DigitalOcean, OCI, Cloudflare)',
+                vi: 'Nền tảng cloud dùng thực tế (GCP, AWS, DigitalOcean, OCI, Cloudflare)'
             }
         },
         {
@@ -255,18 +400,48 @@ const PORTFOLIO_DATA = {
 
     projects: [
         {
-            repo: 'pronunciation-scoring-api',
-            name: 'Pronunciation Scoring API',
+            repo: 'speech-scoring-platform',
+            name: 'Multi-Market Speech Scoring Platform',
             period: 'eUp · 2025-2026',
             summary: {
-                en: 'FastAPI service scoring Japanese pronunciation with wav2vec2 CTC forced alignment, a G2P caching layer, and GPU micro-batching for HeyJapan learners.',
-                vi: 'Dịch vụ FastAPI chấm phát âm tiếng Nhật bằng wav2vec2 CTC forced alignment, lớp cache G2P và micro-batching trên GPU phục vụ người học HeyJapan.'
+                en: 'Four FastAPI/Gunicorn services scoring pronunciation for JLPT (Japanese), TOPIK (Korean), HSKK (Mandarin) and English, each with a multi-engine STT layer — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — behind automatic fallback.',
+                vi: 'Bốn dịch vụ FastAPI/Gunicorn chấm phát âm cho JLPT (tiếng Nhật), TOPIK (tiếng Hàn), HSKK (tiếng Trung) và tiếng Anh, mỗi dịch vụ có lớp STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — với cơ chế fallback tự động.'
             },
             outcome: {
-                en: 'Outcome: benchmarked at p95 1.86s for 20 concurrent users (15s audio) using ~8% of the GPU and ~2GB VRAM, so one commodity CUDA GPU carries the workload; CPU-only serving was ruled out with data (~1 req/s throughput wall from the Python GIL and memory bandwidth).',
-                vi: 'Kết quả: benchmark đạt p95 1.86s với 20 người dùng đồng thời (audio 15s), chỉ dùng ~8% GPU và ~2GB VRAM nên một GPU CUDA phổ thông là đủ; phương án CPU-only bị loại bằng số liệu (trần throughput ~1 req/s do Python GIL và băng thông bộ nhớ).'
+                en: 'Scoring is linguistic, not generic: Needleman-Wunsch alignment between reference and hypothesis, wav2vec2 CTC goodness-of-pronunciation with espeak-ng G2P, Japanese pitch accent via SudachiPy/MeCab/pykakasi, Mandarin tone classification, and Praat/parselmouth prosody behind a concurrency semaphore. Benchmarked at p95 1.86s for 20 concurrent users on ~8% of one commodity CUDA GPU.',
+                vi: 'Việc chấm điểm mang tính ngôn ngữ học chứ không chung chung: căn chỉnh Needleman-Wunsch giữa câu mẫu và câu đọc, goodness-of-pronunciation bằng wav2vec2 CTC với G2P espeak-ng, trọng âm cao độ tiếng Nhật qua SudachiPy/MeCab/pykakasi, phân loại thanh điệu tiếng Trung và phân tích ngôn điệu Praat/parselmouth chạy sau semaphore giới hạn đồng thời. Benchmark đạt p95 1.86s với 20 người dùng đồng thời trên ~8% một GPU CUDA phổ thông.'
             },
-            stack: ['Python', 'FastAPI', 'wav2vec2', 'CUDA GPU', 'Docker'],
+            stack: ['FastAPI', 'Gunicorn', 'CTranslate2', 'wav2vec2 CTC', 'ONNX Runtime', 'parselmouth'],
+            links: []
+        },
+        {
+            repo: 'hey-translate',
+            name: 'Hey Translate',
+            period: 'eUp · 2025-2026',
+            summary: {
+                en: 'Translation service that runs Claude, Gemini, GPT and Qwen in parallel on the same input rather than trusting a single provider.',
+                vi: 'Dịch vụ dịch thuật chạy song song Claude, Gemini, GPT và Qwen trên cùng một đầu vào thay vì tin tưởng một nhà cung cấp duy nhất.'
+            },
+            outcome: {
+                en: 'Row-alignment validation rejects candidates that silently drop or merge lines, and an LLM-as-judge pass picks the surviving translation — so provider outages and format drift degrade quality instead of breaking the output contract.',
+                vi: 'Kiểm tra căn hàng loại bỏ các bản dịch âm thầm bỏ sót hoặc gộp dòng, sau đó một lượt LLM-as-judge chọn bản còn lại — nhờ vậy sự cố nhà cung cấp và trôi định dạng chỉ làm giảm chất lượng chứ không phá vỡ hợp đồng đầu ra.'
+            },
+            stack: ['Python', 'Claude', 'Gemini', 'GPT', 'Qwen', 'LLM-as-judge'],
+            links: []
+        },
+        {
+            repo: 'ultimate-lesson',
+            name: 'Ultimate Lesson',
+            period: 'eUp · 2025-2026',
+            summary: {
+                en: 'Pipeline that turns a YouTube URL into a structured language lesson: yt-dlp to Whisper transcription to GPT-4o-mini subtitle cleanup, then Gemini 2.5 Flash for generation with a fine-tuned Flash Lite extractor on Vertex AI.',
+                vi: 'Pipeline biến một URL YouTube thành bài học ngôn ngữ có cấu trúc: yt-dlp qua Whisper để bóc băng, GPT-4o-mini làm sạch phụ đề, rồi Gemini 2.5 Flash sinh nội dung với bộ trích xuất Flash Lite fine-tune trên Vertex AI.'
+            },
+            outcome: {
+                en: 'A Redis cache and multi-key rotation with 429 cooldown keep the generation path inside provider rate limits, so a single quota exhaustion no longer stalls the queue.',
+                vi: 'Cache Redis và cơ chế xoay vòng nhiều API key kèm cooldown khi gặp 429 giữ luồng sinh nội dung nằm trong giới hạn rate limit, nên một lần hết quota không còn làm nghẽn toàn bộ hàng đợi.'
+            },
+            stack: ['Gemini 2.5 Flash', 'Vertex AI', 'Whisper', 'GPT-4o-mini', 'Redis', 'yt-dlp'],
             links: []
         },
         {
@@ -278,29 +453,73 @@ const PORTFOLIO_DATA = {
                 vi: 'Tự host Qwen3-Embedding-4B, cung cấp endpoint /v1/embeddings tương thích OpenAI trên RTX 4080, thay thế hoàn toàn OpenAI Embedding API cho workload nội bộ.'
             },
             outcome: {
-                en: 'Outcome: removed an external API dependency and powered a RAG code-review pipeline (harvest -> embed -> LanceDB -> Qodo PR Agent) gated by a GitLab CI exit-code check.',
-                vi: 'Kết quả: loại bỏ phụ thuộc API bên ngoài và cấp nguồn cho pipeline review code bằng RAG (harvest -> embed -> LanceDB -> Qodo PR Agent), kiểm soát bằng GitLab CI exit-code gate.'
+                en: 'Removed an external API dependency and powered a RAG code-review pipeline (harvest -> embed -> LanceDB -> Qodo PR Agent) gated by a GitLab CI exit-code check.',
+                vi: 'Loại bỏ phụ thuộc API bên ngoài và cấp nguồn cho pipeline review code bằng RAG (harvest -> embed -> LanceDB -> Qodo PR Agent), kiểm soát bằng GitLab CI exit-code gate.'
             },
             stack: ['Qwen3-Embedding-4B', 'FastAPI', 'LanceDB', 'Docker Compose', 'GitLab CI', 'RTX 4080'],
             links: []
+        },
+        {
+            repo: 'ai-gateway',
+            name: 'AI Gateway',
+            period: '2025-2026',
+            summary: {
+                en: 'Java 21 Spring WebFlux gateway plus a Python FastAPI worker that unify multi-provider LLM access (OpenAI, Gemini, Anthropic, DashScope) behind one API, with Bucket4j rate limiting and Redis-backed state.',
+                vi: 'Gateway Java 21 Spring WebFlux kết hợp worker Python FastAPI, hợp nhất truy cập LLM đa nhà cung cấp (OpenAI, Gemini, Anthropic, DashScope) sau một API duy nhất, có rate limit Bucket4j và trạng thái lưu trên Redis.'
+            },
+            outcome: {
+                en: 'Circuit breaker, bulkhead, retry and per-request token tracking keep LLM traffic degrading gracefully during provider instability. A manual gcloud runbook was replaced by Terraform (API enablement, GKE Autopilot, Artifact Registry, static IP kept outside the cluster lifecycle) with Kustomize overlays and Prometheus metrics, so the whole platform rebuilds with apply and costs near $0 after destroy.',
+                vi: 'Circuit breaker, bulkhead, retry và theo dõi token theo từng request giúp lưu lượng LLM suy giảm an toàn khi nhà cung cấp gặp sự cố. Runbook gcloud thủ công được thay bằng Terraform (bật API, GKE Autopilot, Artifact Registry, static IP nằm ngoài lifecycle cluster) cùng overlay Kustomize và metric Prometheus, nên toàn bộ nền tảng dựng lại bằng apply và gần như $0 sau khi destroy.'
+            },
+            stack: ['Java 21', 'Spring WebFlux', 'Resilience4j', 'Bucket4j', 'Terraform', 'GKE Autopilot'],
+            links: [
+                {
+                    label: { en: 'Repository', vi: 'Mã nguồn' },
+                    url: 'https://github.com/dungca1512/ai-gateway'
+                }
+            ]
         },
         {
             repo: 'homelab',
             name: 'Homelab Kubernetes & GitOps Platform',
             period: '2025-2026',
             summary: {
-                en: 'A 3-node Kubernetes v1.31 cluster bootstrapped by hand with kubeadm instead of a managed distro: Flannel CNI, MetalLB (L2), ingress-nginx, local-path storage, and a self-hosted registry.',
+                en: 'A 3-node Kubernetes v1.31 cluster bootstrapped by hand with kubeadm instead of a managed distro: Flannel CNI, MetalLB (L2), ingress-nginx, local-path storage and a self-hosted registry.',
                 vi: 'Cụm Kubernetes v1.31 ba node dựng tay bằng kubeadm thay vì dùng distro managed: Flannel CNI, MetalLB (L2), ingress-nginx, local-path storage và registry tự host.'
             },
             outcome: {
-                en: 'Outcome: deploys are git push only via ArgoCD App-of-Apps (prune + selfHeal), observability from kube-prometheus-stack and Loki/Promtail, and ~2,400 lines of engineering notes where every lesson is tied to a real cluster failure.',
-                vi: 'Kết quả: deploy chỉ bằng git push qua ArgoCD App-of-Apps (prune + selfHeal), observability từ kube-prometheus-stack và Loki/Promtail, kèm ~2.400 dòng ghi chú kỹ thuật với mỗi bài học gắn với một sự cố cluster thật.'
+                en: 'Deploys are git push only via ArgoCD App-of-Apps (prune + selfHeal), observability comes from kube-prometheus-stack and Loki/Promtail, and ~2,400 lines of engineering notes tie every lesson to a real cluster failure.',
+                vi: 'Deploy chỉ bằng git push qua ArgoCD App-of-Apps (prune + selfHeal), observability từ kube-prometheus-stack và Loki/Promtail, kèm ~2.400 dòng ghi chú kỹ thuật với mỗi bài học gắn với một sự cố cluster thật.'
             },
             stack: ['kubeadm', 'ArgoCD', 'MetalLB', 'Prometheus', 'Grafana', 'Loki'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
                     url: 'https://github.com/dungca1512/homelab'
+                }
+            ]
+        },
+        {
+            repo: 'whisper-finetune-ja',
+            name: 'Whisper Finetune JA',
+            period: '2026',
+            summary: {
+                en: 'Reproducible LoRA fine-tuning pipeline for Japanese Whisper ASR on ReazonSpeech data, with training, INT8 export and inference scripts.',
+                vi: 'Pipeline fine-tune LoRA tái lập được cho ASR tiếng Nhật trên Whisper với dữ liệu ReazonSpeech, kèm script huấn luyện, export INT8 và inference.'
+            },
+            outcome: {
+                en: 'A full CI/CT/CD loop (GitHub Actions orchestration, Kaggle training, Hugging Face Hub hosting, quality gate for model promotion) published 3 Japanese ASR models, with the LoRA variant at 40+ downloads and an INT8 CTranslate2 export for cheap inference.',
+                vi: 'Vòng CI/CT/CD hoàn chỉnh (điều phối GitHub Actions, huấn luyện trên Kaggle, hosting Hugging Face Hub, quality gate để promote model) đã công bố 3 mô hình ASR tiếng Nhật, biến thể LoRA đạt 40+ lượt tải và bản export CTranslate2 INT8 cho inference giá rẻ.'
+            },
+            stack: ['PyTorch', 'LoRA/PEFT', 'CTranslate2 INT8', 'Kaggle', 'GitHub Actions', 'Hugging Face'],
+            links: [
+                {
+                    label: { en: 'Repository', vi: 'Mã nguồn' },
+                    url: 'https://github.com/dungca1512/whisper-finetune-ja'
+                },
+                {
+                    label: { en: 'Models on Hugging Face', vi: 'Model trên Hugging Face' },
+                    url: 'https://huggingface.co/dungca'
                 }
             ]
         },
@@ -313,73 +532,29 @@ const PORTFOLIO_DATA = {
                 vi: 'Chiếc Raspberry Pi phục vụ toàn bộ LAN được chuyển thành infrastructure as code: một playbook Ansible idempotent dựng lại từ OS trắng (mount fstab, Docker CE, giới hạn journald, cloudflared, Tailscale, AdGuard Home, cron dọn rác).'
             },
             outcome: {
-                en: 'Outcome: LAN-wide DNS on AdGuard Home cut resolver latency 199ms -> 27ms; Slack ChatOps on a Cloudflare Worker gives a /homelab status command and Block Kit alerts that separate power loss from internet loss with outage duration and diagnosed cause; ansible-lint/yamllint/gitleaks CI plus GPG-encrypted backups make a dead SD card a rebuild, not an investigation.',
-                vi: 'Kết quả: DNS toàn LAN trên AdGuard Home giảm độ trễ resolver 199ms -> 27ms; Slack ChatOps qua Cloudflare Worker cung cấp lệnh /homelab xem trạng thái và alert Block Kit phân biệt mất điện với mất mạng kèm thời lượng và nguyên nhân được chẩn đoán; CI ansible-lint/yamllint/gitleaks cùng backup mã hóa GPG biến thẻ SD chết thành việc dựng lại, không phải điều tra.'
+                en: 'LAN-wide DNS on AdGuard Home cut resolver latency 199ms -> 27ms; Slack ChatOps on a Cloudflare Worker gives a /homelab status command and Block Kit alerts that separate power loss from internet loss; ansible-lint/yamllint/gitleaks CI plus GPG-encrypted backups make a dead SD card a rebuild, not an investigation.',
+                vi: 'DNS toàn LAN trên AdGuard Home giảm độ trễ resolver 199ms -> 27ms; Slack ChatOps qua Cloudflare Worker cung cấp lệnh /homelab xem trạng thái và alert Block Kit phân biệt mất điện với mất mạng; CI ansible-lint/yamllint/gitleaks cùng backup mã hóa GPG biến thẻ SD chết thành việc dựng lại, không phải điều tra.'
             },
             stack: ['Ansible', 'Docker', 'AdGuard Home / DoH', 'Cloudflare Worker', 'Tailscale', 'Slack API'],
             links: []
-        },
-        {
-            repo: 'ai-gateway',
-            name: 'AI Gateway',
-            period: '2025',
-            summary: {
-                en: 'Reactive Spring WebFlux gateway plus a Python FastAPI worker that unify multi-provider LLM access (OpenAI, Gemini, Anthropic, DashScope) behind one API.',
-                vi: 'Gateway reactive Spring WebFlux kết hợp worker Python FastAPI, hợp nhất truy cập LLM đa nhà cung cấp (OpenAI, Gemini, Anthropic, DashScope) sau một API duy nhất.'
-            },
-            outcome: {
-                en: 'Outcome: circuit breaker, bulkhead, retry, and per-request token tracking keep LLM traffic degrading gracefully during provider instability; a manual gcloud runbook was replaced by Terraform (API enablement, GKE Autopilot, Artifact Registry, static IP outside the cluster lifecycle) so the whole platform rebuilds with apply and costs near $0 after destroy.',
-                vi: 'Kết quả: circuit breaker, bulkhead, retry và theo dõi token theo request giúp lưu lượng LLM suy giảm an toàn khi provider gặp sự cố; runbook gcloud thủ công được thay bằng Terraform (bật API, GKE Autopilot, Artifact Registry, static IP nằm ngoài lifecycle cluster) nên toàn bộ nền tảng dựng lại bằng apply và gần như $0 sau khi destroy.'
-            },
-            stack: ['Java', 'Spring WebFlux', 'Resilience4j', 'FastAPI', 'Terraform', 'GKE'],
-            links: [
-                {
-                    label: { en: 'Repository', vi: 'Mã nguồn' },
-                    url: 'https://github.com/dungca1512/ai-gateway'
-                }
-            ]
         },
         {
             repo: 'newspulse-reco-engine',
             name: 'NewsPulse Reco Engine',
             period: '2025',
             summary: {
-                en: 'Event-driven Vietnamese news platform: crawling, Spark ETL, Kafka streaming, embeddings, trend detection, and FCM push via an n8n orchestration flow.',
+                en: 'Event-driven Vietnamese news platform: crawling, Spark ETL, Kafka streaming, embeddings, trend detection and FCM push via an n8n orchestration flow.',
                 vi: 'Nền tảng tin tức tiếng Việt theo hướng sự kiện: thu thập, Spark ETL, streaming Kafka, embeddings, phát hiện xu hướng và đẩy FCM qua luồng orchestration n8n.'
             },
             outcome: {
-                en: 'Outcome: designed a 7-module pipeline spanning Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.',
-                vi: 'Kết quả: thiết kế pipeline 7 module gồm Scala crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.'
+                en: 'Designed a 7-module pipeline spanning Scala 3 crawler + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.',
+                vi: 'Thiết kế pipeline 7 module gồm crawler Scala 3 + Spark ETL + Kafka stream + embeddings + clustering/trending + Spring API + push notification.'
             },
-            stack: ['Scala', 'Kafka', 'Spark', 'Elasticsearch', 'n8n', 'Firebase FCM'],
+            stack: ['Scala 3', 'Kafka', 'Spark', 'Elasticsearch', 'n8n', 'Firebase FCM'],
             links: [
                 {
                     label: { en: 'Repository', vi: 'Mã nguồn' },
                     url: 'https://github.com/dungca1512/newspulse-reco-engine'
-                }
-            ]
-        },
-        {
-            repo: 'whisper-finetune-ja',
-            name: 'Whisper Finetune JA',
-            period: '2026',
-            summary: {
-                en: 'Reproducible fine-tuning pipeline for Japanese Whisper ASR on ReazonSpeech data, with training, export, and inference scripts.',
-                vi: 'Pipeline tinh chỉnh tái lập được cho ASR tiếng Nhật trên Whisper với dữ liệu ReazonSpeech, kèm script huấn luyện, export và inference.'
-            },
-            outcome: {
-                en: 'Outcome: a full CI/CT/CD loop (GitHub Actions orchestration, Kaggle training, Hugging Face Hub hosting, quality gate for model promotion) published 3 Japanese ASR models, with the LoRA variant at 40+ downloads and an INT8 CTranslate2 export for cheap inference.',
-                vi: 'Kết quả: vòng CI/CT/CD hoàn chỉnh (điều phối GitHub Actions, huấn luyện trên Kaggle, hosting Hugging Face Hub, quality gate để promote model) đã công bố 3 mô hình ASR tiếng Nhật, biến thể LoRA đạt 40+ lượt tải và bản export CTranslate2 INT8 cho inference giá rẻ.'
-            },
-            stack: ['PyTorch', 'LoRA/PEFT', 'CTranslate2 INT8', 'Kaggle', 'GitHub Actions', 'Hugging Face'],
-            links: [
-                {
-                    label: { en: 'Repository', vi: 'Mã nguồn' },
-                    url: 'https://github.com/dungca1512/whisper-finetune-ja'
-                },
-                {
-                    label: { en: 'Models on Hugging Face', vi: 'Model trên Hugging Face' },
-                    url: 'https://huggingface.co/dungca'
                 }
             ]
         }
