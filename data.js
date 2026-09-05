@@ -42,12 +42,12 @@ const PORTFOLIO_DATA = {
         hero: {
             eyebrow: { en: 'AI/ML SYSTEMS ARCHITECT', vi: 'AI/ML SYSTEMS ARCHITECT' },
             title: {
-                en: 'I own AI infrastructure end-to-end — from cloud provisioning to production ML serving.',
-                vi: 'Tôi sở hữu hạ tầng AI từ đầu đến cuối — từ provisioning cloud đến triển khai ML thực chiến.'
+                en: 'AI/MLOps engineer, 3+ years shipping production AI end-to-end.',
+                vi: 'Kỹ sư AI/MLOps, 3+ năm đưa AI vào production trọn vòng.'
             },
             lead: {
-                en: 'DevOps & MLOps engineer shipping ASR, TTS, pronunciation scoring, embedding, and agentic RAG services on Kubernetes, GCP, and AWS for users across VN, JP, and KR. CLI-first, cost-conscious, and framework-driven in every decision.',
-                vi: 'Kỹ sư DevOps & MLOps triển khai các dịch vụ ASR, TTS, chấm phát âm, embedding và agentic RAG trên Kubernetes, GCP và AWS cho người dùng VN, JP, KR. Định hướng CLI-first, tối ưu chi phí và ra quyết định theo framework.'
+                en: 'Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.',
+                vi: 'Dịch vụ speech (ASR, chấm phát âm và thanh điệu) và embedding trên GCP và DigitalOcean cho người dùng ở VN, JP, KR và CN. Mặc định tối ưu chi phí: chọn đúng cỡ GPU, ưu tiên inference trên CPU, tự host thay cho API trả phí.'
             },
             primaryCta: { en: 'View Projects', vi: 'Xem dự án' },
             secondaryCta: { en: 'GitHub', vi: 'GitHub' },
