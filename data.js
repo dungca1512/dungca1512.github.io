@@ -765,11 +765,11 @@ const PORTFOLIO_DATA = {
         },
         {
             label: { en: 'Book a Call', vi: 'Đặt lịch trao đổi' },
-            url: 'mailto:dungca1512@gmail.com?subject=Book%20a%20call%20with%20Cong%20Anh%20Dung'
+            url: 'mailto:dungca@ai-innovation-homelab.org?subject=Book%20a%20call%20with%20Cong%20Anh%20Dung'
         },
         {
             label: { en: 'Email', vi: 'Email' },
-            url: 'mailto:dungca1512@gmail.com'
+            url: 'mailto:dungca@ai-innovation-homelab.org'
         },
         {
             label: { en: 'GitHub', vi: 'GitHub' },
