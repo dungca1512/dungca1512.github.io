@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260905f">
+    <link rel="stylesheet" href="style.css?v=20260906a">
 </head>
 <body>
     <a class="skip-link" href="#experience">Skip to content</a>
@@ -47,6 +47,7 @@
                 <a class="header-cta" href="mailto:dungca@ai-innovation-homelab.org" data-i18n="common.hireMe">Hire Me</a>
             </div>
         </div>
+        <span class="scroll-progress" id="scrollProgress" aria-hidden="true"></span>
     </header>
 
     <main id="home">
@@ -57,11 +58,11 @@
                     <h1 data-i18n="hero.title">AI/MLOps engineer, 3+ years shipping production AI end-to-end.</h1>
                     <p class="hero-lead" data-i18n="hero.lead">Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.</p>
 
-                    <pre class="stack-diagram" aria-label="Delivery path from infrastructure as code to production inference"><code><span class="sd-key">provision</span>   terraform · ansible
-<span class="sd-key">deliver</span>     k8s (gke · kubeadm) · argocd · helm
-<span class="sd-key">serve</span>       asr · tts · scoring · embedding
-<span class="sd-key">models</span>      faster-whisper · wav2vec2 · qwen3
-<span class="sd-key">observe</span>     prometheus · grafana · loki</code></pre>
+                    <pre class="stack-diagram" aria-label="Delivery path from infrastructure as code to production inference"><code><span class="sd-line" style="--i:0"><span class="sd-key">provision</span>   terraform · ansible</span>
+<span class="sd-line" style="--i:1"><span class="sd-key">deliver</span>     k8s (gke · kubeadm) · argocd · helm</span>
+<span class="sd-line" style="--i:2"><span class="sd-key">serve</span>       asr · tts · scoring · embedding</span>
+<span class="sd-line" style="--i:3"><span class="sd-key">models</span>      faster-whisper · wav2vec2 · qwen3</span>
+<span class="sd-line" style="--i:4"><span class="sd-key">observe</span>     prometheus · grafana · loki</span><span class="sd-caret" aria-hidden="true"></span></code></pre>
 
                     <div class="hero-actions">
                         <a class="btn btn-primary" href="#projects" data-i18n="hero.primaryCta">View Projects</a>
@@ -109,7 +110,7 @@
 
         <section class="section" id="experience">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">01</span>
                     <div>
                         <p class="kicker" data-i18n="experience.kicker">Experience</p>
@@ -123,7 +124,7 @@
 
         <section class="section" id="projects">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">02</span>
                     <div>
                         <p class="kicker" data-i18n="projects.kicker">Selected Work</p>
@@ -136,7 +137,7 @@
 
         <section class="section case-study" id="case-study">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">03</span>
                     <div>
                         <p class="kicker" data-i18n="caseStudy.kicker">Flagship Case Study</p>
@@ -161,7 +162,7 @@
 
         <section class="section" id="expertise">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">04</span>
                     <div>
                         <p class="kicker" data-i18n="expertise.kicker">Core Expertise</p>
@@ -179,7 +180,7 @@
 
         <section class="section playbook" id="playbook">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">05</span>
                     <div>
                         <p class="kicker" data-i18n="playbook.kicker">Engineering Playbook</p>
@@ -192,7 +193,7 @@
 
         <section class="section analytics" id="analytics">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">06</span>
                     <div>
                         <p class="kicker" data-i18n="analytics.kicker">Data Snapshot</p>
@@ -232,7 +233,7 @@
 
         <section class="section" id="writing">
             <div class="container">
-                <div class="section-head">
+                <div class="section-head reveal">
                     <span class="section-index">07</span>
                     <div>
                         <p class="kicker" data-i18n="writing.kicker">Writing</p>
@@ -264,7 +265,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260905f"></script>
-    <script src="main.js?v=20260905f"></script>
+    <script src="data.js?v=20260906a"></script>
+    <script src="main.js?v=20260906a"></script>
 </body>
 </html>

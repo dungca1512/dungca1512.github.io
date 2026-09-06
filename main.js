@@ -12,7 +12,8 @@ function getInitialLanguage() {
 const state = {
     lang: getInitialLanguage(),
     github: null,
-    revealObserver: null
+    revealObserver: null,
+    motionObserver: null
 };
 
 const ANALYTICS_COLORS = ['#c8944b', '#a67a3d', '#8a6631', '#6d5228', '#514020', '#3a3028', '#2b2c2e'];
@@ -256,7 +257,7 @@ function renderAnalytics() {
             ${analytics.languages.map((item) => `
                 <div class="chart-row">
                     <span class="chart-row-label" title="${item.name}"><span class="lang-swatch" style="background:${item.color}"></span>${item.name}</span>
-                    <span class="chart-track"><span class="chart-fill" style="width:${(item.count / langMax) * 100}%;background:${item.color}"></span></span>
+                    <span class="chart-track"><span class="chart-fill" style="--w:${(item.count / langMax) * 100}%;background:${item.color}"></span></span>
                     <span class="chart-row-value">${item.count} (${Math.round(item.pct)}%)</span>
                 </div>
             `).join('')}
@@ -268,7 +269,7 @@ function renderAnalytics() {
         <div class="year-bars">
             ${analytics.months.map((item) => `
                 <div class="year-col">
-                    <div class="year-col-bar-wrap"><div class="year-col-bar" style="height:${(item.count / yearMax) * 100}%"></div></div>
+                    <div class="year-col-bar-wrap"><div class="year-col-bar" style="--h:${(item.count / yearMax) * 100}%"></div></div>
                     <span class="year-col-count">${item.count}</span>
                     <span class="year-col-label">${item.label}</span>
                 </div>
@@ -290,7 +291,7 @@ function renderAnalytics() {
     freshnessEl.innerHTML = `
         <div class="freshness-stack">
             ${freshRows.map((row) => `
-                <span class="fresh-seg ${row.cls}" style="width:${(analytics.freshness[row.key] / freshTotal) * 100}%"></span>
+                <span class="fresh-seg ${row.cls}" style="--w:${(analytics.freshness[row.key] / freshTotal) * 100}%"></span>
             `).join('')}
         </div>
         <ul class="freshness-legend">
@@ -352,12 +353,22 @@ function renderHero() {
 
 function renderMetrics() {
     byId('metricsGrid').innerHTML = PORTFOLIO_DATA.metrics
-        .map((item, index) => `
+        .map((item, index) => {
+            const raw = String(resolveMetricValue(item));
+            // "3+" counts up to 3 and keeps the "+". Anything without a leading
+            // number renders as-is and is simply never animated.
+            const parts = raw.match(/^(\d+)(.*)$/);
+            const countAttrs = parts
+                ? ` data-count="${parts[1]}" data-count-suffix="${parts[2]}"`
+                : '';
+
+            return `
             <article class="metric-card reveal" style="--reveal-delay:${index * 80}ms">
-                <h3>${resolveMetricValue(item)}</h3>
+                <h3${countAttrs}>${raw}</h3>
                 <p>${t(item.label)}</p>
             </article>
-        `)
+        `;
+        })
         .join('');
 }
 
@@ -583,13 +594,21 @@ function renderDynamicSections() {
     renderWriting();
     renderContacts();
     initReveal();
+    initMotion();
 }
 
 function initHeader() {
     const header = byId('siteHeader');
+    const progress = byId('scrollProgress');
 
     const onScroll = () => {
         header.classList.toggle('scrolled', window.scrollY > 8);
+
+        if (progress) {
+            const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+            const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+            progress.style.transform = `scaleX(${Math.min(Math.max(ratio, 0), 1)})`;
+        }
     };
 
     onScroll();
@@ -628,6 +647,11 @@ function initActiveNav() {
     const setActive = (id) => {
         navLinks.forEach((link) => {
             link.classList.toggle('active', link.dataset.nav === id);
+        });
+        // The section index (01..07) lights up with its section, so the page
+        // always shows you where you are without a separate progress rail.
+        sections.forEach((section) => {
+            section.classList.toggle('is-current', section.id === id);
         });
     };
 
@@ -686,6 +710,72 @@ function initReveal() {
         node.classList.remove('is-visible');
         state.revealObserver.observe(node);
     });
+}
+
+/* A number you watch land reads differently from one that was always there.
+   Everything below is additive: without JS, or with reduced motion, every
+   value and every bar renders at its final state and nothing moves. */
+
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function animateCount(el) {
+    const target = Number(el.dataset.count);
+    const suffix = el.dataset.countSuffix || '';
+
+    if (!Number.isFinite(target)) {
+        return;
+    }
+
+    const duration = 850;
+    const startedAt = performance.now();
+
+    const tick = (now) => {
+        const progress = Math.min((now - startedAt) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+
+        if (progress < 1) {
+            requestAnimationFrame(tick);
+        }
+    };
+
+    el.textContent = `0${suffix}`;
+    requestAnimationFrame(tick);
+}
+
+function initMotion() {
+    if (state.motionObserver) {
+        state.motionObserver.disconnect();
+    }
+
+    const targets = Array.from(
+        document.querySelectorAll('[data-count], .chart-fill, .year-col-bar, .fresh-seg')
+    );
+
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+        targets.forEach((node) => node.classList.add('is-drawn'));
+        return;
+    }
+
+    state.motionObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+
+            observer.unobserve(entry.target);
+
+            if (entry.target.dataset.count !== undefined) {
+                animateCount(entry.target);
+            } else {
+                entry.target.classList.add('is-drawn');
+            }
+        });
+    }, { threshold: 0.3, rootMargin: '0px 0px -8% 0px' });
+
+    targets.forEach((node) => state.motionObserver.observe(node));
 }
 
 function initLanguageToggle() {
