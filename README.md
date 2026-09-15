@@ -31,7 +31,9 @@ for the checks below.
 
 ## Quality gates
 
-`npm run verify` runs all three, and CI runs the same command on every push:
+`npm run verify` runs all three. CI runs the same command on every pull request and on
+pushes to `main` — a push to a feature branch does not trigger it, so run `verify`
+locally before opening the PR:
 
 | Step           | What it stops                                                        |
 | -------------- | -------------------------------------------------------------------- |

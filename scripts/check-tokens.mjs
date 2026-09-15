@@ -14,7 +14,20 @@
    - The colour regex catches `#hex`, `rgb(`, `rgba(`, `hsl(` and `hsla(` -
      exactly the forms spec 3.6 enumerates. Named colours (`red`,
      `rebeccapurple`), `color-mix()`, `oklch()` and `lab()` pass through.
-     Widen the regex when the sheet starts using them, not before. */
+     Widen the regex when the sheet starts using them, not before.
+   - A literal laundered through a custom property declared OUTSIDE `:root`
+     (`.thing { --my-dur: 300ms; transition: opacity var(--my-dur) linear; }`)
+     passes. The declaration that spends it names only a `var()`, and the one
+     that defines it is not a transition or animation property, so neither
+     line trips a regex.
+   - It governs `transition` and `animation` timings only. The scroll-driven
+     path - the PRIMARY path on this site - is paced by `animation-range`,
+     whose values this gate never reads. That is deliberate rather than an
+     oversight: an `animation-range` is a scroll DISTANCE in rem or per cent,
+     not a duration, so the millisecond token scale does not apply to it. The
+     consequence is still worth knowing: on a scroll-driven rule the
+     `var(--dur-*)` in the `animation` shorthand is inert, and the pacing the
+     visitor actually feels lives in a value nothing here checks. */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

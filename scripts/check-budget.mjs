@@ -13,7 +13,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CODE = ['index.html', 'style.css', 'main.js', 'data.js'];
 const CODE_CEILING_KB = 40;
 const IMAGE_CEILING_KB = 40;
-const IMAGE_TYPES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
+const IMAGE_TYPES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.ico']);
 
 let failed = false;
 
