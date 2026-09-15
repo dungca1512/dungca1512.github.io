@@ -701,7 +701,10 @@ h1, h2, h3, h4 {
     gap: 28px;
     padding: 26px 0;
     border-bottom: 1px solid var(--line);
-    transition: background 0.15s linear;
+    /* No `transition` here. The second `.project-row` rule in the projects
+       section below declares one at the same specificity and later in the
+       sheet, so anything written here is dead on arrival - a `transition`
+       shorthand replaces, it does not merge. Add to that rule, not this one. */
 }
 
 .project-row:hover {
@@ -2082,11 +2085,13 @@ h1, h2, h3, h4 {
 
 .project-row {
     position: relative;
-    /* The opacity half of this transition only ever fires under the
-       hover/fine-pointer dim below, but it costs nothing to declare
-       unguarded, and keeping it here (rather than inside the media query)
-       means it doesn't collide with - or get reset by - a second
-       `transition` shorthand for the same property. */
+    /* The row's ONLY `transition`. The base `.project-row` rule far above
+       deliberately declares none: same specificity, earlier in the sheet, so
+       this shorthand would replace it wholesale and silently retime its
+       background. The opacity half only ever fires under the hover/fine-pointer
+       dim below, but declaring it unguarded costs nothing and keeps it out of
+       the media query, where a second shorthand would create exactly the
+       collision described above. */
     transition: background var(--dur-base) linear, opacity var(--dur-base) var(--ease-out-soft);
 }
 

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Static portfolio. No build step - npm is used only for tests and quality gates.",
   "scripts": {
-    "test": "node --test tests/**/*.test.mjs",
+    "test": "node scripts/run-tests.mjs",
     "check:tokens": "node scripts/check-tokens.mjs",
     "check:budget": "node scripts/check-budget.mjs",
     "verify": "npm test && npm run check:tokens && npm run check:budget",
