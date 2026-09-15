@@ -32,9 +32,15 @@ test('reduced motion keeps colour and opacity feedback, capped at --dur-fast', (
 
 test('revealed content lands at its final state under reduced motion', () => {
     const block = reducedBlock();
-    assert.match(block, /\.reveal\b/, '.reveal must be reset to its final state');
-    assert.match(block, /opacity:\s*1/);
-    assert.match(block, /transform:\s*none/);
+    const reset = block.match(/\.reveal,\s*\n\s*\.reveal-load\s*\{([\s\S]*?)\}/);
+    assert.ok(reset, 'the reduced-motion block must reset .reveal and .reveal-load');
+
+    // `!important` is the whole point: `.js-animate .reveal` is (0,2,0) and outranks this
+    // (0,1,0) selector, so without the weight the reset is dead code and below-fold
+    // content stays at opacity:0 under reduced motion.
+    assert.match(reset[1], /opacity:\s*1\s*!important/);
+    assert.match(reset[1], /transform:\s*none\s*!important/);
+    assert.match(reset[1], /clip-path:\s*none\s*!important/);
 });
 
 test('reduced motion is handled in CSS, not branched on in the reveal JS', () => {
@@ -45,4 +51,10 @@ test('reduced motion is handled in CSS, not branched on in the reveal JS', () =>
         /prefers-reduced-motion/,
         'initReveal must not duplicate the CSS reduced-motion rule'
     );
+});
+
+test('paint-only hover feedback survives reduced motion', () => {
+    // filter is one of the four animatable properties in the spec and drives the avatar's
+    // grayscale hover; dropping it from the narrowed list silently kills that feedback.
+    assert.match(reducedBlock(), /transition-property:[^;]*\bfilter\b[^;]*!important/);
 });

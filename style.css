@@ -1316,11 +1316,14 @@ h1, h2, h3, h4 {
         scroll-behavior: auto;
     }
 
+    /* `!important` is load-bearing: `.js-animate .reveal` is (0,2,0) and would otherwise
+       outrank this (0,1,0) reset, leaving below-fold content at opacity:0 under reduced
+       motion. Weight here is narrow and deliberate — unlike blanket approach previously used. */
     .reveal,
     .reveal-load {
-        opacity: 1;
-        transform: none;
-        clip-path: none;
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
     }
 
     /* No positional movement and no loops anywhere. `transition-property` is
@@ -1329,10 +1332,12 @@ h1, h2, h3, h4 {
     *,
     *::before,
     *::after {
+        /* 1ms rather than 0s so `animationend` still fires for any JS waiting on it; these are
+           off-switches, not designed timings, which is why they are literals and not tokens. */
         animation-duration: 1ms !important;
         animation-iteration-count: 1 !important;
         animation-delay: 0ms !important;
-        transition-property: opacity, color, background-color, border-color !important;
+        transition-property: opacity, filter, color, background-color, border-color !important;
         transition-duration: var(--dur-fast) !important;
         transition-delay: 0ms !important;
     }
