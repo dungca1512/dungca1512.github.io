@@ -23,6 +23,24 @@
     --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     --step: 8px;
+
+    /* ---- Motion scale ----
+       One scale for the whole page. A rule that needs a duration picks a token
+       from here; it does not invent a number. Enforced by scripts/check-tokens.mjs. */
+    --dur-instant: 100ms;   /* colour swap on a button or tag */
+    --dur-fast: 150ms;      /* icon, tooltip, reduced-motion ceiling */
+    --dur-base: 250ms;      /* row, card, hover state */
+    --dur-slow: 400ms;      /* section reveal */
+    --dur-hero: 700ms;      /* the headline only */
+
+    /* Decelerates hard at the end: the document settles into place rather than
+       coasting to a stop. */
+    --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
+    /* Overshoots the target and returns. This, not a longer duration, is what
+       makes something feel picked up rather than slid. Use sparingly. */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Kept as-is: rules throughout this sheet already reference it. */
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 *,
@@ -1270,9 +1288,8 @@ h1, h2, h3, h4 {
    A document settling into place, not a slideshow. One easing curve
    (--ease) is used everywhere so the whole page moves with one hand. */
 
-:root {
-    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-}
+/* `--ease` and the rest of the motion scale are declared once, in the token
+   block at the top of this file. */
 
 .js-animate .reveal {
     opacity: 0;
