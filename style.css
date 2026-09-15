@@ -1320,7 +1320,7 @@ h1, h2, h3, h4 {
     }
 
     /* The heading rule draws on the same timeline as the section it belongs to,
-       rather than keying off the class the observer sets on intersection - the
+       rather than keying off `.is-visible`, which the observer sets - and the
        observer does not run here. */
     .section-head.reveal::after {
         animation: underline-draw var(--dur-slow) var(--ease-out-soft) both;

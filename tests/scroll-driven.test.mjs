@@ -68,9 +68,14 @@ test('nothing outside the fallback branch keys off .is-visible', () => {
     // `.is-visible` is set only by the observer, which only runs on the fallback
     // path. A rule outside that block keying off it is permanently stuck in its
     // not-yet-visible state on every modern browser.
+    // Comments are stripped from both sides before counting. Without that this
+    // asserts you may not even NAME `.is-visible` outside the fallback, which
+    // makes the rule impossible to explain where it is not allowed to apply.
+    const strip = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '');
+
     assert.equal(
-        (sheet.match(/is-visible/g) || []).length,
-        (fallback[1].match(/is-visible/g) || []).length,
+        (strip(sheet).match(/is-visible/g) || []).length,
+        (strip(fallback[1]).match(/is-visible/g) || []).length,
         'a rule outside the fallback branch depends on .is-visible'
     );
 });

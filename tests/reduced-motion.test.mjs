@@ -35,8 +35,12 @@ test('reduced motion keeps colour and opacity feedback, capped at --dur-fast', (
 
 test('revealed content lands at its final state under reduced motion', () => {
     const block = reducedBlock();
-    const reset = block.match(/\.reveal,\s*\n\s*\.reveal-load\s*\{([\s\S]*?)\}/);
+    // Matched by which rule mentions `.reveal-load`, not by the order of its
+    // selector list: the comment above that rule tells later tasks to add their
+    // own classes to it, and every one of them would otherwise fail here.
+    const reset = block.match(/[^{}]*\.reveal-load[^{}]*\{([\s\S]*?)\}/);
     assert.ok(reset, 'the reduced-motion block must reset .reveal and .reveal-load');
+    assert.match(reset[0], /\.reveal\b/, '.reveal must be in the reset list');
 
     // `!important` is the whole point: `.js-animate .reveal` is (0,2,0) and outranks this
     // (0,1,0) selector, so without the weight the reset is dead code and below-fold
