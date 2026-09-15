@@ -111,12 +111,15 @@ body::before {
     background-size: 64px 64px;
 }
 
-/* This reuses Task 4's guard condition, scroll(root block), rather than
-   opening a second @supports block for the same feature - see Task 7 report
-   for why the brief's own scroll(root) condition was inconsistent with its
-   own step 4. Reduced motion does not freeze this: like the header and
-   scroll-progress above, it is a direct readout of scroll position, not a
-   self-running effect. */
+/* Same guard condition as the header and scroll-progress block far below -
+   deliberately a second @supports rather than one shared block, because these
+   rules belong beside the layer they style, not beside an unrelated header.
+   Duplicating a condition costs nothing; letting the two conditions DRIFT
+   APART would, so if you change one, change both.
+
+   Reduced motion does not freeze this. Like the other two scroll-driven
+   effects, it is a direct readout of the user's own scroll position, not a
+   self-running animation - the same reasoning recorded at that block. */
 @supports (animation-timeline: scroll(root block)) {
     body::before {
         animation: grid-drift linear both;
