@@ -1285,24 +1285,57 @@ h1, h2, h3, h4 {
 }
 
 /* ---------- Reveal ----------
-   A document settling into place, not a slideshow. One easing curve
-   (--ease) is used everywhere so the whole page moves with one hand. */
+   The browser drives this from the element's own position in the viewport. No
+   observer, no scroll handler, nothing to keep in sync with the layout.
 
-/* `--ease` and the rest of the motion scale are declared once, in the token
-   block at the top of this file. */
+   `view()` measures progress by POSITION, so anything already on screen when
+   the page loads is already at 100% and will never animate. That is why the
+   hero uses the time-based `.reveal-load` below instead - it is not a
+   workaround, it is how the timeline is defined. */
 
-.js-animate .reveal {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-        opacity 0.6s var(--ease),
-        transform 0.6s var(--ease);
-    transition-delay: var(--reveal-delay, 0ms);
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
 }
 
-.js-animate .reveal.is-visible {
-    opacity: 1;
-    transform: none;
+@supports (animation-timeline: view()) {
+    .reveal {
+        animation: reveal-up var(--dur-slow) var(--ease-out-soft) both;
+        animation-timeline: view();
+        /* A scroll timeline ignores `animation-delay` - progress is a position,
+           not a clock - so a stagger has to move the RANGE instead. Each step
+           is 4% of the element's entry, and `--reveal-i` is capped at 7 by the
+           caller: past eight steps the last item arrives after you have already
+           scrolled by it. */
+        animation-range: entry calc(8% + (var(--reveal-i, 0) * 4%)) cover 26%;
+    }
+}
+
+/* On screen at load, so it needs a clock rather than a position. */
+.reveal-load {
+    animation: reveal-up var(--dur-slow) var(--ease-out-soft) both;
+    animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* Browsers without scroll-driven animation fall back to the observer in
+   main.js. Gated on `.js-animate`, which only JS can set: an ungated
+   `opacity: 0` here would blank the page whenever JS fails to run. */
+@supports not (animation-timeline: view()) {
+    .js-animate .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        transition:
+            opacity var(--dur-slow) var(--ease-out-soft),
+            transform var(--dur-slow) var(--ease-out-soft);
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .js-animate .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 /* ---------- Reduced motion ----------

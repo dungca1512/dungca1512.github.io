@@ -243,7 +243,7 @@ function renderAnalytics() {
     ];
     kpiEl.innerHTML = kpis
         .map((item, index) => `
-            <article class="kpi-card reveal" style="--reveal-delay:${index * 70}ms">
+            <article class="kpi-card reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 70}ms">
                 <p>${item.label}</p>
                 <h4>${item.value}</h4>
             </article>
@@ -363,7 +363,7 @@ function renderMetrics() {
                 : '';
 
             return `
-            <article class="metric-card reveal" style="--reveal-delay:${index * 80}ms">
+            <article class="metric-card reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 80}ms">
                 <h3${countAttrs}>${raw}</h3>
                 <p>${t(item.label)}</p>
             </article>
@@ -388,7 +388,7 @@ function renderExperience() {
                 .join('');
 
             return `
-                <li class="experience-row reveal${role.current ? ' is-current' : ''}" style="--reveal-delay:${index * 70}ms">
+                <li class="experience-row reveal${role.current ? ' is-current' : ''}" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 70}ms">
                     <div class="experience-when">
                         <span class="experience-period">${role.period}</span>
                         <span class="experience-company">${role.company}</span>
@@ -462,7 +462,7 @@ function renderSkillMatrix() {
 function renderExpertise() {
     byId('expertiseGrid').innerHTML = PORTFOLIO_DATA.expertise
         .map((item, index) => `
-            <article class="expertise-card reveal" style="--reveal-delay:${index * 90}ms">
+            <article class="expertise-card reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 90}ms">
                 <div class="expertise-icon">${item.icon}</div>
                 <h3>${t(item.title)}</h3>
                 <p>${t(item.description)}</p>
@@ -498,7 +498,7 @@ function renderProjects() {
             }
 
             return `
-                <article class="project-row reveal" style="--reveal-delay:${index * 60}ms">
+                <article class="project-row reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 60}ms">
                     <div class="project-head">
                         <h3>${project.name}</h3>
                         <span class="project-period">${project.period}</span>
@@ -529,12 +529,12 @@ function renderCaseStudy() {
     byId('caseStudyRepo').textContent = t(PORTFOLIO_DATA.i18n.common.repository);
 
     byId('caseHighlights').innerHTML = data.highlights
-        .map((item, index) => `<li class="reveal" style="--reveal-delay:${index * 90}ms">${t(item)}</li>`)
+        .map((item, index) => `<li class="reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 90}ms">${t(item)}</li>`)
         .join('');
 
     byId('caseGrid').innerHTML = data.blocks
         .map((item, index) => `
-            <article class="case-block reveal" style="--reveal-delay:${index * 90}ms">
+            <article class="case-block reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 90}ms">
                 <h4>${t(item.title)}</h4>
                 <p>${t(item.text)}</p>
             </article>
@@ -545,7 +545,7 @@ function renderCaseStudy() {
 function renderPlaybook() {
     byId('playbookList').innerHTML = PORTFOLIO_DATA.playbook
         .map((item, index) => `
-            <li class="reveal" style="--reveal-delay:${index * 80}ms">
+            <li class="reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 80}ms">
                 <h3>${t(item.title)}</h3>
                 <p>${t(item.description)}</p>
             </li>
@@ -558,7 +558,7 @@ function renderWriting() {
         .map((article, index) => {
             const tags = article.tags.map((tag) => `<li>${tag}</li>`).join('');
             return `
-                <a class="article-card reveal" style="--reveal-delay:${index * 100}ms" href="${article.url}" target="_blank" rel="noopener noreferrer">
+                <a class="article-card reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 100}ms" href="${article.url}" target="_blank" rel="noopener noreferrer">
                     <span class="article-meta">${article.year}</span>
                     <h3>${t(article.title)}</h3>
                     <p>${t(article.summary)}</p>
@@ -575,7 +575,7 @@ function renderContacts() {
             const isExternal = item.url.startsWith('http');
             const targetAttrs = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
             const downloadAttr = item.download ? 'download' : '';
-            return `<a class="reveal" style="--reveal-delay:${index * 70}ms" href="${item.url}" ${targetAttrs} ${downloadAttr}>${t(item.label)}</a>`;
+            return `<a class="reveal" style="--reveal-i:${Math.min(index, 7)}; --reveal-delay:${Math.min(index, 7) * 70}ms" href="${item.url}" ${targetAttrs} ${downloadAttr}>${t(item.label)}</a>`;
         })
         .join('');
 }
@@ -671,8 +671,20 @@ function initActiveNav() {
 function initReveal() {
     if (state.revealObserver) {
         state.revealObserver.disconnect();
+        state.revealObserver = null;
     }
 
+    // Path 1: the browser runs the reveal from scroll position on its own -
+    // see the `@supports (animation-timeline: view())` block in style.css.
+    // There is nothing for JS to do, and `.js-animate` stays off so the
+    // fallback rules never apply.
+    if (CSS.supports('animation-timeline: view()')) {
+        return;
+    }
+
+    // Path 2: older browser. `.js-animate` arms the transition-based fallback,
+    // and it is only ever set from here - so it cannot be left armed on a page
+    // where JS died before it could disarm it.
     document.documentElement.classList.add('js-animate');
 
     const revealNodes = Array.from(document.querySelectorAll('.reveal'));
@@ -693,10 +705,9 @@ function initReveal() {
     }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
 
     revealNodes.forEach((node) => {
-        const rect = node.getBoundingClientRect();
-        const shouldShowNow = rect.top < window.innerHeight * 0.92;
-
-        if (shouldShowNow) {
+        // Already on screen at load: show it now rather than waiting for a
+        // scroll that may never come.
+        if (node.getBoundingClientRect().top < window.innerHeight * 0.92) {
             node.classList.add('is-visible');
             return;
         }
