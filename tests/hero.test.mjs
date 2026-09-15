@@ -2,18 +2,42 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { css, js, html, data } from './helpers.mjs';
 
-test('the headline has authored line breaks in both locales', () => {
-    const source = data();
-    assert.match(source, /titleLines:\s*\{/, 'data.js has no hero.titleLines');
+// Both title assertions scope themselves to the `hero:` block first. Unanchored,
+// `/title:/` matches the next `title:` anywhere in data.js - `panel.title` is the
+// one that would silently stand in - so deleting hero.title would not fail a test.
+// The indentation of the closing brace is deliberately NOT pinned: reformatting
+// data.js is not a regression, and this branch has already lost time to regexes
+// that asserted whitespace instead of behaviour.
+const heroBlock = () => {
+    const block = data().match(/\n(\s*)hero:\s*\{([\s\S]*?)\n\1\}/);
+    assert.ok(block, 'data.js has no i18n.hero block');
+    return block[2];
+};
 
-    const block = source.match(/titleLines:\s*\{([\s\S]*?)\n\s{12}\}/);
-    assert.ok(block, 'hero.titleLines is not shaped as expected');
-    assert.match(block[1], /en:\s*\[/, 'titleLines.en is missing');
-    assert.match(block[1], /vi:\s*\[/, 'titleLines.vi is missing');
+test('the headline has authored line breaks in both locales', () => {
+    const hero = heroBlock();
+    const lines = hero.match(/titleLines:\s*\{([\s\S]*?)\n\s*\}/);
+    assert.ok(lines, 'hero.titleLines is missing or not shaped as expected');
+    assert.match(lines[1], /en:\s*\[/, 'titleLines.en is missing');
+    assert.match(lines[1], /vi:\s*\[/, 'titleLines.vi is missing');
+});
+
+test('both locales break into the same number of lines', () => {
+    // `.rule-draw` waits for the LAST line by hardcoding its index. A locale with
+    // an extra line would have the rule draw before the headline finished, and a
+    // locale with one fewer would leave a visible gap. Nothing else enforces this.
+    const lines = heroBlock().match(/titleLines:\s*\{([\s\S]*?)\n\s*\}/)[1];
+    const count = (key) => {
+        const arr = lines.match(new RegExp(key + ":\\s*\\[([\\s\\S]*?)\\]"));
+        assert.ok(arr, `titleLines.${key} is missing`);
+        return (arr[1].match(/'/g) || []).length / 2;
+    };
+    assert.equal(count('en'), count('vi'), 'en and vi must have the same line count');
+    assert.equal(count('en'), 4, '.rule-draw hardcodes the last index as 3');
 });
 
 test('the single-string title survives as the no-JS and meta fallback', () => {
-    assert.match(data(), /title:\s*\{[\s\S]{0,200}?en:\s*'/, 'hero.title must stay');
+    assert.match(heroBlock(), /\btitle:\s*\{[\s\S]{0,200}?en:\s*'/, 'hero.title must stay');
 });
 
 test('renderHeroTitle splits the headline into clipping blocks', () => {

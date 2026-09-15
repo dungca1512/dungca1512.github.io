@@ -325,9 +325,13 @@ h1, h2, h3, h4 {
 .hero-line {
     display: block;
     overflow: hidden;
-    /* Descenders in "g" and "ạ" sit below the baseline and would be shaved off
-       by the clip without this. */
-    padding-bottom: 0.08em;
+    /* Descenders sit below the line box and the clip would shave them. Measured
+       in Chrome at 66.56px with IBM Plex Sans: the worst line ("trọn vòng.", ọ
+       plus g) overhangs by 0.0676em, so 0.08em cleared it by less than a pixel.
+       0.12em leaves room for a fallback font with deeper descenders. Ascenders
+       need nothing - the tallest ink, the tilde on "Kỹ", still sits 0.1em inside
+       the top edge. */
+    padding-bottom: 0.12em;
 }
 
 .hero-line > span {
