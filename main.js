@@ -673,12 +673,6 @@ function initReveal() {
         state.revealObserver.disconnect();
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.classList.remove('js-animate');
-        document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
-        return;
-    }
-
     document.documentElement.classList.add('js-animate');
 
     const revealNodes = Array.from(document.querySelectorAll('.reveal'));
@@ -754,6 +748,9 @@ function initMotion() {
         document.querySelectorAll('[data-count], .chart-fill, .year-col-bar, .fresh-seg')
     );
 
+    // Unlike initReveal, this branch stays: these elements carry VALUES, not
+    // decoration. With motion reduced they must render at their final number
+    // and final width, which CSS alone cannot do for a counted-up figure.
     if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
         targets.forEach((node) => node.classList.add('is-drawn'));
         return;

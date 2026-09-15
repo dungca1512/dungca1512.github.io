@@ -1305,10 +1305,37 @@ h1, h2, h3, h4 {
     transform: none;
 }
 
+/* ---------- Reduced motion ----------
+   This is a DIFFERENT treatment, not an absent one. Movement through space is
+   what causes trouble, so that goes; a short opacity or colour change carries
+   the same "this responded to you" signal at no vestibular cost, so it stays.
+   Every element that animates itself into place is reset to its final state
+   here - if you add such a class, add it to the list below too. */
 @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    .reveal { opacity: 1 !important; transform: none !important; }
-    * { transition: none !important; animation: none !important; }
+    html {
+        scroll-behavior: auto;
+    }
+
+    .reveal,
+    .reveal-load {
+        opacity: 1;
+        transform: none;
+        clip-path: none;
+    }
+
+    /* No positional movement and no loops anywhere. `transition-property` is
+       narrowed to the paint-only properties rather than switched off, which is
+       why hover states still respond. */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0ms !important;
+        transition-property: opacity, color, background-color, border-color !important;
+        transition-duration: var(--dur-fast) !important;
+        transition-delay: 0ms !important;
+    }
 }
 
 /* ---------- Responsive ---------- */
