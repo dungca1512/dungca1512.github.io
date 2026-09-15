@@ -19,10 +19,37 @@ test('the grid moved off body onto its own fixed layer', () => {
     assert.match(layer[1], /pointer-events:\s*none/);
 });
 
-test('the grid drifts on a scroll timeline', () => {
+/* Asserting that SOME matching `@supports` exists in a 2000-line sheet proves
+   nothing: the header/scroll-progress block far below carries the identical
+   condition and would satisfy it on its own. Strip the guard off `body::before`
+   and a browser without scroll timelines resolves `animation: grid-drift linear
+   both` to a 0s animation that snaps the grid to -6vh and leaves it there. So
+   walk the brace depth of every matching guard and prove the drift declaration
+   falls inside one. */
+test('the grid drifts on a scroll timeline, and only where one exists', () => {
     const sheet = css();
     assert.match(sheet, /@keyframes grid-drift\b/);
-    assert.match(sheet, /@supports\s*\(animation-timeline:\s*scroll\(root(?: block)?\)\)/);
+
+    const drift = sheet.indexOf('animation: grid-drift');
+    assert.ok(drift > -1, 'nothing applies the grid-drift animation');
+
+    const guard = /@supports\s*\(animation-timeline:\s*scroll\(root(?: block)?\)\)/g;
+    let guarded = false;
+    for (const hit of sheet.matchAll(guard)) {
+        const open = sheet.indexOf('{', hit.index);
+        if (open === -1) {
+            continue;
+        }
+        let depth = 0;
+        for (let i = open; i < sheet.length; i++) {
+            if (sheet[i] === '{') depth++;
+            else if (sheet[i] === '}' && --depth === 0) {
+                if (drift > open && drift < i) guarded = true;
+                break;
+            }
+        }
+    }
+    assert.ok(guarded, 'the grid-drift animation must sit inside a scroll-timeline @supports guard, not merely somewhere after one');
 });
 
 test('the drift moves only transform', () => {
