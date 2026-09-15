@@ -1,7 +1,20 @@
 /* Colour and duration literals are how a token system dies: one rule at a time,
    each one locally reasonable. This gate reads style.css, ignores the :root
    block where literals are the whole point, and fails on anything left over.
-   Run by `npm run verify`, which CI runs on every push. */
+   Run by `npm run verify`, which CI runs on every push.
+
+   What this gate does NOT catch, stated plainly so nobody mistakes a pass for
+   a proof:
+
+   - It reads one line at a time. A declaration split across lines
+     (`transition:\n    color 0.15s linear;`) is invisible to both regexes.
+     Nothing in the build enforces single-line declarations; the sheet simply
+     writes them that way today. If that changes, this gate goes blind before
+     it goes red.
+   - The colour regex catches `#hex`, `rgb(`, `rgba(`, `hsl(` and `hsla(` -
+     exactly the forms spec 3.6 enumerates. Named colours (`red`,
+     `rebeccapurple`), `color-mix()`, `oklch()` and `lab()` pass through.
+     Widen the regex when the sheet starts using them, not before. */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,15 +79,25 @@ function stripVarCalls(line) {
 // them is out of scope" for the sheet as it stood before this branch).
 // Keyed on the exact trimmed declaration text, not line numbers - line
 // numbers rot on the next edit and would silently re-admit a real violation
-// landing on a stale number. This list may only ever shrink; if a rule here
-// is retimed onto the token scale, delete its entry.
-const ALLOWED_DURATIONS = new Set([
+// landing on a stale number.
+//
+// The number beside each entry is how many times that exact declaration
+// appears in the sheet, and it is checked in BOTH directions. Text alone is
+// not enough cover: a brand-new rule written as `transition: color 0.15s
+// linear;` would otherwise match an existing entry and pass silently, which
+// is precisely the sweep spec 3.1 forbids. A count that goes UP means a new
+// rule slipped in - fix the rule, not this file. A count that goes DOWN
+// means a declaration was retimed or deleted, so the number here (or the
+// whole entry, at zero) must come down with it. This list may grow in value
+// only when the sheet does, and it may never grow by hand to make a failure
+// go away.
+const ALLOWED_DURATIONS = new Map([
     // Group A - the reduced-motion off-switches. New on this branch and
     // deliberate: they are the mechanism by which reduced motion works, and
     // --dur-instant (100ms) would defeat the purpose of collapsing to ~0.
-    'animation-duration: 1ms !important;',
-    'animation-delay: 0ms !important;',
-    'transition-delay: 0ms !important;',
+    ['animation-duration: 1ms !important;', 1],
+    ['animation-delay: 0ms !important;', 1],
+    ['transition-delay: 0ms !important;', 1],
 
     // Group B - declarations that predate this branch. Spec §3.1 scopes
     // rewriting them out ("rewriting them is out of scope"). Two of these
@@ -82,28 +105,28 @@ const ALLOWED_DURATIONS = new Set([
     // width/height), and three exceed the 700ms ceiling of law 3 - recorded
     // here rather than fixed because retiming them is a visual change, not a
     // gate change.
-    'transition: color 0.15s linear;',
-    'transition: color 0.15s linear, background 0.15s linear;',
-    'transition: background 0.15s linear, color 0.15s linear;',
-    'transition: border-color 0.15s linear, background 0.15s linear, color 0.15s linear;',
-    'transition: filter 0.25s linear;',
-    'transition: transform 0.9s var(--ease) 0.12s;',
-    'transition: color 0.3s linear;',
-    'transition: background 0.15s linear;',
-    'transition: border-color 0.15s linear, color 0.15s linear;',
-    'transition: transform 0.28s var(--ease);',
-    'animation: sd-print 0.45s var(--ease) forwards;',
-    'animation-delay: calc(var(--i, 0) * 85ms + 250ms);',
-    'animation: sd-caret-in 0s linear 700ms forwards, sd-blink 1.15s steps(1) 700ms infinite;',
-    'transition: opacity 0.2s linear, transform 0.28s var(--ease);',
-    'transition: color 0.2s linear;',
-    'transition: width 0.95s var(--ease);',
-    'transition: height 0.7s var(--ease);',
-    'transition: width 0.8s var(--ease);',
-    'transition: background 0.2s linear;'
+    ['transition: color 0.15s linear;', 3],
+    ['transition: color 0.15s linear, background 0.15s linear;', 1],
+    ['transition: background 0.15s linear, color 0.15s linear;', 1],
+    ['transition: border-color 0.15s linear, background 0.15s linear, color 0.15s linear;', 1],
+    ['transition: filter 0.25s linear;', 1],
+    ['transition: transform 0.9s var(--ease) 0.12s;', 1],
+    ['transition: color 0.3s linear;', 1],
+    ['transition: background 0.15s linear;', 3],
+    ['transition: border-color 0.15s linear, color 0.15s linear;', 1],
+    ['transition: transform 0.28s var(--ease);', 1],
+    ['animation: sd-print 0.45s var(--ease) forwards;', 1],
+    ['animation-delay: calc(var(--i, 0) * 85ms + 250ms);', 1],
+    ['animation: sd-caret-in 0s linear 700ms forwards, sd-blink 1.15s steps(1) 700ms infinite;', 1],
+    ['transition: opacity 0.2s linear, transform 0.28s var(--ease);', 1],
+    ['transition: color 0.2s linear;', 2],
+    ['transition: width 0.95s var(--ease);', 1],
+    ['transition: height 0.7s var(--ease);', 1],
+    ['transition: width 0.8s var(--ease);', 1],
+    ['transition: background 0.2s linear;', 1]
 ]);
 
-const seenAllowed = new Set();
+const seenAllowed = new Map();
 const failures = [];
 
 body.split('\n').forEach((line, index) => {
@@ -117,25 +140,38 @@ body.split('\n').forEach((line, index) => {
     if (DURATION.test(durationLine)) {
         const trimmed = line.trim();
         if (ALLOWED_DURATIONS.has(trimmed)) {
-            seenAllowed.add(trimmed);
+            seenAllowed.set(trimmed, (seenAllowed.get(trimmed) || 0) + 1);
         } else {
             failures.push([number, 'literal duration - use a --dur-* token', trimmed]);
         }
     }
 });
 
-// An allowlist nobody prunes becomes a permanent exemption. If a rewrite (or
-// removal) drops an allowed declaration from the sheet, its entry must go
-// too - fail loudly rather than let it sit as dead cover for a future
-// violation. Reported as its own check, with its own message, so a stale
-// entry is never confused with a real literal-duration violation above.
-const staleEntries = [...ALLOWED_DURATIONS].filter((entry) => !seenAllowed.has(entry));
-if (staleEntries.length > 0) {
-    console.error(`FAIL  ${staleEntries.length} stale entr${staleEntries.length === 1 ? 'y' : 'ies'} in scripts/check-tokens.mjs' ALLOWED_DURATIONS - no longer present in style.css:\n`);
-    for (const entry of staleEntries) {
-        console.error(`  ${entry}`);
+// An allowlist nobody prunes becomes a permanent exemption, and an allowlist
+// keyed on text alone is a licence to write the same literal again. Both are
+// the same check: the sheet must contain each allowed declaration EXACTLY as
+// many times as this file says. Too many means a new rule borrowed an
+// existing exemption; too few means one was retimed or removed and its entry
+// (or its count) should have come down with it. Reported separately from the
+// literal-duration failures above, with its own wording per direction, so
+// neither is ever mistaken for the other.
+const miscounts = [];
+for (const [entry, expected] of ALLOWED_DURATIONS) {
+    const actual = seenAllowed.get(entry) || 0;
+    if (actual !== expected) {
+        miscounts.push([entry, expected, actual]);
     }
-    console.error('\nRemove the entry (do not retime the declaration as part of fixing this gate).');
+}
+
+if (miscounts.length > 0) {
+    console.error(`FAIL  ${miscounts.length} allowlist entr${miscounts.length === 1 ? 'y' : 'ies'} in scripts/check-tokens.mjs no longer ${miscounts.length === 1 ? 'matches' : 'match'} style.css\n`);
+    for (const [entry, expected, actual] of miscounts) {
+        console.error(`  ${entry}`);
+        console.error(`    expected ${expected} occurrence(s), found ${actual}`);
+        console.error(actual > expected
+            ? '    A NEW rule reused this exemption. Give it a --dur-* token instead of raising the count here.\n'
+            : '    This declaration was retimed or removed. Lower the count (delete the entry at zero); do not retime anything else to fix this gate.\n');
+    }
     process.exit(1);
 }
 

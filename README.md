@@ -54,8 +54,24 @@ Five duration tokens and two easing curves on `:root`, four rules:
 4. `prefers-reduced-motion` changes the treatment, it does not remove it.
 
 Reveals, the header, the progress bar and the grid drift are all driven by
-`animation-timeline` — the browser computes them from scroll position. The
-`IntersectionObserver` in `main.js` is a fallback for browsers without it.
+`animation-timeline` — the browser computes them from scroll position, off the
+main thread. Each has its own answer for browsers without it, and they are not
+the same answer:
+
+- **Reveals** fall back to `IntersectionObserver` (`initReveal`, `main.js`),
+  which adds the same class the scroll timeline would have animated. Where
+  even that is missing, every reveal is shown at once — content never hides
+  behind a feature the browser lacks.
+- **The header and the progress bar** fall back to a plain scroll listener
+  (`initHeaderScrollFallback`, `main.js`), because both read the document's
+  own scroll offset rather than an element's position in the viewport.
+- **The grid drift** has no JavaScript fallback at all. Without scroll
+  timelines the grid simply sits still, which is the pre-existing behaviour
+  and costs nothing.
+
+Each JS path is skipped by its own `CSS.supports()` check — `scroll(root
+block)` for the header, `view()` for the reveals — so no browser runs both the
+CSS and the JS version of the same effect.
 
 ## Update Portfolio Content
 
