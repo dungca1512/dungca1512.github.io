@@ -2,10 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { css, js } from './helpers.mjs';
 
+// Comments are stripped before matching. These tests assert the absence of rules like
+// `transition: none !important`, and a comment explaining why that rule was removed would
+// otherwise fail the very test that documents it.
 const reducedBlock = () => {
     const match = css().match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/);
     assert.ok(match, 'style.css has no prefers-reduced-motion block');
-    return match[1];
+    return match[1].replace(/\/\*[\s\S]*?\*\//g, '');
 };
 
 test('reduced motion does not blanket-kill every animation', () => {
