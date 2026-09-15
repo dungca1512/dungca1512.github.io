@@ -674,18 +674,19 @@ function initReveal() {
         state.revealObserver = null;
     }
 
-    // Path 1: the browser runs the reveal from scroll position on its own -
-    // see the `@supports (animation-timeline: view())` block in style.css.
-    // There is nothing for JS to do, and `.js-animate` stays off so the
-    // fallback rules never apply.
+    // `.js-animate` means "JS is running", nothing narrower. Five effects that
+    // have nothing to do with the reveal hang off it - the heading rules, the
+    // spec-sheet lines, and the three drawn bars - so it is set on every path
+    // and only ever from here. The reveal fallback below is kept off modern
+    // browsers by its `@supports not` wrapper, not by this class.
+    document.documentElement.classList.add('js-animate');
+
+    // The browser runs the reveal from scroll position on its own - see the
+    // `@supports (animation-timeline: view())` block in style.css. Nothing for
+    // JS to do.
     if (CSS.supports('animation-timeline: view()')) {
         return;
     }
-
-    // Path 2: older browser. `.js-animate` arms the transition-based fallback,
-    // and it is only ever set from here - so it cannot be left armed on a page
-    // where JS died before it could disarm it.
-    document.documentElement.classList.add('js-animate');
 
     const revealNodes = Array.from(document.querySelectorAll('.reveal'));
 

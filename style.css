@@ -542,10 +542,6 @@ h1, h2, h3, h4 {
     transition: transform 0.9s var(--ease) 0.12s;
 }
 
-.js-animate .section-head.reveal:not(.is-visible)::after {
-    transform: scaleX(0);
-}
-
 .section-index {
     font-family: var(--font-mono);
     font-size: 0.72rem;
@@ -1300,6 +1296,12 @@ h1, h2, h3, h4 {
     }
 }
 
+@keyframes underline-draw {
+    from {
+        transform: scaleX(0);
+    }
+}
+
 @supports (animation-timeline: view()) {
     .reveal {
         animation: reveal-up var(--dur-slow) var(--ease-out-soft) both;
@@ -1308,12 +1310,29 @@ h1, h2, h3, h4 {
            not a clock - so a stagger has to move the RANGE instead. Each step
            is 4% of the element's entry, and `--reveal-i` is capped at 7 by the
            caller: past eight steps the last item arrives after you have already
-           scrolled by it. */
+           scrolled by it.
+           `entry` and `cover` do not span the same scroll distance, and the gap
+           widens as an element grows past the viewport - so a high `--reveal-i`
+           on a very tall element could in principle invert this range. That
+           degrades to "no animation, final state", never to invisible content.
+           Checked at 1280x900 and 390x844: no element hits it. */
         animation-range: entry calc(8% + (var(--reveal-i, 0) * 4%)) cover 26%;
+    }
+
+    /* The heading rule draws on the same timeline as the section it belongs to,
+       rather than keying off the class the observer sets on intersection - the
+       observer does not run here. */
+    .section-head.reveal::after {
+        animation: underline-draw var(--dur-slow) var(--ease-out-soft) both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 30%;
     }
 }
 
-/* On screen at load, so it needs a clock rather than a position. */
+/* On screen at load, so it needs a clock rather than a position.
+   Do not put this on an element that also has `.reveal`: same specificity, and
+   this `animation` shorthand resets `animation-timeline` to `auto`, which would
+   turn the scroll-driven reveal off for that element. It is one or the other. */
 .reveal-load {
     animation: reveal-up var(--dur-slow) var(--ease-out-soft) both;
     animation-delay: var(--reveal-delay, 0ms);
@@ -1336,6 +1355,11 @@ h1, h2, h3, h4 {
         opacity: 1;
         transform: none;
     }
+
+    /* `.is-visible` only exists on this path - the observer sets it. */
+    .js-animate .section-head.reveal:not(.is-visible)::after {
+        transform: scaleX(0);
+    }
 }
 
 /* ---------- Reduced motion ----------
@@ -1352,6 +1376,7 @@ h1, h2, h3, h4 {
     /* `!important` is load-bearing: `.js-animate .reveal` is (0,2,0) and would otherwise
        outrank this (0,1,0) reset, leaving below-fold content at opacity:0 under reduced
        motion. Weight here is narrow and deliberate — unlike blanket approach previously used. */
+    .section-head.reveal::after,
     .reveal,
     .reveal-load {
         opacity: 1 !important;
