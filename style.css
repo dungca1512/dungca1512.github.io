@@ -20,6 +20,10 @@
        page is visibly still there behind it. */
     --bg-header: rgba(10, 11, 12, 0.85);
 
+    /* The technical grid. At 2.8% it should register as paper texture, not as
+       a visible table. */
+    --grid-line: rgba(255, 255, 255, 0.028);
+
     --container: 1180px;
     --gutter: 32px;
 
@@ -72,14 +76,52 @@ body {
     line-height: 1.6;
     color: var(--ink);
     background-color: var(--bg);
-    /* Faint technical grid — 1px lines at 4% opacity, not a decorative gradient. */
-    background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
-    background-size: 64px 64px;
     min-height: 100vh;
     overflow-x: hidden;
     font-feature-settings: 'ss01', 'cv05';
+}
+
+/* ---------- The page's ground ----------
+   A faint 1px technical grid - the page's paper, not a decorative gradient.
+
+   It lives on its own fixed layer rather than on `body` for one reason: a
+   layer can be transformed, and a background-image cannot be moved without
+   repainting it. The grid drifts up about 6% of the viewport over the whole
+   document, so it reads as ground the content passes over rather than as
+   wallpaper stuck to it.
+
+   `inset: -8vh 0` gives the drift somewhere to travel without exposing an
+   uncovered strip at either edge. */
+
+@keyframes grid-drift {
+    to {
+        transform: translateY(-6vh);
+    }
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: -8vh 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+}
+
+/* This reuses Task 4's guard condition, scroll(root block), rather than
+   opening a second @supports block for the same feature - see Task 7 report
+   for why the brief's own scroll(root) condition was inconsistent with its
+   own step 4. Reduced motion does not freeze this: like the header and
+   scroll-progress above, it is a direct readout of scroll position, not a
+   self-running effect. */
+@supports (animation-timeline: scroll(root block)) {
+    body::before {
+        animation: grid-drift linear both;
+        animation-timeline: scroll(root block);
+    }
 }
 
 a {
