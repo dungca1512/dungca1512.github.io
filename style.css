@@ -2025,7 +2025,12 @@ h1, h2, h3, h4 {
 
 .project-row {
     position: relative;
-    transition: background 0.2s linear;
+    /* The opacity half of this transition only ever fires under the
+       hover/fine-pointer dim below, but it costs nothing to declare
+       unguarded, and keeping it here (rather than inside the media query)
+       means it doesn't collide with - or get reset by - a second
+       `transition` shorthand for the same property. */
+    transition: background var(--dur-base) linear, opacity var(--dur-base) var(--ease-out-soft);
 }
 
 .project-row:hover::before,
@@ -2037,6 +2042,20 @@ h1, h2, h3, h4 {
 .project-row:hover .project-head h3,
 .project-row:focus-within .project-head h3 {
     color: var(--accent);
+}
+
+/* ---------- Focus by subtraction ----------
+   The container reacts to a child's hover state, so nothing has to be toggled
+   and nothing has to be observed. Opacity only: nudging the siblings would
+   shift the row being read.
+
+   A touch device fires `:hover` on tap and then keeps it until you tap
+   elsewhere, which would leave five rows dimmed with no way to tell why -
+   hence the pointer query. */
+@media (hover: hover) and (pointer: fine) {
+    #projectsGrid:has(.project-row:hover) .project-row:not(:hover) {
+        opacity: 0.45;
+    }
 }
 
 .project-head h3 {
