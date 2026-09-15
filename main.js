@@ -598,12 +598,24 @@ function renderDynamicSections() {
 }
 
 function initHeader() {
-    const header = byId('siteHeader');
+    // Both the settling background and the progress bar are functions of scroll
+    // position, so CSS computes them where scroll-driven animation exists - see
+    // "Header on scroll" in style.css. A scroll listener is the fallback, not
+    // the design.
+    if (CSS.supports('animation-timeline: scroll(root block)')) {
+        return;
+    }
+
+    initHeaderScrollFallback();
+}
+
+/* Only reached on browsers without scroll-driven animation. Everything here is
+   a hand-rolled copy of what the CSS above does for free, so it is kept in one
+   clearly-named place rather than inlined as if it were the real design. */
+function initHeaderScrollFallback() {
     const progress = byId('scrollProgress');
 
     const onScroll = () => {
-        header.classList.toggle('scrolled', window.scrollY > 8);
-
         if (progress) {
             const scrollable = document.documentElement.scrollHeight - window.innerHeight;
             const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
