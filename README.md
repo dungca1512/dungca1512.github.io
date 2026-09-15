@@ -22,17 +22,40 @@ Personal portfolio website for AI/ML Engineer profile, built as a static GitHub 
 
 ## Run Locally
 
-Use a local static server from project root:
-
 ```bash
-python3 -m http.server 8000
+npm run serve          # http://localhost:8011
 ```
 
-Open:
+No build step and no dependencies — the repo is the site. `npm` exists here only
+for the checks below.
 
-```text
-http://localhost:8000
-```
+## Quality gates
+
+`npm run verify` runs all three, and CI runs the same command on every push:
+
+| Step           | What it stops                                                        |
+| -------------- | -------------------------------------------------------------------- |
+| `npm test`     | The motion system going missing: tokens, `@supports` branches, guards |
+| `check:tokens` | Colour or duration literals creeping in outside `:root`               |
+| `check:budget` | Code over 40KB gzip, or any image over 40KB                           |
+
+These assert against the source, so they prove the system is *present*, not that
+it *looks* right. For that, see the manual checklist in
+[docs/superpowers/specs/2026-09-15-motion-system.md](docs/superpowers/specs/2026-09-15-motion-system.md).
+
+## Motion system
+
+Five duration tokens and two easing curves on `:root`, four rules:
+
+1. Everything enters from a direction that means something. Never a bare fade.
+2. Animate only `transform`, `opacity`, `clip-path`, `filter`. Colour changes are
+   fine; `width`, `height` and `top` are not.
+3. Durations come from the token scale. A full entrance is ≤ 700ms.
+4. `prefers-reduced-motion` changes the treatment, it does not remove it.
+
+Reveals, the header, the progress bar and the grid drift are all driven by
+`animation-timeline` — the browser computes them from scroll position. The
+`IntersectionObserver` in `main.js` is a fallback for browsers without it.
 
 ## Update Portfolio Content
 

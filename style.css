@@ -24,6 +24,15 @@
        a visible table. */
     --grid-line: rgba(255, 255, 255, 0.028);
 
+    /* Text sitting ON the accent - the amber button, the active language tab.
+       It is the page background colour, used as ink; naming it says so. */
+    --ink-on-accent: #0a0b0c;
+
+    /* Two ends of the freshness bar. They sit outside the amber ramp on purpose:
+       "stale" should not read as a warmer shade of "current". */
+    --chart-fresh-180: #4a4238;
+    --chart-fresh-old: #2b2c2e;
+
     --container: 1180px;
     --gutter: 32px;
 
@@ -137,7 +146,7 @@ a {
 
 ::selection {
     background: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
 }
 
 :focus-visible {
@@ -152,7 +161,7 @@ a {
     z-index: 200;
     padding: 10px 16px;
     background: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
     font-family: var(--font-mono);
     font-size: 0.8rem;
 }
@@ -291,7 +300,7 @@ h1, h2, h3, h4 {
 
 .lang-btn.active {
     background: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
 }
 
 .header-cta {
@@ -306,7 +315,7 @@ h1, h2, h3, h4 {
 
 .header-cta:hover {
     background: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
 }
 
 .menu-toggle {
@@ -459,7 +468,7 @@ h1, h2, h3, h4 {
 .btn-primary {
     background: var(--accent);
     border-color: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
 }
 
 .btn-primary:hover {
@@ -1161,8 +1170,8 @@ h1, h2, h3, h4 {
 
 .fresh-30 { background: var(--accent); }
 .fresh-90 { background: var(--accent-dim); }
-.fresh-180 { background: #4a4238; }
-.fresh-old { background: #2b2c2e; }
+.fresh-180 { background: var(--chart-fresh-180); }
+.fresh-old { background: var(--chart-fresh-old); }
 
 .freshness-legend {
     list-style: none;
@@ -1356,7 +1365,7 @@ h1, h2, h3, h4 {
 .contact-actions a:first-child {
     background: var(--accent);
     border-color: var(--accent);
-    color: #0a0b0c;
+    color: var(--ink-on-accent);
 }
 
 .contact-actions a:hover {

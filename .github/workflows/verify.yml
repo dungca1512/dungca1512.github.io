@@ -1,0 +1,22 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # No `npm ci`: this project has no dependencies, and `node --test` is
+      # built into Node. Adding an install step here would be the first step
+      # toward needing one.
+      - name: Verify
+        run: npm run verify
