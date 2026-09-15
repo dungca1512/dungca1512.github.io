@@ -40,7 +40,9 @@ test('revealed content lands at its final state under reduced motion', () => {
     // own classes to it, and every one of them would otherwise fail here.
     const reset = block.match(/[^{}]*\.reveal-load[^{}]*\{([\s\S]*?)\}/);
     assert.ok(reset, 'the reduced-motion block must reset .reveal and .reveal-load');
-    assert.match(reset[0], /\.reveal\b/, '.reveal must be in the reset list');
+    // `\b` alone would match inside `.reveal-load` and never fail; the delimiter
+    // is what makes this assert a standalone `.reveal` selector.
+    assert.match(reset[0], /\.reveal\s*[,{]/, '.reveal must be in the reset list');
 
     // `!important` is the whole point: `.js-animate .reveal` is (0,2,0) and outranks this
     // (0,1,0) selector, so without the weight the reset is dead code and below-fold
