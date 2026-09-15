@@ -1838,10 +1838,13 @@ h1, h2, h3, h4 {
 
    Both this and the progress bar above are pure functions of scroll position,
    so a scroll timeline computes them on the compositor with no JS on the hot
-   path. `animation-duration` and `animation-delay` are ignored on a scroll
-   timeline, so reduced motion does not need to - and must not - freeze
-   either: they are a direct readout of the user's own scroll input, not a
-   self-running effect. Without this feature, `.site-header`'s base
+   path. Reduced motion does not need to - and must not - freeze either: they
+   are a direct readout of the user's own scroll input, not a self-running
+   effect. The reduced-motion block's `animation-duration: 1ms !important` does
+   reach these animations (computed style confirms it applies); it simply has
+   no effect, because a scroll timeline maps position through `animation-range`
+   to progress directly and only consults the duration when fitting multiple
+   iterations into a range. Verified in Chrome at eleven scroll positions. Without this feature, `.site-header`'s base
    `background: var(--bg-header)` above already reads as a normal opaque
    header, and `.scroll-progress` starts at `scaleX(0)` above - both correct,
    static, no-JS states. */
