@@ -10,7 +10,7 @@ const PORTFOLIO_DATA = {
 
     profile: {
         name: 'Công Anh Dũng',
-        avatarUrl: 'profile.jpeg',
+        avatarUrl: 'profile.webp',
         location: {
             en: 'Hanoi, Vietnam',
             vi: 'Hà Nội, Việt Nam'

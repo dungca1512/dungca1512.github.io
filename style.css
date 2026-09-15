@@ -68,6 +68,9 @@
 html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* The header is sticky and ~4.1rem tall. Without this every in-page link
+       lands with its own heading hidden underneath it. */
+    scroll-padding-top: 5rem;
 }
 
 body {

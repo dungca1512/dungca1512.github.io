@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="cong anh dung">
+  <rect width="32" height="32" fill="#0a0b0c"/>
+  <rect x="5" y="6" width="3" height="20" fill="#c8944b"/>
+  <text x="12" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#e7e5e1">d</text>
+</svg>
