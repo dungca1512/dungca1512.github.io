@@ -1413,8 +1413,8 @@ h1, h2, h3, h4 {
 
    `view()` measures progress by POSITION, so anything already on screen when
    the page loads is already at 100% and will never animate. That is why the
-   hero uses the time-based `.reveal-load` below instead - it is not a
-   workaround, it is how the timeline is defined. */
+   hero carries its own time-based entrance on `.hero-line > span` instead - it
+   is not a workaround, it is how the timeline is defined. */
 
 @keyframes reveal-up {
     from {
@@ -1456,14 +1456,12 @@ h1, h2, h3, h4 {
     }
 }
 
-/* On screen at load, so it needs a clock rather than a position.
-   Do not put this on an element that also has `.reveal`: same specificity, and
-   this `animation` shorthand resets `animation-timeline` to `auto`, which would
-   turn the scroll-driven reveal off for that element. It is one or the other. */
-.reveal-load {
-    animation: reveal-up var(--dur-slow) var(--ease-out-soft) both;
-    animation-delay: var(--reveal-delay, 0ms);
-}
+/* There is no `.reveal-load` class. A time-based twin of `.reveal` was drafted
+   for above-the-fold content, but the only such content is the headline, and
+   `.hero-line > span` (0,1,1) outranks a class (0,1,0), so the twin could never
+   have applied to the one element it existed for. The headline carries its own
+   time-based entrance instead - see "Hero headline" above. Anything below the
+   fold uses `.reveal` and the view() timeline. */
 
 /* Browsers without scroll-driven animation fall back to the observer in
    main.js. Gated on `.js-animate`, which only JS can set: an ungated
@@ -1505,7 +1503,6 @@ h1, h2, h3, h4 {
        motion. Weight here is narrow and deliberate — unlike blanket approach previously used. */
     .section-head.reveal::after,
     .reveal,
-    .reveal-load,
     .hero-line > span,
     .rule-draw {
         opacity: 1 !important;

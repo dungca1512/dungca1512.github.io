@@ -356,11 +356,10 @@ function renderHeroTitle() {
 
     el.innerHTML = lines
         .map((line, index) => {
-            // No `.reveal-load` here: it and `.hero-line > span` would tie at
-            // specificity, and the `animation` shorthand from whichever rule
-            // comes later in the sheet would silently win, potentially leaving
-            // the other one inert. `--reveal-i` alone drives the stagger,
-            // matching the scroll-driven convention elsewhere on the page.
+            // No reveal class here. `.hero-line > span` (0,1,1) carries the
+            // time-based entrance itself and outranks any class that tried to,
+            // so `--reveal-i` alone drives the stagger - matching the
+            // scroll-driven convention elsewhere on the page.
             return `<span class="hero-line"><span style="--reveal-i:${index}">${escapeHtml(line)}</span></span>`;
         })
         .join('');

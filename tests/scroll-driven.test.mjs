@@ -2,13 +2,46 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { css, js } from './helpers.mjs';
 
-test('the reveal is driven by a view() timeline where supported', () => {
+/* Scoped to the `.reveal` rule itself, not to the @supports block as a whole.
+   The block holds two rules - `.reveal` and `.section-head.reveal::after` - and
+   both carry `animation-timeline: view()` and an `animation-range`, so an
+   assertion against the block's whole text stayed green with the entire
+   `.reveal` rule gutted. That rule is the reveal; the other one is a heading
+   underline. */
+const revealRule = () => {
     const block = css().match(
         /@supports\s*\(animation-timeline:\s*view\(\)\)\s*\{([\s\S]*?)\n\}/
     );
     assert.ok(block, 'no `@supports (animation-timeline: view())` block found');
-    assert.match(block[1], /animation-timeline:\s*view\(\);/);
-    assert.match(block[1], /animation-range:\s*entry/);
+
+    const rule = block[1].match(/(?:^|\n)\s*\.reveal\s*\{([\s\S]*?)\n\s*\}/);
+    assert.ok(rule, 'the view() block has no `.reveal` rule; nothing drives the scroll reveal');
+    return rule[1];
+};
+
+test('the reveal is driven by a view() timeline where supported', () => {
+    const rule = revealRule();
+    assert.match(css(), /@keyframes reveal-up\b/, 'style.css has no `@keyframes reveal-up`');
+    assert.match(
+        rule,
+        /animation:\s*reveal-up\b/,
+        'the .reveal rule names no animation, so below-fold content never reveals on the modern path'
+    );
+    assert.match(rule, /animation-timeline:\s*view\(\);/);
+});
+
+test('the reveal stagger lives in animation-range, because a scroll timeline ignores delay', () => {
+    // Progress on a view() timeline is a POSITION, not a clock, so
+    // `animation-delay` does nothing here and the stagger has to move the range
+    // instead. Flattened to the default `normal`, every card in a grid reveals
+    // on the same scroll position - the stagger disappears without a trace in
+    // the sheet, which is why this asserts the --reveal-i term and not just the
+    // property.
+    assert.match(
+        revealRule(),
+        /animation-range:\s*entry[^;]*var\(--reveal-i\b[^;]*;/,
+        'the reveal stagger must be expressed as an animation-range offset keyed on --reveal-i'
+    );
 });
 
 test('a fallback branch exists for browsers without scroll-driven animation', () => {

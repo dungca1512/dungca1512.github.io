@@ -92,11 +92,61 @@ test('each line clips to its own baseline', () => {
     assert.match(rule[1], /overflow:\s*hidden/);
 });
 
+/* The headline is the one piece of above-the-fold motion, and it is driven by a
+   clock rather than by `view()` - anything already on screen at load sits at
+   100% of a view() timeline and never animates. Each of the three pieces below
+   could be deleted on its own with the whole suite still green: the animation
+   itself, the keyframes it names, and the stagger delay. Delete the animation
+   and the headline simply appears; delete the delay and all four lines arrive
+   at once, which is the effect, not a detail of it. */
+test('each headline line rises out of its own baseline, staggered by its index', () => {
+    const rule = css().match(/\.hero-line\s*>\s*span\s*\{([\s\S]*?)\n\}/);
+    assert.ok(rule, 'style.css has no `.hero-line > span` rule');
+    assert.match(
+        rule[1],
+        /animation:\s*hero-line-in\b/,
+        'nothing animates the headline lines in; the hero is the only above-the-fold motion on the page'
+    );
+    assert.match(
+        rule[1],
+        /animation-delay:\s*calc\([^;]*var\(--delay-hero-start\)[^;]*var\(--stagger-hero\)[^;]*\);/,
+        'without the staggered animation-delay all four lines arrive on the same frame'
+    );
+    assert.match(
+        rule[1],
+        /var\(--reveal-i\b/,
+        'the stagger has to read the authored line index, or every line takes the same delay'
+    );
+});
+
+test('the headline keyframes move a line up out of its own clip', () => {
+    const frames = css().match(/@keyframes hero-line-in\s*\{([\s\S]*?)\n\}/);
+    assert.ok(frames, 'style.css has no `@keyframes hero-line-in`; the animation the hero names does not exist');
+    assert.match(frames[1], /opacity:\s*0/);
+    assert.match(
+        frames[1],
+        /transform:\s*translateY\(/,
+        'the line has to start below its own baseline, or `overflow: hidden` on .hero-line clips nothing'
+    );
+});
+
 test('the accent rule draws itself from the left', () => {
     const sheet = css();
     const rule = sheet.match(/\.rule-draw\s*\{([\s\S]*?)\n\}/);
     assert.ok(rule, 'style.css has no .rule-draw rule');
     assert.match(rule[1], /transform-origin:\s*left/);
+    assert.match(
+        rule[1],
+        /animation:\s*rule-draw\b/,
+        'nothing applies the rule-draw animation, so the accent rule is just a static 1px line'
+    );
+    // Timed off the LAST headline line (index 3) plus a beat, so it reads as a
+    // follow-through. Without the delay it draws under a headline still moving.
+    assert.match(
+        rule[1],
+        /animation-delay:\s*calc\([^;]*var\(--stagger-hero\)[^;]*\);/,
+        'the accent rule must wait for the last headline line'
+    );
     assert.match(sheet, /@keyframes rule-draw\b/);
     assert.match(html(), /class="rule-draw"/);
 });
