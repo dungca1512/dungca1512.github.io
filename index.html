@@ -55,7 +55,11 @@
             <div class="container hero-grid">
                 <div class="hero-copy">
                     <p class="eyebrow" data-i18n="hero.eyebrow">AI/ML SYSTEMS ARCHITECT</p>
-                    <h1 data-i18n="hero.title">AI/MLOps engineer, 3+ years shipping production AI end-to-end.</h1>
+                    <!-- Text stays in the markup as the no-JS headline; renderHeroTitle()
+                         replaces it with one clipping block per line. No data-i18n here:
+                         the generic pass would flatten it back to a single string. -->
+                    <h1 id="heroTitle">AI/MLOps engineer, 3+ years shipping production AI end-to-end.</h1>
+                    <span class="rule-draw" aria-hidden="true"></span>
                     <p class="hero-lead" data-i18n="hero.lead">Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.</p>
 
                     <pre class="stack-diagram" aria-label="Delivery path from infrastructure as code to production inference"><code><span class="sd-line" style="--i:0"><span class="sd-key">provision</span>   terraform · ansible</span>

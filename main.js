@@ -32,6 +32,19 @@ function t(value) {
     return value;
 }
 
+/* Copy comes from data.js, not from a user - but it is interpolated into
+   innerHTML, and "the input is trusted" is exactly the assumption that stops
+   being true later. */
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char]);
+}
+
 function formatDate(isoDate) {
     if (!isoDate) {
         return '';
@@ -324,7 +337,37 @@ function renderAnalytics() {
     `;
 }
 
+/* Lines, not words. A word-by-word reveal puts nine moving things in front of
+   the eye at once; it reads worse and takes longer to become readable. */
+function renderHeroTitle() {
+    const el = byId('heroTitle');
+    if (!el) {
+        return;
+    }
+
+    const lines = t(PORTFOLIO_DATA.i18n.hero.titleLines);
+
+    // No authored line breaks for this locale: render the single string. The
+    // headline still reveals, just as one block.
+    if (!Array.isArray(lines) || lines.length === 0) {
+        el.textContent = t(PORTFOLIO_DATA.i18n.hero.title);
+        return;
+    }
+
+    el.innerHTML = lines
+        .map((line, index) => {
+            // No `.reveal-load` here: it and `.hero-line > span` would tie at
+            // specificity, and the `animation` shorthand from whichever rule
+            // comes later in the sheet would silently win, potentially leaving
+            // the other one inert. `--reveal-i` alone drives the stagger,
+            // matching the scroll-driven convention elsewhere on the page.
+            return `<span class="hero-line"><span style="--reveal-i:${index}">${escapeHtml(line)}</span></span>`;
+        })
+        .join('');
+}
+
 function renderHero() {
+    renderHeroTitle();
     byId('profileLocation').textContent = t(PORTFOLIO_DATA.profile.location);
     byId('profileStatus').textContent = t(PORTFOLIO_DATA.profile.status);
 

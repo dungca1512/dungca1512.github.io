@@ -45,6 +45,24 @@ const PORTFOLIO_DATA = {
                 en: 'AI/MLOps engineer, 3+ years shipping production AI end-to-end.',
                 vi: 'Kỹ sư AI/MLOps, 3+ năm đưa AI vào production trọn vòng.'
             },
+            /* The headline is set line by line so each line can rise out of its
+               own baseline. Break where the sense breaks, not where the box
+               happens to end - and keep both locales to the same line count so
+               the stagger reads the same in either language. */
+            titleLines: {
+                en: [
+                    'AI/MLOps engineer,',
+                    '3+ years shipping',
+                    'production AI',
+                    'end-to-end.'
+                ],
+                vi: [
+                    'Kỹ sư AI/MLOps,',
+                    '3+ năm đưa AI',
+                    'vào production',
+                    'trọn vòng.'
+                ]
+            },
             lead: {
                 en: 'Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.',
                 vi: 'Dịch vụ speech (ASR, chấm phát âm và thanh điệu) và embedding trên GCP và DigitalOcean cho người dùng ở VN, JP, KR và CN. Mặc định tối ưu chi phí: chọn đúng cỡ GPU, ưu tiên inference trên CPU, tự host thay cho API trả phí.'

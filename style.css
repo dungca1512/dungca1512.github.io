@@ -45,6 +45,12 @@
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     /* Kept as-is: rules throughout this sheet already reference it. */
     --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    /* ---- Hero stagger offsets ----
+       Not durations - these place a start point and a step on the timeline, so
+       they stay out of check-tokens.mjs's duration scale. */
+    --delay-hero-start: 120ms;  /* lets the page paint before anything moves */
+    --stagger-hero: 70ms;       /* line to line - close enough to read as one gesture */
 }
 
 *,
@@ -291,16 +297,69 @@ h1, h2, h3, h4 {
 }
 
 .hero-copy h1 {
-    /* Bigger and tighter — the headline should carry the page, not sit
-       at the same weight as the paragraph under it. */
-    font-size: clamp(2rem, 4vw, 3.4rem);
-    letter-spacing: -0.025em;
-    line-height: 1.14;
-    margin: 20px 0 22px;
-    max-width: 17ch;
-    /* Even out the ragged edge and stop "end-to-end" splitting at its hyphen. */
-    text-wrap: balance;
+    /* The headline carries the page. At 3.4rem it sat at conversational weight
+       with the paragraph under it; at 4.6rem it is the first thing read. */
+    font-size: clamp(2.4rem, 5.2vw, 4.6rem);
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+    margin: 20px 0 18px;
+    /* No `text-wrap: balance` and no `max-width` in ch: the line breaks are
+       authored in data.js, so letting the browser rebalance them would fight
+       the copy. `hyphens: none` still matters - it stops "end-to-end" breaking
+       at its own hyphen when a line does wrap on a narrow screen. */
     hyphens: none;
+}
+
+/* ---------- Hero headline ----------
+   Each line sits in its own clipping block, so the text rises out of its own
+   baseline rather than sliding up through empty space below it. Remove the
+   `overflow: hidden` and the effect becomes a generic slide-up. */
+
+@keyframes hero-line-in {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+}
+
+.hero-line {
+    display: block;
+    overflow: hidden;
+    /* Descenders in "g" and "ạ" sit below the baseline and would be shaved off
+       by the clip without this. */
+    padding-bottom: 0.08em;
+}
+
+.hero-line > span {
+    display: block;
+    animation: hero-line-in var(--dur-hero) var(--ease-out-soft) both;
+    /* `--reveal-i` is the authored line index (0-3), not a precomputed delay -
+       the stagger offsets live on :root as tokens, same convention as the
+       scroll-driven reveal elsewhere on the page. */
+    animation-delay: calc(var(--delay-hero-start) + var(--reveal-i, 0) * var(--stagger-hero));
+}
+
+/* A 1px rule that draws itself left to right - the technical-document
+   equivalent of a signature. Measured, not sketched: no squiggle, no radius. */
+@keyframes rule-draw {
+    from {
+        transform: scaleX(0);
+    }
+}
+
+.rule-draw {
+    display: block;
+    width: min(100%, 22rem);
+    height: 1px;
+    margin-bottom: 22px;
+    background: var(--accent);
+    transform-origin: left;
+    animation: rule-draw var(--dur-hero) var(--ease-out-soft) both;
+    /* Starts as the last headline line lands: index 3 is the last of the four
+       authored lines (data.js keeps both locales to that same line count for
+       exactly this reason), plus one more beat so the rule reads as a
+       follow-through rather than landing mid-line. Equals 430ms. */
+    animation-delay: calc(var(--delay-hero-start) + 3 * var(--stagger-hero) + var(--dur-instant));
 }
 
 .hero-lead {
@@ -1382,7 +1441,9 @@ h1, h2, h3, h4 {
        motion. Weight here is narrow and deliberate — unlike blanket approach previously used. */
     .section-head.reveal::after,
     .reveal,
-    .reveal-load {
+    .reveal-load,
+    .hero-line > span,
+    .rule-draw {
         opacity: 1 !important;
         transform: none !important;
         clip-path: none !important;
