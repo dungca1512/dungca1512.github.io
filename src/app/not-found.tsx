@@ -10,7 +10,7 @@ import en from '@/content/dictionaries/en';
 // there is no locale to pick a single title from, same as the body below.
 export const metadata: Metadata = {
   title: `${vi.notFound.title} / ${en.notFound.title}`,
-  icons: { icon: '/favicon.svg' },
+  icons: { icon: '/favicon.ico', apple: '/apple-touch-icon.png' },
 };
 
 /** There is no `app/layout.tsx` — the root layout that carries `<html>` and
