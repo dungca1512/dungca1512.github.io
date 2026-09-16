@@ -4,10 +4,28 @@ import path from 'node:path';
 const username = process.argv[2] || 'dungca1512';
 const outputPath = process.argv[3] || 'public/github-data.json';
 
+/** Optional, and only a rate limit - never access. Every endpoint below
+ *  reads public profile data that any stranger can curl, so a token buys
+ *  nothing but headroom.
+ *
+ *  It matters because the headroom differs by two orders of magnitude.
+ *  Unauthenticated calls to api.github.com get 60 an hour PER IP ADDRESS,
+ *  and a GitHub Actions runner does not have an IP of its own - it borrows
+ *  one from a pool shared with every other job on the platform. The
+ *  scheduled sync can therefore arrive to find the hour's 60 already spent
+ *  by strangers and fail with a 403 that has nothing to do with this
+ *  repository. Authenticated with the workflow's GITHUB_TOKEN the limit is
+ *  1,000 an hour per repository - a budget no one else can draw on.
+ *
+ *  Unset is the normal case at a desk: two requests against 60 an hour from
+ *  one machine is not a limit anyone reaches. */
+const token = process.env.GITHUB_TOKEN;
+
 async function fetchJson(url) {
   const res = await fetch(url, {
     headers: {
       'User-Agent': 'portfolio-sync-script',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
 

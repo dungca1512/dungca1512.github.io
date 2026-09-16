@@ -1,0 +1,96 @@
+# Refreshes public/github-data.json, the snapshot the "Dữ liệu tổng quan" band
+# is drawn from, and then asks deploy to republish.
+#
+# The band is computed at BUILD time, not fetched in the browser, so the
+# numbers on the live site are exactly as old as the last commit of that file.
+# It sat frozen at 2026-09-05 until this workflow existed.
+name: sync-github
+
+on:
+  schedule:
+    # 02:23 UTC Monday = 09:23 in Hanoi. Weekly, because the thing being
+    # tracked is a personal repository list that moves a few times a month -
+    # daily would be 350 commits a year to say the same thing.
+    #
+    # Not on the hour: GitHub queues every cron in the platform at :00 and runs
+    # them late under that load. An odd minute is simply served sooner.
+    #
+    # GitHub disables scheduled workflows in a repository with no activity for
+    # 60 days, and emails the owner before it does. This one commits every time
+    # it runs, which is itself activity, so it keeps itself alive.
+    - cron: '23 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  # Pushing the refreshed snapshot to main.
+  contents: write
+  # Dispatching deploy at the end. Read is not enough to start a workflow.
+  actions: write
+
+# One at a time. A manual run fired while the Monday one is mid-push would
+# otherwise race it to the same branch and lose on `git push`.
+concurrency:
+  group: sync-github
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No `npm ci`, and no `cache: npm` to go with it. scripts/sync-github.mjs
+      # imports node:fs and node:path and calls global fetch - nothing from
+      # node_modules - so installing 400 packages here would buy a slower job
+      # and nothing else. `npm run` itself does not need them.
+
+      - name: Fetch the snapshot
+        run: npm run sync:github
+        env:
+          # Public data either way; this is purely for the rate limit. The
+          # script's own comment has the numbers.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit it
+        id: commit
+        run: |
+          set -euo pipefail
+
+          # In practice this guard does not fire, because `generatedAt` moves
+          # on every run even when no repository has changed - and that is the
+          # point rather than a flaw. Every window the band draws is anchored
+          # on that timestamp: the twelve-month bar chart ends there, and
+          # "updated in the last 30 days" counts back from there. Leave it
+          # stale and the chart keeps describing a month that has passed.
+          #
+          # What the guard is actually for: if the fetch ever produces a
+          # byte-identical file, `git commit` would fail the job with "nothing
+          # to commit". This exits clean instead.
+          if git diff --quiet -- public/github-data.json; then
+            echo 'Snapshot unchanged, nothing to push.'
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/github-data.json
+          git commit -m 'chore: refresh the GitHub snapshot'
+          git push
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      # The push above CANNOT trigger deploy on its own. GitHub's rule: "events
+      # triggered by the GITHUB_TOKEN will not create a new workflow run", which
+      # exists so a workflow that commits cannot trigger itself forever. The
+      # documented exceptions are workflow_dispatch and repository_dispatch,
+      # which "always create workflow runs" - so deploy is started by name here.
+      # Without this step the snapshot would land in the repository and never
+      # reach the site.
+      - name: Republish the site
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
