@@ -75,7 +75,7 @@ const vi = {
     experience: {
       eyebrow: 'Kinh nghiệm',
       title: 'Ba năm xây dựng và vận hành hệ thống AI trong môi trường thực tế.',
-      lead: 'Ba năm qua ba nơi: từ thực tập AI ở FPT Smart Cloud, sang kỹ sư AI ở AMELA, tới sở hữu hạ tầng AI/ML ở eUp Group.',
+      lead: 'Ba năm qua ba nơi: phân tích hội thoại ở FPT Smart Cloud, kỹ sư AI ở AMELA, tới sở hữu hạ tầng AI/ML ở eUp Group.',
     },
     capabilities: {
       eyebrow: 'Nguyên tắc triển khai',

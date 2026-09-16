@@ -62,7 +62,7 @@ const en: Dictionary = {
     experience: {
       eyebrow: 'Experience',
       title: 'Three years shipping and operating AI systems in production.',
-      lead: 'Three years across three places: AI intern at FPT Smart Cloud, AI engineer at AMELA, now owning AI/ML infrastructure at eUp Group.',
+      lead: 'Three years across three places: conversation analytics at FPT Smart Cloud, AI engineering at AMELA, now owning AI/ML infrastructure at eUp Group.',
     },
     capabilities: {
       eyebrow: 'Engineering Playbook',

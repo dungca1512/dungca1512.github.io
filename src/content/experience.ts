@@ -75,7 +75,7 @@ export const EXPERIENCE: Role[] = [
   },
   {
     company: 'FPT Smart Cloud',
-    role: { en: 'AI Engineer Intern', vi: 'Thực tập sinh AI Engineer' },
+    role: { en: 'AI Engineer', vi: 'AI Engineer' },
     period: { en: 'Mar 2023 — Nov 2024', vi: 'Mar 2023 — Nov 2024' },
     current: false,
     summary: {
