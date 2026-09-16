@@ -36,7 +36,7 @@ That is the technique used here, for four reasons that a raster cannot match:
 - **No licence.** Nothing was downloaded, so nothing has terms. (For reference,
   had we gone the pack route: unDraw is free with no attribution but forbids
   compiling its assets into a competing service and forbids AI training;
-  Humaaans is CC0; Storyset *requires* attribution and restricts commercial use
+  Humaaans is CC0; Storyset _requires_ attribution and restricts commercial use
   unless you pay for Flaticon Premium.)
 
 ---
@@ -48,11 +48,11 @@ illustration every two sections would argue with the content instead of framing
 it. Each scene says something different — repeating one composition three times
 is what makes a page look templated.
 
-| Where | Size | What it draws |
-| --- | --- | --- |
-| Hero, `.hero-figure` | 320×320 in a 24rem blob | An isometric three-slab stack with the top slab lit, a voice entering as six bars, two cubes drifting. The platform, and what runs on it. |
-| Case study, `.case-band` | 720×160 | The gateway end to end: speech in → one router → three providers → one answer back. The only picture on the page that states an architecture. |
-| Expertise, `.section-head-art` | 200×180 | A field of nine cubes with one lifted out of its dashed socket. |
+| Where                          | Size                    | What it draws                                                                                                                                 |
+| ------------------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hero, `.hero-figure`           | 320×320 in a 24rem blob | An isometric three-slab stack with the top slab lit, a voice entering as six bars, two cubes drifting. The platform, and what runs on it.     |
+| Case study, `.case-band`       | 720×160                 | The gateway end to end: speech in → one router → three providers → one answer back. The only picture on the page that states an architecture. |
+| Expertise, `.section-head-art` | 200×180                 | A field of nine cubes with one lifted out of its dashed socket.                                                                               |
 
 ## How they are built
 
@@ -71,14 +71,22 @@ object lit from one side.
 
 **Faces are opaque, via `color-mix`, not `fill-opacity`.** This is not a style
 preference — translucent faces let every solid behind them show through, and
-three stacked slabs read as one piece of dirty glass. Each face is mixed *into*
+three stacked slabs read as one piece of dirty glass. Each face is mixed _into_
 `--art-ground`, so every surface that is not plain paper re-declares that token:
 
 ```css
-.case-band       { --art-ground: var(--bg-muted); }
-.section-head-art{ --art-ground: var(--bg-muted); }
-.section--dark   { --art-ground: var(--bg-dark); }
-.hero-figure-art { --art-ground: var(--art-blob); }
+.case-band {
+  --art-ground: var(--bg-muted);
+}
+.section-head-art {
+  --art-ground: var(--bg-muted);
+}
+.section--dark {
+  --art-ground: var(--bg-dark);
+}
+.hero-figure-art {
+  --art-ground: var(--art-blob);
+}
 ```
 
 Forget one and the scene dropped there will mix paper-white into a near-black
@@ -87,7 +95,7 @@ band.
 **`.art-lit` uses custom properties, not descendant selectors.** This cost a
 debugging round: `.art-lit .art-top` does **not** match, because a descendant
 selector cannot cross into the shadow tree that `<use>` builds, and every cube is
-a `<use>`. Custom properties *do* inherit across that boundary. So `.art-lit`
+a `<use>`. Custom properties _do_ inherit across that boundary. So `.art-lit`
 sets `--art-top: 100%` and friends rather than restyling `.art-top`. Do not
 "simplify" it back.
 

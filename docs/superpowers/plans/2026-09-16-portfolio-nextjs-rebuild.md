@@ -49,7 +49,7 @@ from the spec.
   to one. Enforced by `npm run check:colors`.
 - **Accent colours are never used raw as text.** They measure 2.68:1–3.78:1,
   below AA. Use the `ink-*` colours, which are `color-mix(in srgb, <token> 68%,
-  var(--base-foreground))`, declared under **both** `:root` and
+var(--base-foreground))`, declared under **both** `:root` and
   `[data-theme='dark']`.
 - **Every animation ends at its resting frame**, so the
   `prefers-reduced-motion` reset lands on the final state rather than a blank
@@ -148,6 +148,7 @@ and all ten files under `tests/`. They are the old site; git keeps them.
 ### Task 1: Clear the old site and scaffold the static export
 
 **Files:**
+
 - Delete: `index.html`, `style.css`, `style.min.css`, `main.js`,
   `scripts/build-css.mjs`, `scripts/check-tokens.mjs`, `scripts/run-tests.mjs`,
   `tests/` (all 11 files)
@@ -163,10 +164,11 @@ and all ten files under `tests/`. They are the old site; git keeps them.
 - Test: `tests/export.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: an `npm run build` that writes `out/`; the path alias `@/*` →
   `src/*`; `npm run verify` = `format:check && lint && typecheck && test &&
-  build`; `LOCALES` is not defined yet, so `generateStaticParams` is hardcoded
+build`; `LOCALES` is not defined yet, so `generateStaticParams` is hardcoded
   in this task and replaced in Task 2.
 
 - [ ] **Step 1: Delete the old site and move the assets that must survive**
@@ -480,6 +482,7 @@ describe.skipIf(!existsSync(out))('the exported tree', () => {
 ```bash
 npm test
 ```
+
 Expected: the suite reports the `export` describe block as **skipped** — `out/`
 does not exist yet. That is the correct failure shape here: a test that asserted
 against a missing directory would fail for the wrong reason.
@@ -487,6 +490,7 @@ against a missing directory would fail for the wrong reason.
 ```bash
 npm run build && npm test
 ```
+
 Expected: build succeeds and writes `out/`; all five assertions PASS.
 
 - [ ] **Step 6: Point CI at the new verify**
@@ -549,11 +553,13 @@ EOF
 ### Task 2: Locale plumbing
 
 **Files:**
+
 - Create: `src/content/locales.ts`, `src/lib/cn.ts`, `src/lib/paths.ts`
 - Modify: `src/app/[lang]/layout.tsx`
 - Test: `tests/paths.test.ts`
 
 **Interfaces:**
+
 - Consumes: Task 1's `@/*` alias and vitest config.
 - Produces:
   - `type Locale = 'vi' | 'en'`; `LOCALES: readonly Locale[]`;
@@ -629,6 +635,7 @@ describe('cn', () => {
 ```bash
 npx vitest run tests/paths.test.ts
 ```
+
 Expected: FAIL — `Failed to resolve import "@/lib/paths"`.
 
 - [ ] **Step 3: Write the implementation**
@@ -696,6 +703,7 @@ export function swapLocale(pathname: string, next: Locale): string {
 ```bash
 npx vitest run tests/paths.test.ts
 ```
+
 Expected: PASS, 8 tests.
 
 - [ ] **Step 5: Replace the hardcoded params in the layout**
@@ -732,6 +740,7 @@ EOF
 ### Task 3: Port the content out of data.js
 
 **Files:**
+
 - Create: `src/content/dictionaries.ts`, `src/content/dictionaries/vi.ts`,
   `src/content/dictionaries/en.ts`, `src/content/site.ts`,
   `src/content/metrics.ts`, `src/content/expertise.ts`,
@@ -744,6 +753,7 @@ EOF
 - Test: `tests/content.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Localized<T>`, `Locale`, `LOCALES` from Task 2.
 - Produces:
   - `getLocale(): Promise<Locale>` and `getDictionary(): Promise<Dictionary>`
@@ -772,6 +782,7 @@ node --input-type=module -e "
   console.log(Object.keys(PORTFOLIO_DATA).join(' '));
 "
 ```
+
 Expected output: `github profile i18n heroTrust focus experience education
 certification skillGroups metrics expertise projects caseStudy playbook writing
 contacts`
@@ -782,8 +793,8 @@ that file.
 - [ ] **Step 2: Write the failing test**
 
 `tests/content.test.ts` — this is the gate that makes `Localized<T>` mean
-something at runtime as well as at compile time. TypeScript catches a *missing*
-key; it cannot catch an *empty* one:
+something at runtime as well as at compile time. TypeScript catches a _missing_
+key; it cannot catch an _empty_ one:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -815,16 +826,29 @@ function* localized(node: unknown, path = ''): Generator<[string, Record<string,
 }
 
 const modules: Record<string, unknown> = {
-  SITE, METRICS, EXPERTISE, FOCUS, PROJECTS, CASE_STUDY,
-  EXPERIENCE, EDUCATION, CERTIFICATION, SKILL_GROUPS, PLAYBOOK, WRITING, CONTACTS,
+  SITE,
+  METRICS,
+  EXPERTISE,
+  FOCUS,
+  PROJECTS,
+  CASE_STUDY,
+  EXPERIENCE,
+  EDUCATION,
+  CERTIFICATION,
+  SKILL_GROUPS,
+  PLAYBOOK,
+  WRITING,
+  CONTACTS,
 };
 
 describe('every bilingual field is filled in both languages', () => {
   for (const [name, mod] of Object.entries(modules)) {
     it(name, () => {
       const found = [...localized(mod, name)];
-      expect(found.length, `${name} has no bilingual fields — did the port drop them?`)
-        .toBeGreaterThan(0);
+      expect(
+        found.length,
+        `${name} has no bilingual fields — did the port drop them?`,
+      ).toBeGreaterThan(0);
       for (const [path, value] of found) {
         for (const locale of LOCALES) {
           const text = value[locale];
@@ -871,6 +895,7 @@ describe('the content the page actually needs is present', () => {
 ```bash
 npx vitest run tests/content.test.ts
 ```
+
 Expected: FAIL — `Failed to resolve import "@/content/site"`.
 
 - [ ] **Step 4: Write the content modules**
@@ -965,9 +990,9 @@ export const FOCUS: Localized<string>[] = [/* PORTFOLIO_DATA.focus, verbatim */]
 // src/content/projects.ts
 export type Project = {
   slug: string;
-  name: string;               // a proper noun — not translated
+  name: string; // a proper noun — not translated
   summary: Localized<string>;
-  stack: string[];            // tool names — not translated
+  stack: string[]; // tool names — not translated
   repo?: string;
   demo?: string;
   highlight?: boolean;
@@ -1004,7 +1029,12 @@ export type PlaybookStep = { step: string; title: Localized<string>; body: Local
 export const PLAYBOOK: PlaybookStep[] = [/* all five */];
 
 // src/content/writing.ts
-export type Article = { title: Localized<string>; blurb: Localized<string>; href: string; date: string };
+export type Article = {
+  title: Localized<string>;
+  blurb: Localized<string>;
+  href: string;
+  date: string;
+};
 export const WRITING: Article[] = [/* all six */];
 
 // src/content/contacts.ts
@@ -1021,8 +1051,7 @@ other is a typecheck error:
 const vi = {
   meta: {
     title: 'Công Anh Dũng — AI/ML Systems Architect',
-    description:
-      'Hạ tầng và MLOps. Xây dựng hệ thống AI chạy được trong sản xuất tại eUp Group.',
+    description: 'Hạ tầng và MLOps. Xây dựng hệ thống AI chạy được trong sản xuất tại eUp Group.',
   },
   nav: {
     skipToContent: 'Tới nội dung chính',
@@ -1058,9 +1087,7 @@ export default vi;
 ```ts
 import type { Dictionary } from './vi';
 
-const en: Dictionary = {
-  /* same keys, English values */
-};
+const en: Dictionary = {/* same keys, English values */};
 
 export default en;
 ```
@@ -1096,6 +1123,7 @@ export type { Dictionary };
 ```bash
 npx vitest run tests/content.test.ts
 ```
+
 Expected: PASS. If a `.en` assertion fails, the port dropped a translation —
 go back to `/tmp/data.json` and copy it; do not write a new one.
 
@@ -1134,6 +1162,7 @@ console.log(`OK    ${pages.length} pages carry no unresolved content`);
 ```
 
 Add to `package.json`:
+
 ```json
 "check:content": "node scripts/check-content.mjs",
 "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run check:content"
@@ -1171,12 +1200,14 @@ EOF
 ### Task 4: Design tokens and the base stylesheet
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 - Create: `scripts/check-no-hardcoded-colors.mjs`
 - Modify: `package.json`
 - Test: `tests/contrast.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing from earlier tasks.
 - Produces: Tailwind colour utilities `bg-background`, `bg-surface`,
   `bg-surface-muted`, `text-foreground`, `text-muted-foreground`, `bg-primary`,
@@ -1270,6 +1301,7 @@ describe('globals.css', () => {
 ```bash
 npx vitest run tests/contrast.test.ts
 ```
+
 Expected: the three `globals.css` assertions FAIL — the file is still the
 one-line stub from Task 1. The four colour-maths assertions pass immediately;
 they are describing the palette, not the code.
@@ -1432,6 +1464,7 @@ through 12 fill them. An `@import` of a missing file is a build error.
 ```bash
 npx vitest run tests/contrast.test.ts && npm run build
 ```
+
 Expected: 7 tests PASS, build succeeds.
 
 - [ ] **Step 5: Write the colour gate**
@@ -1476,6 +1509,7 @@ console.log(`OK    ${files.length} files carry no colour literals`);
 ```
 
 Add to `package.json` and put it in `verify` before `build`:
+
 ```json
 "check:colors": "node scripts/check-no-hardcoded-colors.mjs",
 "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:colors && npm run build && npm run check:content"
@@ -1512,12 +1546,14 @@ EOF
 ### Task 5: Theme — no-flash script and the toggle
 
 **Files:**
+
 - Create: `src/components/site/theme-script.tsx`,
   `src/components/site/theme-toggle.tsx`
 - Modify: `src/app/[lang]/layout.tsx`
 - Test: `tests/theme.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `theme-light-only` / `theme-dark-only` utilities (Task 4),
   `getDictionary` (Task 3), `cn` (Task 2).
 - Produces: `<ThemeScript />` (no props) and
@@ -1578,6 +1614,7 @@ Add `@testing-library/user-event` to devDependencies.
 ```bash
 npx vitest run tests/theme.test.tsx
 ```
+
 Expected: FAIL — `Failed to resolve import "@/components/site/theme-toggle"`.
 
 - [ ] **Step 3: Write the components**
@@ -1628,13 +1665,30 @@ export function ThemeToggle({ label }: { label: string }) {
       type="button"
       onClick={toggle}
       aria-label={label}
-      className="duration-fast ease-out-soft grid size-10 place-items-center rounded-full border border-border bg-surface text-foreground transition-colors hover:bg-surface-muted"
+      className="duration-fast ease-out-soft border-border bg-surface text-foreground hover:bg-surface-muted grid size-10 place-items-center rounded-full border transition-colors"
     >
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="theme-light-only size-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        className="theme-light-only size-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
         <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" strokeLinecap="round" />
+        <path
+          d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"
+          strokeLinecap="round"
+        />
       </svg>
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="theme-dark-only size-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        className="theme-dark-only size-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
         <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z" strokeLinejoin="round" />
       </svg>
     </button>
@@ -1650,6 +1704,7 @@ In `src/app/[lang]/layout.tsx`, add `<head><ThemeScript /></head>` above
 ```bash
 npx vitest run tests/theme.test.tsx
 ```
+
 Expected: PASS, 4 tests.
 
 - [ ] **Step 5: Commit**
@@ -1681,6 +1736,7 @@ EOF
 ### Task 6: The motion system
 
 **Files:**
+
 - Create: `src/components/motion/use-in-view.ts`,
   `src/components/motion/reveal-scope.tsx`,
   `src/components/motion/drawn-underline.tsx`
@@ -1688,6 +1744,7 @@ EOF
 - Test: `tests/motion.test.ts`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 2), the duration and easing tokens (Task 4).
 - Produces: the utilities `reveal`, `reveal-clip`, `reveal-load`,
   `reveal-clip-load`, `stagger`, `blueprint`, `pop-on-hover`; the components
@@ -1744,6 +1801,7 @@ describe('prefers-reduced-motion', () => {
 ```bash
 npx vitest run tests/motion.test.ts
 ```
+
 Expected: FAIL — the stub files contain only a comment.
 
 - [ ] **Step 3: Write the CSS**
@@ -1990,7 +2048,7 @@ export function DrawnUnderline({ className }: { className?: string }) {
       viewBox="0 0 640 24"
       preserveAspectRatio="none"
       fill="none"
-      className={cn('drawn-line h-3 w-full text-ink-primary sm:h-4', className)}
+      className={cn('drawn-line text-ink-primary h-3 w-full sm:h-4', className)}
     >
       <path
         d="M4 16C88 6 176 4 264 8c88 4 176 12 264 8 36-3 72-8 108-14"
@@ -2008,6 +2066,7 @@ export function DrawnUnderline({ className }: { className?: string }) {
 ```bash
 npx vitest run tests/motion.test.ts && npm run build
 ```
+
 Expected: 5 tests PASS, build succeeds.
 
 - [ ] **Step 6: Commit**
@@ -2041,6 +2100,7 @@ EOF
 ### Task 7: The layout shell
 
 **Files:**
+
 - Create: `src/components/site/container.tsx`, `src/components/site/section.tsx`,
   `src/components/site/skip-link.tsx`, `src/components/site/footer.tsx`,
   `src/components/layout/menu-bar.tsx`,
@@ -2051,6 +2111,7 @@ EOF
 - Test: `tests/section.test.tsx`, `tests/menu-bar.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn`, `localeHref`, `localeAnchorHref`, `swapLocale` (Task 2);
   `getLocale`, `getDictionary`, `Dictionary`, `SITE` (Task 3); `RevealScope`
   (Task 6); `ThemeToggle`, `ThemeScript` (Task 5).
@@ -2136,6 +2197,7 @@ describe('SkipLink', () => {
 ```bash
 npx vitest run tests/section.test.tsx tests/menu-bar.test.tsx
 ```
+
 Expected: FAIL — `Failed to resolve import "@/components/site/section"`.
 
 - [ ] **Step 3: Write the shell components**
@@ -2147,7 +2209,9 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 export function Container({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-content px-5 sm:px-8', className)}>{children}</div>;
+  return (
+    <div className={cn('max-w-content mx-auto w-full px-5 sm:px-8', className)}>{children}</div>
+  );
 }
 ```
 
@@ -2205,7 +2269,7 @@ type SectionHeadingProps = {
 export function SectionHeading({ eyebrow, title, lead, className, stacked }: SectionHeadingProps) {
   return (
     <div className={className}>
-      <p className="reveal text-sm font-semibold tracking-[0.14em] text-ink-primary uppercase">
+      <p className="reveal text-ink-primary text-sm font-semibold tracking-[0.14em] uppercase">
         {eyebrow}
       </p>
       <div
@@ -2213,7 +2277,7 @@ export function SectionHeading({ eyebrow, title, lead, className, stacked }: Sec
           'gap-5',
           stacked
             ? 'block'
-            : 'block sm:grid wide:grid-cols-[minmax(0,1.25fr)_minmax(16rem,0.75fr)] wide:items-end',
+            : 'wide:grid-cols-[minmax(0,1.25fr)_minmax(16rem,0.75fr)] wide:items-end block sm:grid',
         )}
       >
         <h2
@@ -2227,7 +2291,7 @@ export function SectionHeading({ eyebrow, title, lead, className, stacked }: Sec
         {lead ? (
           <p
             className={cn(
-              'reveal self-end text-lg text-pretty text-muted-foreground',
+              'reveal text-muted-foreground self-end text-lg text-pretty',
               stacked ? 'mt-5 max-w-104' : 'mt-4 max-w-120 sm:mt-0',
             )}
           >
@@ -2249,7 +2313,7 @@ export function SkipLink({ label }: { label: string }) {
   return (
     <a
       href="#main"
-      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+      className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2"
     >
       {label}
     </a>
@@ -2285,7 +2349,9 @@ export function LocaleSwitch({ locale }: { locale: Locale }) {
           aria-label={LOCALE_LABEL[l]}
           className={cn(
             'duration-fast rounded-full px-2 py-1 uppercase transition-colors',
-            l === locale ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground',
+            l === locale
+              ? 'text-foreground font-semibold'
+              : 'text-muted-foreground hover:text-foreground',
           )}
         >
           {l}
@@ -2322,7 +2388,7 @@ export function MenuBar({ locale, dict }: { locale: Locale; dict: Dictionary }) 
             <li key={anchor}>
               <Link
                 href={localeAnchorHref(locale, anchor)}
-                className="duration-fast rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+                className="duration-fast text-muted-foreground hover:bg-surface-muted hover:text-foreground rounded-full px-3 py-1.5 text-sm transition-colors"
               >
                 {dict.nav[anchor]}
               </Link>
@@ -2447,7 +2513,7 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
       <head>
         <ThemeScript />
       </head>
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="bg-background text-foreground flex min-h-full flex-col">
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
         <main id="main" className="flex-1">
@@ -2465,6 +2531,7 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
 ```bash
 npx vitest run tests/section.test.tsx tests/menu-bar.test.tsx && npm run build
 ```
+
 Expected: 7 tests PASS, build writes `out/vi/` and `out/en/`.
 
 - [ ] **Step 6: Commit**
@@ -2495,12 +2562,14 @@ EOF
 ### Task 8: Hero
 
 **Files:**
+
 - Create: `src/components/sections/hero.tsx`,
   `src/components/site/illustration.tsx`
 - Modify: `src/styles/sections/hero.css`, `src/app/[lang]/page.tsx`
 - Test: `tests/sections.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Container` (Task 7), `DrawnUnderline` (Task 6), `SITE`, `FOCUS`,
   `getLocale`, `getDictionary` (Task 3), `localeAnchorHref` (Task 2).
 - Produces: `<Hero />` (async Server Component, no props);
@@ -2518,9 +2587,7 @@ import { Illustration } from '@/components/site/illustration';
 
 describe('Illustration', () => {
   it('serves avif first, then webp, then the jpg', () => {
-    const { container } = render(
-      <Illustration name="hero" alt="" width={800} height={800} />,
-    );
+    const { container } = render(<Illustration name="hero" alt="" width={800} height={800} />);
     const types = [...container.querySelectorAll('source')].map((s) => s.type);
     expect(types).toEqual(['image/avif', 'image/webp']);
     expect(container.querySelector('img')?.getAttribute('src')).toBe(
@@ -2529,9 +2596,7 @@ describe('Illustration', () => {
   });
 
   it('always carries width and height, so nothing jumps while it loads', () => {
-    const { container } = render(
-      <Illustration name="hero" alt="" width={800} height={640} />,
-    );
+    const { container } = render(<Illustration name="hero" alt="" width={800} height={640} />);
     const img = container.querySelector('img');
     expect(img).toHaveAttribute('width', '800');
     expect(img).toHaveAttribute('height', '640');
@@ -2558,6 +2623,7 @@ describe('Illustration', () => {
 ```bash
 npx vitest run tests/sections.test.tsx
 ```
+
 Expected: FAIL — `Failed to resolve import "@/components/site/illustration"`.
 
 - [ ] **Step 3: Write the components**
@@ -2590,14 +2656,7 @@ type IllustrationProps = {
    An empty alt is the normal case here. Every illustration on this site sits
    beside text that already says the same thing, and an alt string would make a
    screen reader read the fact twice. */
-export function Illustration({
-  name,
-  alt,
-  width,
-  height,
-  className,
-  priority,
-}: IllustrationProps) {
+export function Illustration({ name, alt, width, height, className, priority }: IllustrationProps) {
   const base = `/images/illustrations/${name}`;
 
   return (
@@ -2641,9 +2700,9 @@ export async function Hero() {
   return (
     <section className="relative flex min-h-[min(48rem,88svh)] items-center pt-28 pb-16 sm:pt-32">
       <Container>
-        <div className="grid items-center gap-12 wide:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+        <div className="wide:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] grid items-center gap-12">
           <div>
-            <p className="reveal-load text-sm font-semibold tracking-[0.14em] text-ink-primary uppercase">
+            <p className="reveal-load text-ink-primary text-sm font-semibold tracking-[0.14em] uppercase">
               {SITE.status[locale]}
             </p>
 
@@ -2653,20 +2712,20 @@ export async function Hero() {
 
             <DrawnUnderline className="mt-2 max-w-xl" />
 
-            <p className="reveal-load mt-6 max-w-prose text-lg text-muted-foreground">
+            <p className="reveal-load text-muted-foreground mt-6 max-w-prose text-lg">
               {dict.sections.hero.lead}
             </p>
 
             <div className="reveal-load mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href={localeAnchorHref(locale, 'contact')}
-                className="duration-fast ease-out-soft rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground transition-transform hover:-translate-y-0.5"
+                className="duration-fast ease-out-soft bg-primary text-primary-foreground rounded-full px-6 py-3 font-medium transition-transform hover:-translate-y-0.5"
               >
                 {dict.common.hireMe}
               </Link>
               <a
                 href={SITE.cv}
-                className="duration-fast rounded-full border border-border px-6 py-3 font-medium transition-colors hover:bg-surface-muted"
+                className="duration-fast border-border hover:bg-surface-muted rounded-full border px-6 py-3 font-medium transition-colors"
               >
                 {dict.common.downloadCv}
               </a>
@@ -2674,7 +2733,7 @@ export async function Hero() {
 
             {/* The index row: a section number, the role, and the language
                 pair — the same line the reference runs under its hero. */}
-            <p className="reveal-load mt-12 flex flex-wrap items-center gap-3 text-sm tracking-[0.12em] text-muted-foreground uppercase">
+            <p className="reveal-load text-muted-foreground mt-12 flex flex-wrap items-center gap-3 text-sm tracking-[0.12em] uppercase">
               <span>01</span>
               <span aria-hidden="true">·</span>
               <span>{SITE.location[locale]}</span>
@@ -2729,6 +2788,7 @@ export default function Page() {
 ```bash
 npx vitest run tests/sections.test.tsx && npm run build
 ```
+
 Expected: 4 tests PASS. The build succeeds; the hero image 404s until Task 13,
 which is expected and does not fail the build.
 
@@ -2762,11 +2822,13 @@ EOF
 ### Task 9: Proof bar with rolling figures
 
 **Files:**
+
 - Create: `src/components/motion/count-up.tsx`,
   `src/components/sections/proof-bar.tsx`
 - Modify: `src/app/[lang]/page.tsx`, `tests/sections.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `METRICS` (Task 3), `Container` (Task 7), `getLocale` (Task 3),
   `BCP47` (Task 2).
 - Produces: `<CountUp value={number} locale={string} suffix? duration? />`,
@@ -2802,6 +2864,7 @@ describe('CountUp', () => {
 ```bash
 npx vitest run tests/sections.test.tsx
 ```
+
 Expected: FAIL — `Failed to resolve import "@/components/motion/count-up"`.
 
 - [ ] **Step 3: Write the components**
@@ -2934,13 +2997,13 @@ export async function ProofBar() {
   const locale = await getLocale();
 
   return (
-    <section className="border-y border-border bg-surface-muted py-12">
+    <section className="border-border bg-surface-muted border-y py-12">
       <RevealScope>
         <Container>
           <dl className="stagger grid grid-cols-2 gap-8 md:grid-cols-4">
             {METRICS.map((metric, i) => (
               <div key={metric.key} className="reveal" style={{ '--i': i } as React.CSSProperties}>
-                <dt className="text-sm text-muted-foreground">{metric.label[locale]}</dt>
+                <dt className="text-muted-foreground text-sm">{metric.label[locale]}</dt>
                 <dd className="mt-1 text-[clamp(2rem,4vw,3rem)] leading-none font-semibold tracking-tight tabular-nums">
                   <CountUp value={metric.value} locale={BCP47[locale]} suffix={metric.suffix} />
                 </dd>
@@ -2959,6 +3022,7 @@ export async function ProofBar() {
 ```bash
 npx vitest run tests/sections.test.tsx
 ```
+
 Expected: 6 tests PASS.
 
 - [ ] **Step 5: Add it to the page and commit**
@@ -3003,6 +3067,7 @@ EOF
 ### Task 10: Expertise and Work
 
 **Files:**
+
 - Create: `src/components/sections/expertise.tsx`,
   `src/components/sections/work.tsx`
 - Modify: `src/styles/sections/work.css`, `src/app/[lang]/page.tsx`,
@@ -3010,6 +3075,7 @@ EOF
 - Test: `tests/sections.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Section`, `SectionHeading` (Task 7); `EXPERTISE`, `FOCUS`,
   `PROJECTS`, `CASE_STUDY` (Task 3); `Illustration` (Task 8).
 - Produces: `<Expertise />`, `<Work />`.
@@ -3054,6 +3120,7 @@ describe('expertise data', () => {
 ```bash
 npx vitest run tests/sections.test.tsx -t 'project data'
 ```
+
 Expected: FAIL if any project lacks a slug, links over `http://`, or no project
 is flagged `highlight`. Fix the data in `src/content/projects.ts` — by adding
 the missing field, never by weakening the assertion.
@@ -3080,21 +3147,21 @@ export async function Expertise() {
         lead={dict.sections.expertise.lead}
       />
 
-      <div className="mt-16 grid gap-12 wide:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] wide:items-start">
+      <div className="wide:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] wide:items-start mt-16 grid gap-12">
         <ul className="stagger grid gap-6 sm:grid-cols-2">
           {EXPERTISE.map((area, i) => (
             <li
               key={area.key}
-              className="reveal rounded-lg border border-border bg-surface p-6"
+              className="reveal border-border bg-surface rounded-lg border p-6"
               style={{ '--i': i } as React.CSSProperties}
             >
               <h3 className="text-xl font-semibold tracking-tight">{area.title[locale]}</h3>
-              <p className="mt-2 text-muted-foreground">{area.summary[locale]}</p>
+              <p className="text-muted-foreground mt-2">{area.summary[locale]}</p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {area.items[locale].map((item) => (
                   <li
                     key={item}
-                    className="pop-on-hover rounded-full border border-border px-3 py-1 text-sm text-muted-foreground"
+                    className="pop-on-hover border-border text-muted-foreground rounded-full border px-3 py-1 text-sm"
                   >
                     {item}
                   </li>
@@ -3108,8 +3175,11 @@ export async function Expertise() {
           <Illustration name="expertise" alt="" width={560} height={560} className="rounded-lg" />
           <ul className="mt-8 space-y-3">
             {FOCUS.map((line, i) => (
-              <li key={i} className="flex gap-3 text-muted-foreground">
-                <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary" />
+              <li key={i} className="text-muted-foreground flex gap-3">
+                <span
+                  aria-hidden="true"
+                  className="bg-primary mt-2.5 size-1.5 shrink-0 rounded-full"
+                />
                 {line[locale]}
               </li>
             ))}
@@ -3144,56 +3214,64 @@ export async function Work() {
 
       {/* The case study first: it is the one piece of work with a problem, an
           approach and a result written down, so it carries more than a card. */}
-      <article className="case-band reveal mt-16 rounded-lg border border-border bg-surface p-8 sm:p-12">
+      <article className="case-band reveal border-border bg-surface mt-16 rounded-lg border p-8 sm:p-12">
         <h3 className="text-[clamp(1.75rem,3vw,2.5rem)] leading-tight font-semibold tracking-tight">
           {CASE_STUDY.title[locale]}
         </h3>
         <dl className="mt-8 grid gap-8 md:grid-cols-3">
           {(['problem', 'approach', 'result'] as const).map((key) => (
             <div key={key}>
-              <dt className="text-sm font-semibold tracking-[0.14em] text-ink-primary uppercase">
+              <dt className="text-ink-primary text-sm font-semibold tracking-[0.14em] uppercase">
                 {dict.sections.work[key]}
               </dt>
-              <dd className="mt-2 text-muted-foreground">{CASE_STUDY[key][locale]}</dd>
+              <dd className="text-muted-foreground mt-2">{CASE_STUDY[key][locale]}</dd>
             </div>
           ))}
         </dl>
         <ul className="mt-8 flex flex-wrap gap-2">
           {CASE_STUDY.stack.map((tool) => (
-            <li key={tool} className="pop-on-hover rounded-full bg-surface-muted px-3 py-1 text-sm">
+            <li key={tool} className="pop-on-hover bg-surface-muted rounded-full px-3 py-1 text-sm">
               {tool}
             </li>
           ))}
         </ul>
       </article>
 
-      <ul className="stagger mt-12 grid gap-6 sm:grid-cols-2 wide:grid-cols-3">
+      <ul className="stagger wide:grid-cols-3 mt-12 grid gap-6 sm:grid-cols-2">
         {PROJECTS.map((project, i) => (
           <li
             key={project.slug}
             style={{ '--i': Math.min(i, 7) } as React.CSSProperties}
             className={cn(
-              'reveal flex flex-col rounded-lg border border-border bg-surface p-6',
+              'reveal border-border bg-surface flex flex-col rounded-lg border p-6',
               project.highlight && 'sm:col-span-2',
             )}
           >
             <h3 className="text-lg font-semibold tracking-tight">{project.name}</h3>
-            <p className="mt-2 flex-1 text-muted-foreground">{project.summary[locale]}</p>
+            <p className="text-muted-foreground mt-2 flex-1">{project.summary[locale]}</p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {project.stack.map((tool) => (
-                <li key={tool} className="rounded-full bg-surface-muted px-2.5 py-0.5 text-sm">
+                <li key={tool} className="bg-surface-muted rounded-full px-2.5 py-0.5 text-sm">
                   {tool}
                 </li>
               ))}
             </ul>
             <div className="mt-5 flex gap-4 text-sm">
               {project.repo ? (
-                <a href={project.repo} rel="noreferrer noopener" className="link-underline font-medium">
+                <a
+                  href={project.repo}
+                  rel="noreferrer noopener"
+                  className="link-underline font-medium"
+                >
                   {dict.common.repository}
                 </a>
               ) : null}
               {project.demo ? (
-                <a href={project.demo} rel="noreferrer noopener" className="link-underline font-medium">
+                <a
+                  href={project.demo}
+                  rel="noreferrer noopener"
+                  className="link-underline font-medium"
+                >
                   {dict.common.demo}
                 </a>
               ) : null}
@@ -3244,6 +3322,7 @@ export async function Work() {
 ```bash
 npx vitest run tests/sections.test.tsx && npm run build
 ```
+
 Expected: 10 tests PASS.
 
 ```tsx
@@ -3282,11 +3361,13 @@ EOF
 ### Task 11: Experience and Capabilities
 
 **Files:**
+
 - Create: `src/components/sections/experience.tsx`,
   `src/components/sections/capabilities.tsx`
 - Modify: `src/app/[lang]/page.tsx`, `tests/sections.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Section`, `SectionHeading` (Task 7); `EXPERIENCE`, `EDUCATION`,
   `CERTIFICATION`, `SKILL_GROUPS`, `PLAYBOOK` (Task 3).
 - Produces: `<Experience />`, `<Capabilities />`.
@@ -3319,6 +3400,7 @@ describe('experience data', () => {
 ```bash
 npx vitest run tests/sections.test.tsx -t 'experience data'
 ```
+
 Expected: FAIL if the port left the roles in `data.js` order or dropped a
 highlight list. Fix the data, not the test.
 
@@ -3344,32 +3426,42 @@ export async function Experience() {
         lead={dict.sections.experience.lead}
       />
 
-      <ol className="stagger mt-16 space-y-10 border-l border-border pl-8">
+      <ol className="stagger border-border mt-16 space-y-10 border-l pl-8">
         {EXPERIENCE.map((role, i) => (
-          <li key={role.company} className="reveal relative" style={{ '--i': i } as React.CSSProperties}>
+          <li
+            key={role.company}
+            className="reveal relative"
+            style={{ '--i': i } as React.CSSProperties}
+          >
             <span
               aria-hidden="true"
-              className="absolute top-2 -left-[2.3rem] size-3 rounded-full border-2 border-background bg-primary"
+              className="border-background bg-primary absolute top-2 -left-[2.3rem] size-3 rounded-full border-2"
             />
-            <p className="text-sm tracking-[0.12em] text-muted-foreground uppercase">
+            <p className="text-muted-foreground text-sm tracking-[0.12em] uppercase">
               {role.period[locale]}
               {role.current ? ` · ${dict.common.present}` : ''}
             </p>
             <h3 className="mt-2 text-2xl font-semibold tracking-tight">
               {role.role[locale]} <span className="text-ink-primary">@ {role.company}</span>
             </h3>
-            <p className="mt-2 text-muted-foreground">{role.summary[locale]}</p>
+            <p className="text-muted-foreground mt-2">{role.summary[locale]}</p>
             <ul className="mt-4 space-y-2">
               {role.highlights[locale].map((line) => (
-                <li key={line} className="flex gap-3 text-muted-foreground">
-                  <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                <li key={line} className="text-muted-foreground flex gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="bg-primary mt-2.5 size-1.5 shrink-0 rounded-full"
+                  />
                   {line}
                 </li>
               ))}
             </ul>
             <ul className="mt-4 flex flex-wrap gap-2">
               {role.stack.map((tool) => (
-                <li key={tool} className="pop-on-hover rounded-full bg-surface px-2.5 py-0.5 text-sm">
+                <li
+                  key={tool}
+                  className="pop-on-hover bg-surface rounded-full px-2.5 py-0.5 text-sm"
+                >
                   {tool}
                 </li>
               ))}
@@ -3380,9 +3472,9 @@ export async function Experience() {
 
       <div className="mt-14 grid gap-6 sm:grid-cols-2">
         {[EDUCATION, CERTIFICATION].map((entry, i) => (
-          <div key={i} className="reveal rounded-lg border border-border bg-surface p-6">
+          <div key={i} className="reveal border-border bg-surface rounded-lg border p-6">
             <h3 className="text-lg font-semibold tracking-tight">{entry.title[locale]}</h3>
-            <p className="mt-1 text-muted-foreground">{entry.detail[locale]}</p>
+            <p className="text-muted-foreground mt-1">{entry.detail[locale]}</p>
           </div>
         ))}
       </div>
@@ -3411,11 +3503,11 @@ export async function Capabilities() {
         lead={dict.sections.capabilities.lead}
       />
 
-      <ul className="stagger mt-16 grid gap-6 sm:grid-cols-2 wide:grid-cols-3">
+      <ul className="stagger wide:grid-cols-3 mt-16 grid gap-6 sm:grid-cols-2">
         {SKILL_GROUPS.map((group, i) => (
           <li
             key={group.key}
-            className="reveal rounded-lg border border-border bg-surface p-6"
+            className="reveal border-border bg-surface rounded-lg border p-6"
             style={{ '--i': Math.min(i, 7) } as React.CSSProperties}
           >
             <h3 className="text-lg font-semibold tracking-tight">{group.title[locale]}</h3>
@@ -3423,7 +3515,7 @@ export async function Capabilities() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="pop-on-hover rounded-full bg-surface-muted px-3 py-1 text-sm text-muted-foreground"
+                  className="pop-on-hover bg-surface-muted text-muted-foreground rounded-full px-3 py-1 text-sm"
                 >
                   {item}
                 </li>
@@ -3433,14 +3525,14 @@ export async function Capabilities() {
         ))}
       </ul>
 
-      <ol className="stagger mt-16 grid gap-8 sm:grid-cols-2 wide:grid-cols-5">
+      <ol className="stagger wide:grid-cols-5 mt-16 grid gap-8 sm:grid-cols-2">
         {PLAYBOOK.map((step, i) => (
           <li key={step.step} className="reveal" style={{ '--i': i } as React.CSSProperties}>
-            <p className="text-sm font-semibold tracking-[0.14em] text-ink-primary uppercase">
+            <p className="text-ink-primary text-sm font-semibold tracking-[0.14em] uppercase">
               {step.step}
             </p>
             <h3 className="mt-2 font-semibold tracking-tight">{step.title[locale]}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{step.body[locale]}</p>
+            <p className="text-muted-foreground mt-1 text-sm">{step.body[locale]}</p>
           </li>
         ))}
       </ol>
@@ -3454,6 +3546,7 @@ export async function Capabilities() {
 ```bash
 npx vitest run tests/sections.test.tsx && npm run build
 ```
+
 Expected: 13 tests PASS.
 
 - [ ] **Step 5: Commit**
@@ -3479,12 +3572,14 @@ EOF
 ### Task 12: Writing and Contact
 
 **Files:**
+
 - Create: `src/components/sections/writing.tsx`,
   `src/components/sections/contact.tsx`
 - Modify: `src/styles/sections/contact.css`, `src/app/[lang]/page.tsx`,
   `tests/sections.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Section`, `SectionHeading` (Task 7); `WRITING`, `CONTACTS`, `SITE`
   (Task 3).
 - Produces: `<Writing />`, `<Contact />`. Contact is the page's dark band and
@@ -3513,6 +3608,7 @@ describe('contact data', () => {
 ```bash
 npx vitest run tests/sections.test.tsx -t 'contact data'
 ```
+
 Expected: FAIL — `@/content/contacts` has no `href` on at least one entry, or
 the schemes were not carried over from `data.js`.
 
@@ -3537,20 +3633,20 @@ export async function Writing() {
         lead={dict.sections.writing.lead}
       />
 
-      <ul className="stagger mt-16 divide-y divide-border border-y border-border">
+      <ul className="stagger divide-border border-border mt-16 divide-y border-y">
         {WRITING.map((article, i) => (
           <li key={article.href} className="reveal" style={{ '--i': i } as React.CSSProperties}>
             <a
               href={article.href}
               rel="noreferrer noopener"
-              className="duration-fast group grid gap-2 py-6 transition-colors hover:bg-surface wide:grid-cols-[8rem_minmax(0,1fr)] wide:items-baseline wide:gap-8 wide:px-4"
+              className="duration-fast group hover:bg-surface wide:grid-cols-[8rem_minmax(0,1fr)] wide:items-baseline wide:gap-8 wide:px-4 grid gap-2 py-6 transition-colors"
             >
-              <time dateTime={article.date} className="text-sm text-muted-foreground tabular-nums">
+              <time dateTime={article.date} className="text-muted-foreground text-sm tabular-nums">
                 {article.date}
               </time>
               <div>
                 <h3 className="text-xl font-semibold tracking-tight">{article.title[locale]}</h3>
-                <p className="mt-1 text-muted-foreground">{article.blurb[locale]}</p>
+                <p className="text-muted-foreground mt-1">{article.blurb[locale]}</p>
               </div>
             </a>
           </li>
@@ -3585,15 +3681,15 @@ export async function Contact() {
       />
       <DrawnUnderline className="mt-4 max-w-md" />
 
-      <ul className="stagger mt-14 grid gap-4 sm:grid-cols-2 wide:grid-cols-3">
+      <ul className="stagger wide:grid-cols-3 mt-14 grid gap-4 sm:grid-cols-2">
         {CONTACTS.map((contact, i) => (
           <li key={contact.key} className="reveal" style={{ '--i': i } as React.CSSProperties}>
             <a
               href={contact.href}
               rel="noreferrer noopener"
-              className="duration-fast contact-card flex flex-col gap-1 rounded-lg border border-border p-6 transition-colors"
+              className="duration-fast contact-card border-border flex flex-col gap-1 rounded-lg border p-6 transition-colors"
             >
-              <span className="text-sm tracking-[0.12em] text-muted-foreground uppercase">
+              <span className="text-muted-foreground text-sm tracking-[0.12em] uppercase">
                 {contact.label[locale]}
               </span>
               <span className="text-lg font-medium break-all">{contact.value}</span>
@@ -3602,7 +3698,7 @@ export async function Contact() {
         ))}
       </ul>
 
-      <p className="mt-14 text-muted-foreground">
+      <p className="text-muted-foreground mt-14">
         {SITE.location[locale]} · {SITE.status[locale]}
       </p>
     </Section>
@@ -3659,6 +3755,7 @@ export default function Page() {
 ```bash
 npm run verify
 ```
+
 Expected: all gates green; `out/vi/index.html` and `out/en/index.html` both
 contain all eight sections.
 
@@ -3683,12 +3780,14 @@ EOF
 ### Task 13: Illustrations
 
 **Files:**
+
 - Create: `docs/illustrations.md`, `scripts/compress-illustrations.sh`
 - Add: `public/images/illustrations/{hero,expertise,work,contact}.{avif,webp,jpg}`
 - Modify: `scripts/check-budget.mjs` (created here, extended in Task 14)
 - Test: `tests/budget.test.ts`
 
 **Interfaces:**
+
 - Consumes: `<Illustration name .../>` from Task 8. The four names it expects
   are `hero`, `expertise`, `work`, `contact`.
 - Produces: twelve files under `public/images/illustrations/`, every one at or
@@ -3714,12 +3813,12 @@ prompt below **verbatim**, save the raw output to `raw/<name>.png`, then run
 These are the site's tokens. A generated image that drifts off them will read
 as a sticker on the page rather than part of it.
 
-| Role | Hex |
-| --- | --- |
-| Background | `#f5f5f5` |
+| Role           | Hex       |
+| -------------- | --------- |
+| Background     | `#f5f5f5` |
 | Primary (blue) | `#2b7fd4` |
-| Accent (teal) | `#40a69f` |
-| Ink | `#1f1f1f` |
+| Accent (teal)  | `#40a69f` |
+| Ink            | `#1f1f1f` |
 | Warm highlight | `#ffb319` |
 
 ## Shared style clause — append to every prompt
@@ -3848,6 +3947,7 @@ describe('illustrations', () => {
 ```bash
 npx vitest run tests/budget.test.ts
 ```
+
 Expected: FAIL — twelve missing files. **This is where the task hands off to
 the owner.** Report: the prompts are in `docs/illustrations.md`, the pipeline
 is `scripts/compress-illustrations.sh`, and the test names exactly which files
@@ -3860,6 +3960,7 @@ mkdir -p raw   # drop the four generated PNGs here
 ./scripts/compress-illustrations.sh
 npx vitest run tests/budget.test.ts
 ```
+
 Expected: PASS, and the script prints twelve sizes all under 40 KB.
 
 - [ ] **Step 6: Commit**
@@ -3889,10 +3990,12 @@ EOF
 ### Task 14: The budget gate and the Pages deployment
 
 **Files:**
+
 - Create: `scripts/check-budget.mjs`, `.github/workflows/deploy.yml`
 - Modify: `package.json`, `README.md`
 
 **Interfaces:**
+
 - Consumes: `out/` from `npm run build`.
 - Produces: `npm run check:budget`, the last step of `npm run verify`; and a
   GitHub Actions workflow that publishes `out/` to Pages on every push to
@@ -3960,7 +4063,9 @@ for (const page of PAGES) {
 for (const file of globSync(`${OUT}/**/*.{png,jpg,jpeg,webp,avif,gif}`)) {
   const size = statSync(file).size;
   if (size > IMAGE_CEILING_KB * 1024) {
-    console.error(`FAIL  ${file}  ${(size / 1024).toFixed(1)} KB raw, ceiling ${IMAGE_CEILING_KB} KB`);
+    console.error(
+      `FAIL  ${file}  ${(size / 1024).toFixed(1)} KB raw, ceiling ${IMAGE_CEILING_KB} KB`,
+    );
     failed = true;
   }
 }
@@ -3970,6 +4075,7 @@ console.log('OK    every page and image is inside budget');
 ```
 
 Add to `package.json`, as the last step of `verify`:
+
 ```json
 "check:budget": "node scripts/check-budget.mjs",
 "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:colors && npm run build && npm run check:content && npm run check:budget"
@@ -3980,6 +4086,7 @@ Add to `package.json`, as the last step of `verify`:
 ```bash
 npm run build && npm run check:budget
 ```
+
 Expected: `OK vi/index.html …` and `OK en/index.html …`, both under 200 KB.
 
 **If a page is over:** report the measured number and what is in it. Do not
@@ -4103,39 +4210,39 @@ EOF
 
 **1. Spec coverage.** Walked each requirement:
 
-| Spec | Task |
-| --- | --- |
-| §4.1 stack, pinned versions, static export | 1 |
-| §4.2 bilingual content, nothing invented, sync-github kept | 3 |
-| §4.3 routing, `.nojekyll`, CNAME, root redirect, preserved URLs | 1 (files), 14 (Actions deploy) |
-| §4.4 image ceiling 40 KB | 13, 14 |
-| §4.4 JS ceiling 200 KB gzip | 14 |
-| §4.5 verify chain, `check:content`, `check:colors`, `check:budget` | 3, 4, 14 |
-| §4.6 AA contrast, ink layer | 4 |
-| §4.6 reduced motion lands on the final frame | 6 |
-| §4.6 decorative alt, skip link, focus ring | 7, 8, 4 |
-| §2.3 eight-section structure, band rhythm | 8–12 |
-| §2.4 section head with a required lead | 7 |
-| §2.5 theme, no flash, per-section dark | 5, 7 |
-| §2.6 illustrations, not shipped the reference's way | 13 |
-| §6.1 verify green from a clean clone | 14 (CI runs it) |
-| §6.2 both locales render every section | 3 test, 12 |
-| §6.3 theme persists, no flash | 5 |
-| §6.4 Lighthouse a11y ≥ 95 | **gap** — see below |
-| §6.5 live domain and the preserved URLs resolve | 14 |
-| §6.6 same design family at 1200px | **gap** — see below |
+| Spec                                                               | Task                           |
+| ------------------------------------------------------------------ | ------------------------------ |
+| §4.1 stack, pinned versions, static export                         | 1                              |
+| §4.2 bilingual content, nothing invented, sync-github kept         | 3                              |
+| §4.3 routing, `.nojekyll`, CNAME, root redirect, preserved URLs    | 1 (files), 14 (Actions deploy) |
+| §4.4 image ceiling 40 KB                                           | 13, 14                         |
+| §4.4 JS ceiling 200 KB gzip                                        | 14                             |
+| §4.5 verify chain, `check:content`, `check:colors`, `check:budget` | 3, 4, 14                       |
+| §4.6 AA contrast, ink layer                                        | 4                              |
+| §4.6 reduced motion lands on the final frame                       | 6                              |
+| §4.6 decorative alt, skip link, focus ring                         | 7, 8, 4                        |
+| §2.3 eight-section structure, band rhythm                          | 8–12                           |
+| §2.4 section head with a required lead                             | 7                              |
+| §2.5 theme, no flash, per-section dark                             | 5, 7                           |
+| §2.6 illustrations, not shipped the reference's way                | 13                             |
+| §6.1 verify green from a clean clone                               | 14 (CI runs it)                |
+| §6.2 both locales render every section                             | 3 test, 12                     |
+| §6.3 theme persists, no flash                                      | 5                              |
+| §6.4 Lighthouse a11y ≥ 95                                          | **gap** — see below            |
+| §6.5 live domain and the preserved URLs resolve                    | 14                             |
+| §6.6 same design family at 1200px                                  | **gap** — see below            |
 
 Two acceptance criteria had no task. Both are verification of the finished
 site rather than units of construction, so rather than inventing a fifteenth
 build task, they are added as the final steps of Task 14:
 
 - [ ] **Task 14, Step 4b: Run Lighthouse on the built `/vi/` and record the
-  accessibility score.** `npx --yes lighthouse http://localhost:3000/vi/
-  --only-categories=accessibility --chrome-flags="--headless"` after
-  `npx serve out`. Below 95, fix what it names before the deploy step.
+      accessibility score.** `npx --yes lighthouse http://localhost:3000/vi/
+--only-categories=accessibility --chrome-flags="--headless"` after
+      `npx serve out`. Below 95, fix what it names before the deploy step.
 - [ ] **Task 14, Step 4c: Screenshot `/vi/` at 1200px next to the reference at
-  1200px and put both in the report.** The owner's acceptance is visual, and a
-  passing gate is not evidence of it.
+      1200px and put both in the report.** The owner's acceptance is visual, and a
+      passing gate is not evidence of it.
 
 **2. Placeholder scan.** Three deliberate `/* … verbatim */` markers remain, all
 in Task 3, all in the content modules. They are not vagueness: Step 1 of that

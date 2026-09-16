@@ -46,15 +46,15 @@ fails if the two have drifted.
 pushes to `main` — a push to a feature branch does not trigger it, so run `verify`
 locally before opening the PR:
 
-| Step           | What it stops                                                        |
-| -------------- | -------------------------------------------------------------------- |
-| `npm test`     | The motion system going missing: tokens, `@supports` branches, guards |
-| `check:tokens` | Colour or duration literals creeping in outside `:root`               |
-| `build --check` | `style.min.css` drifting from `style.css`                            |
-| `check:budget` | Code over 48KB gzip, or any image over 40KB                           |
+| Step            | What it stops                                                         |
+| --------------- | --------------------------------------------------------------------- |
+| `npm test`      | The motion system going missing: tokens, `@supports` branches, guards |
+| `check:tokens`  | Colour or duration literals creeping in outside `:root`               |
+| `build --check` | `style.min.css` drifting from `style.css`                             |
+| `check:budget`  | Code over 48KB gzip, or any image over 40KB                           |
 
-These assert against the source, so they prove the system is *present*, not that
-it *looks* right. For that, see the manual checklist in
+These assert against the source, so they prove the system is _present_, not that
+it _looks_ right. For that, see the manual checklist in
 [docs/superpowers/specs/2026-09-15-motion-system.md](docs/superpowers/specs/2026-09-15-motion-system.md).
 
 ## Motion system

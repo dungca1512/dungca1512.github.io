@@ -28,15 +28,15 @@ on 2026-09-16 from its source and from its static export served at
 
 ### 2.1 Stack
 
-| Thing | Value |
-| --- | --- |
-| Framework | `next@16.3.4`, `output: 'export'`, `trailingSlash: true`, `images.unoptimized` |
-| React | `react@19.2.8` / `react-dom@19.2.8` |
-| CSS | `tailwindcss@^4` via `@tailwindcss/postcss` |
+| Thing         | Value                                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| Framework     | `next@16.3.4`, `output: 'export'`, `trailingSlash: true`, `images.unoptimized`                           |
+| React         | `react@19.2.8` / `react-dom@19.2.8`                                                                      |
+| CSS           | `tailwindcss@^4` via `@tailwindcss/postcss`                                                              |
 | Design system | `@levi-it/design-system` from `git+ssh://git@github.com/Levi-IT/web_component_design_systerm.git#v0.1.3` |
-| Fonts | `@fontsource-variable/inter`, `@fontsource-variable/dm-sans` — self-hosted |
-| Node | `>=22` |
-| Gates | `format:check`, `lint`, `typecheck`, `check:colors`, `build`, `check:budget` |
+| Fonts         | `@fontsource-variable/inter`, `@fontsource-variable/dm-sans` — self-hosted                               |
+| Node          | `>=22`                                                                                                   |
+| Gates         | `format:check`, `lint`, `typecheck`, `check:colors`, `build`, `check:budget`                             |
 
 SSH access to the private design system was verified (`git ls-remote` succeeds).
 
@@ -79,7 +79,7 @@ the reference: accent 2.69:1 and info 3.78:1 on light, primary 2.68:1 on dark �
 all under AA's 4.5:1. The reference mixes 68% of the accent into
 `--base-foreground`, which flips with the theme, so one formula serves both
 directions (measured range after mixing: 4.74:1 to 11.32:1). Because a custom
-property is substituted where it is *declared*, this must be declared under
+property is substituted where it is _declared_, this must be declared under
 **both** `:root` and `[data-theme='dark']` or the dark block silently reuses the
 light theme's foreground.
 
