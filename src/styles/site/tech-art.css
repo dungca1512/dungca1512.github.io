@@ -1,0 +1,83 @@
+/* ─── Drawn art: the frame, the tint, the grid ────────────────────────────
+   Goes with src/components/site/tech-art.tsx and site/metric-glyph.tsx.
+
+   Everything the SVG does NOT draw lives here, and that is deliberate: the
+   tint and the grid are the same in every instance, so as `<defs>` inside the
+   SVG they would ship nine identical copies in the project grid alone, each
+   needing a unique id for `url(#…)` to resolve to the right one. As CSS they
+   are declared once and the markup carries none of it. */
+
+.tech-art {
+  /* `color` is the whole colour system for this component. The SVG draws in
+     `currentColor` and the veil fills with it, so one declaration per accent
+     below is the entire palette surface — and because each one is a token,
+     the art follows the theme with no dark-mode rule anywhere. */
+  color: var(--base-primary);
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  background-color: var(--base-surface-muted);
+  background-image:
+    radial-gradient(
+      circle at 22% 18%,
+      color-mix(in srgb, currentColor 16%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(
+      to right,
+      color-mix(in srgb, currentColor 12%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, currentColor 12%, transparent) 1px,
+      transparent 1px
+    );
+  background-size:
+    auto,
+    16px 16px,
+    16px 16px;
+}
+
+.tech-art[data-art-aspect='banner'] {
+  aspect-ratio: 32 / 9;
+}
+
+.tech-art[data-art-accent='accent'] {
+  color: var(--base-accent);
+}
+
+.tech-art[data-art-accent='info'] {
+  color: var(--base-info);
+}
+
+.tech-art[data-art-accent='success'] {
+  color: var(--base-success);
+}
+
+.tech-art-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The wipe that travels across the frame before the art appears. Above the
+   art while it crosses; it has left the box by the time the art is whole. */
+.tech-art-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: currentColor;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* The proof bar's marks. Sized in `em` so the mark tracks the label it sits
+   above rather than needing its own breakpoint. */
+.metric-glyph {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--site-ink-primary);
+}

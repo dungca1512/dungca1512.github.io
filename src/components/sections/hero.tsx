@@ -86,6 +86,7 @@ export async function Hero() {
 
           <Illustration
             name="hero"
+            parallax
             alt=""
             width={880}
             height={880}

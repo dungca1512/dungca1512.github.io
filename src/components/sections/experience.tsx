@@ -73,6 +73,7 @@ export async function Experience() {
         <div className="reveal wide:sticky wide:top-28 wide:order-none order-first">
           <Illustration
             name="experience"
+            parallax
             alt=""
             width={560}
             height={560}

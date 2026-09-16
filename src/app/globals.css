@@ -334,5 +334,7 @@
 @import '../styles/sections/work.css';
 @import '../styles/sections/contact.css';
 @import '../styles/site/illustration.css';
+@import '../styles/motion/art.css';
+@import '../styles/site/tech-art.css';
 @import '../styles/motion/scribble.css';
 @import '../styles/motion/marquee.css';

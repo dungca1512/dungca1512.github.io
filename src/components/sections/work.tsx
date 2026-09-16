@@ -1,5 +1,6 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { Illustration } from '@/components/site/illustration';
+import { TechArt, artFor } from '@/components/site/tech-art';
 import { PROJECTS, CASE_STUDY } from '@/content/projects';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { cn } from '@/lib/cn';
@@ -56,6 +57,7 @@ export async function Work() {
           </div>
           <Illustration
             name="work"
+            parallax
             alt=""
             width={640}
             height={640}
@@ -90,40 +92,51 @@ export async function Work() {
               key={project.slug}
               style={{ '--i': Math.min(i, 7) } as React.CSSProperties}
               className={cn(
-                'reveal border-border bg-surface flex flex-col rounded-lg border p-6',
+                'reveal border-border bg-surface flex flex-col overflow-hidden rounded-lg border',
                 lead && 'sm:col-span-2',
               )}
             >
-              <p className="text-muted-foreground text-sm">{project.period}</p>
-              <h3 className="mt-1 text-lg font-semibold tracking-tight">{project.name}</h3>
-              <p className="text-muted-foreground mt-2 flex-1 text-pretty">
-                {project.summary[locale]}
-              </p>
-              {lead ? (
-                <p className="text-muted-foreground mt-3 text-pretty">{project.outcome[locale]}</p>
-              ) : null}
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {project.stack.map((tool) => (
-                  <li key={tool} className="bg-surface-muted rounded-full px-2.5 py-0.5 text-sm">
-                    {tool}
-                  </li>
-                ))}
-              </ul>
-              {project.links.length > 0 ? (
-                <div className="mt-5 flex gap-4 text-sm">
-                  {project.links.map((link) => (
-                    <a
-                      key={link.url}
-                      href={link.url}
-                      rel="noreferrer noopener"
-                      aria-label={`${link.label[locale]} — ${project.name}`}
-                      className="link-underline font-medium"
-                    >
-                      {link.label[locale]}
-                    </a>
+              {/* Every card carries a picture, and none of them is a file.
+                  Nine generated illustrations would be twenty-seven encoded
+                  images against a 40KB-per-file budget, for art that is a
+                  texture rather than a subject — see site/tech-art.tsx. The
+                  padding moved off the <li> and onto the wrapper below so the
+                  art can reach the card's own edge. */}
+              <TechArt {...artFor(i)} banner={lead} />
+              <div className="flex flex-1 flex-col p-6">
+                <p className="text-muted-foreground text-sm">{project.period}</p>
+                <h3 className="mt-1 text-lg font-semibold tracking-tight">{project.name}</h3>
+                <p className="text-muted-foreground mt-2 flex-1 text-pretty">
+                  {project.summary[locale]}
+                </p>
+                {lead ? (
+                  <p className="text-muted-foreground mt-3 text-pretty">
+                    {project.outcome[locale]}
+                  </p>
+                ) : null}
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {project.stack.map((tool) => (
+                    <li key={tool} className="bg-surface-muted rounded-full px-2.5 py-0.5 text-sm">
+                      {tool}
+                    </li>
                   ))}
-                </div>
-              ) : null}
+                </ul>
+                {project.links.length > 0 ? (
+                  <div className="mt-5 flex gap-4 text-sm">
+                    {project.links.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        rel="noreferrer noopener"
+                        aria-label={`${link.label[locale]} — ${project.name}`}
+                        className="link-underline font-medium"
+                      >
+                        {link.label[locale]}
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </li>
           );
         })}

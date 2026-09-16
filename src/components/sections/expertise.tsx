@@ -39,6 +39,7 @@ export async function Expertise() {
         <div className="reveal">
           <Illustration
             name="expertise"
+            parallax
             alt=""
             width={560}
             height={560}

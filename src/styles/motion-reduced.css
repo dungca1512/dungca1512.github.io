@@ -47,6 +47,38 @@
     stroke-dashoffset: 0 !important;
   }
 
+  /* The picture effects from motion/art.css. `shutter` parks on its LAST
+     frame, `inset(0 0 0 0)`, which is the whole picture — written as
+     `clip-path: none` because it is the same result and says so plainly. The
+     veil is the one exception to this file's land-on-the-last-frame rule that
+     needs no exception: its last frame IS gone. */
+  .shutter,
+  .art-parallax,
+  .art-drift {
+    animation: none !important;
+    clip-path: none !important;
+    transform: none !important;
+  }
+
+  .shutter-veil {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* `art-pulse` gets no opacity reset, and that is the correct landing here
+     rather than an oversight. Its keyframes end at opacity 0.4, but the shapes
+     it runs on carry their own `opacity` presentation attribute — 0.75, 0.95,
+     1 — and a presentation attribute loses to ANY author declaration. Pinning
+     the last frame would therefore dim these shapes below what they were drawn
+     at, which is a change of picture, not a removal of motion. Setting no
+     opacity at all hands each shape back to its own attribute. Nothing can
+     disappear this way: the smallest attribute in tech-art.tsx is 0.3, and the
+     shapes without one default to fully opaque. */
+  .art-pulse {
+    animation: none !important;
+    transform: none !important;
+  }
+
   .pop-on-hover {
     transition: none !important;
   }

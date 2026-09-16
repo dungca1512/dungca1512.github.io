@@ -40,6 +40,7 @@ export async function Contact() {
         </div>
         <Illustration
           name="contact"
+          parallax
           darkGround
           alt=""
           width={560}

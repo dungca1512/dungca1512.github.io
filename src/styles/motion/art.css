@@ -1,0 +1,161 @@
+/* ─── Motion that belongs to pictures ─────────────────────────────────────
+   Three separate things, and they are separate on purpose:
+
+   - `shutter` / `shutter-veil`: the art UNLOCKS as it scrolls into view. A
+     panel wipes across the frame and the picture is revealed behind it.
+   - `art-parallax`: the raster illustrations move against the band they sit
+     in, so a section has depth rather than being one flat plane sliding past.
+   - `art-drift` / `art-pulse`: a very small idle motion, so drawn art is not
+     a dead diagram once it has arrived.
+
+   Each one animates `transform` or `clip-path` and nothing else. Both are
+   compositor properties: they do not trigger layout or paint, so the page
+   keeps its frame budget while every one of these is running at once. That is
+   the whole reason the effects are built this way rather than from scroll
+   handlers in JS, which would do the same arithmetic on the main thread and
+   contend with everything else the page is doing. */
+
+/* ── The unlock ──────────────────────────────────────────────────────────
+   Two halves of one gesture, sharing a timeline and a range so they cannot
+   drift apart. The veil crosses the frame between 0% and 100%; the art is
+   still fully clipped at 40%, by which time the veil's leading edge has
+   passed the far side. The overlap is what makes it read as one panel being
+   drawn back rather than two things happening near each other. */
+@keyframes site-shutter-wipe {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  45% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@keyframes site-shutter-in {
+  0%,
+  40% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* `entry 10% cover 30%` and not the `reveal` range: this one has to FINISH
+   early. A wipe still crossing the frame when the reader has started on the
+   text beside it is the panel drawing attention to itself. */
+@utility shutter {
+  animation: site-shutter-in 900ms var(--ease-out-soft) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+
+@utility shutter-veil {
+  animation: site-shutter-wipe 900ms var(--ease-out-soft) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+
+@supports not (animation-timeline: view()) {
+  /* `.js` for the same reason motion.css needs it: with no JS nothing sets
+     data-inview, and an unguarded rule would clip every picture to nothing
+     and leave it there. */
+  .js .shutter {
+    animation: none;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 700ms var(--ease-out-soft);
+  }
+
+  .js .shutter[data-inview='true'] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* The veil has no fallback worth building — a wipe with no timeline to
+     drive it can only be a flash. It stands down and the picture simply
+     transitions in behind where it would have been. */
+  .shutter-veil {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ── Parallax ────────────────────────────────────────────────────────────
+   The picture travels 6% of its own height against the page across the whole
+   time it is on screen. `cover` is the right range here and a shorter one is
+   not: parallax is a relationship between two speeds, so it has to hold for
+   as long as both are visible. A range that ends early makes the art stop
+   dead while the band keeps moving, which reads as the image being stuck.
+
+   `scale(1.06)` is not decoration — it is what pays for the travel. The
+   element moves +-3% inside a frame with `overflow: hidden`, so without the
+   oversize it would drag its own edge into the frame at both ends. The art is
+   generated with a wide empty margin on all four sides (see
+   scripts/illustration-prompts.mjs), so the 3% this crops is margin. */
+@keyframes site-art-parallax {
+  from {
+    transform: translate3d(0, 3%, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(0, -3%, 0) scale(1.06);
+  }
+}
+
+@utility art-parallax {
+  animation: site-art-parallax linear both;
+  animation-timeline: view();
+  animation-range: cover;
+}
+
+@supports not (animation-timeline: view()) {
+  /* No timeline, no parallax: the effect IS the scroll position, and there is
+     nothing to approximate it with that would not be a scroll handler on the
+     main thread. The picture sits still, unscaled, and nothing looks broken —
+     which is the point of leaving the transform off entirely rather than
+     parking it on one of the two end frames. */
+  .art-parallax {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ── The idle ────────────────────────────────────────────────────────────
+   Amplitude is deliberately tiny (2-3%) and the periods are long and
+   mismatched. Enough that the drawn art is not a dead diagram; not enough to
+   pull the eye off the words next to it. */
+@keyframes site-art-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5%, -2%, 0) scale(1.03);
+  }
+}
+
+@keyframes site-art-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.07);
+  }
+}
+
+.art-drift {
+  transform-origin: center;
+  animation: site-art-drift 15s ease-in-out infinite;
+}
+
+.art-pulse {
+  animation: site-art-pulse 6s ease-in-out infinite;
+}
+
+/* Two pulses on one picture beating together read as one blink. */
+.art-pulse-late {
+  animation-delay: 2.2s;
+}

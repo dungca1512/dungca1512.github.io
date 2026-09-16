@@ -19,6 +19,16 @@ type IllustrationProps = {
    *  src/styles/site/illustration.css to leave this one alone; see there for
    *  why inverting is how the other six survive dark mode. */
   darkGround?: boolean;
+  /** Moves the picture against the band it sits in as that band scrolls past.
+   *  Lands on the <img>, NOT on the <picture>, and the two placements are not
+   *  interchangeable: `art-parallax` and any other `@utility` here both set the
+   *  `animation` shorthand, so two of them on one element means the later rule
+   *  in the sheet wins outright and the earlier effect silently does nothing.
+   *  Keeping transform-driven motion on the inner element and clip-driven
+   *  motion on the outer one makes that collision impossible by construction.
+   *  Requires the consumer's className to clip — `overflow-hidden` — because
+   *  the effect oversizes the image to pay for its own travel. */
+  parallax?: boolean;
 };
 
 /* There is deliberately NO `2x` density candidate here, and adding one would
@@ -54,6 +64,7 @@ export function Illustration({
   className,
   priority,
   darkGround,
+  parallax,
 }: IllustrationProps) {
   const base = `/images/illustrations/${name}`;
 
@@ -70,7 +81,7 @@ export function Illustration({
         loading={priority ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : undefined}
-        className="block h-auto w-full"
+        className={parallax ? 'art-parallax block h-auto w-full' : 'block h-auto w-full'}
       />
     </picture>
   );

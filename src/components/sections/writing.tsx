@@ -24,6 +24,7 @@ export async function Writing() {
         <div className="reveal wide:order-none order-first">
           <Illustration
             name="writing"
+            parallax
             alt=""
             width={560}
             height={560}
