@@ -328,6 +328,7 @@
 @import '../styles/motion.css';
 @import '../styles/motion-reduced.css';
 @import '../styles/layout/menu-bar.css';
+@import '../styles/layout/intro-curtain.css';
 @import '../styles/sections/hero.css';
 @import '../styles/sections/work.css';
 @import '../styles/sections/contact.css';

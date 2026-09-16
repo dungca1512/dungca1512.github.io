@@ -8,6 +8,7 @@ import { MenuBar } from '@/components/layout/menu-bar';
 import { Footer } from '@/components/site/footer';
 import { SkipLink } from '@/components/site/skip-link';
 import { ThemeScript } from '@/components/site/theme-script';
+import { IntroCurtain } from '@/components/site/intro-curtain';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ lang: locale }));
@@ -48,6 +49,10 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
         <ThemeScript />
       </head>
       <body className="bg-background text-foreground flex min-h-full flex-col">
+        {/* First in the body and outside <main>: it covers the whole page, not
+            one section, and a fixed element inside a transformed ancestor
+            would be clipped to that ancestor instead of the viewport. */}
+        <IntroCurtain />
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
         {/* tabIndex=-1: Safari has historically not moved focus to a

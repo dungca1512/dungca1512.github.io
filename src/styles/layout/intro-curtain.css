@@ -1,0 +1,42 @@
+/* ─── The intro curtain ───────────────────────────────────────────────────
+   A full-bleed panel over the whole page that holds, then slides left off
+   screen. See src/components/site/intro-curtain.tsx for what mounts it. */
+
+@keyframes site-intro-curtain-slide {
+  0%,
+  28% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.intro-curtain {
+  /* Above the menu bar (z-index 40, src/styles/layout/menu-bar.css) — the
+     curtain covers the page, and a nav floating over it would give away that
+     there is a page underneath. */
+  z-index: 100;
+  animation: site-intro-curtain-slide 2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  /* The panel is a full-viewport image moving every frame. Promoting it up
+     front keeps the slide off the main thread; it unmounts at the end, so the
+     hint does not outlive the motion it is for. */
+  will-change: transform;
+  /* Cast along the trailing edge, so the panel reads as something laid over
+     the page rather than a screen being swapped out. */
+  box-shadow: 2rem 0 4rem color-mix(in srgb, var(--base-foreground) 25%, transparent);
+}
+
+/* The art fills the panel. `Illustration` hands its <img> a fixed
+   `block h-auto w-full` and says so — a consumer that needs a different box
+   sizes it from its own stylesheet, which is what `.hero-portrait img` in
+   sections/hero.css already does. Element + class beats a utility class on
+   specificity, so these win without `!important`. */
+.intro-curtain .intro-art,
+.intro-curtain .intro-art img {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}

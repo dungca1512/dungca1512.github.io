@@ -16,6 +16,22 @@
     transition: none !important;
   }
 
+  /* The intro curtain's last frame is off screen to the left, so that is
+     where it parks. `display: none` would reach the same picture, but this
+     file's rule is to land on the final frame and nothing else, and the
+     distinction is not cosmetic: a `display: none` element runs no keyframes
+     AND fires no `animationend`, which is the signal intro-curtain.tsx
+     unmounts on. Parked this way the component still falls back to its timer,
+     and the reduced-motion visitor sees the page uncovered from first paint
+     either way. `!important` because this file is imported BEFORE
+     layout/intro-curtain.css (see globals.css) and the two selectors are the
+     same weight. */
+  .intro-curtain {
+    animation: none !important;
+    transform: translate3d(-100%, 0, 0) !important;
+    box-shadow: none !important;
+  }
+
   /* The drawn underline is an exception: the stroke IS the graphic. Drop the
      animation but hand back the dash values, or the line vanishes. */
   .drawn-line path {

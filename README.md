@@ -35,7 +35,7 @@ ported into `src/app/globals.css` rather than consumed from a package, and
 | `src/app/[lang]/`          | The only route. It owns `<html>` and the single `<main id="main">` — there is no root layout.                                            |
 | `src/components/sections/` | The eight page sections, each an async Server Component.                                                                                 |
 | `src/components/motion/`   | The client components that move: reveals, the count-up, the marquee.                                                                     |
-| `src/components/site/`     | Shared primitives — `Section`, `SectionHeading`, `Illustration`.                                                                         |
+| `src/components/site/`     | Shared primitives — `Section`, `SectionHeading`, `Illustration`, and `IntroCurtain`, the panel that slides off the page on load.         |
 | `src/content/`             | Every string and every fact. `Localized<T> = Record<Locale, T>`, so a missing translation is a typecheck error, not a blank on the page. |
 | `src/styles/`              | Hand-written CSS that Tailwind utilities cannot express, split by section.                                                               |
 | `public/`                  | Copied verbatim into `out/`. See the load-bearing files below.                                                                           |
