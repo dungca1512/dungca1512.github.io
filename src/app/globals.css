@@ -1,1 +1,287 @@
 @import 'tailwindcss';
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * 0. THE SEMANTIC LAYER
+ *
+ * This project used to consume `--base-*` tokens from `@levi-it/design-system`
+ * (an SSH-only private package). That package is gone, so this file now IS
+ * the token layer: palette primitives, then the light/dark semantic tokens
+ * built on top of them, then the brand override and the AA-safe ink colours.
+ *
+ * Two sources, both real measurements, neither invented:
+ *  - the palette primitives are the project spec's §2.2 list, copied verbatim;
+ *  - every contrast ratio in a comment below was measured on the PREVIOUS
+ *    build of this site, which shipped an AA-audited palette. Where the two
+ *    disagree, the spec's hue wins and the previous site's ratio is the
+ *    cross-check.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/* Step A — palette primitives (light and dark alike; these never flip). */
+:root {
+  --base-palette-brand-500: #4e46b4;
+  --base-palette-accent-500: #40a69f;
+  --base-palette-blue-500: #2b7fd4;
+  --base-palette-blue-100: #e3f0fb;
+  --base-palette-neutral-0: #fff;
+  --base-palette-neutral-50: #f5f5f5;
+  --base-palette-neutral-100: #ebebeb;
+  --base-palette-neutral-200: #e2e2e2;
+  --base-palette-neutral-600: #595d62;
+  --base-palette-neutral-700: #444;
+  --base-palette-neutral-850: #1f1f1f;
+  --base-palette-neutral-950: #0b0b0b;
+  --base-palette-neutral-1000: #000;
+  --base-palette-red-500: #ff4e64;
+  --base-palette-red-100: #ffe4e8;
+  --base-palette-green-600: #2e7d32;
+  --base-palette-green-200: #95f1d5;
+  --base-palette-yellow-400: #ffb319;
+  --base-palette-yellow-100: #fff1d6;
+
+  --base-radius-xs: 4px;
+  --base-radius-sm: 8px;
+  --base-radius-md: 12px;
+  --base-radius-lg: 16px;
+  --base-duration: 0.2s;
+  --base-duration-fast: 0.15s;
+  --base-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --base-shadow-raised: 0 4px 16px -4px #0000001f;
+  --base-shadow-overlay: 0 12px 32px -8px #00000029, 0 2px 8px -2px #00000014;
+  --base-focus-width: 4px;
+}
+
+/* Step B — semantic tokens, LIGHT (under `:root`). */
+:root {
+  --base-background: var(--base-palette-neutral-50); /* #f5f5f5, the spec's body colour */
+  --base-surface: var(--base-palette-neutral-0); /* cards lift off the page by being white */
+  --base-surface-muted: var(--base-palette-neutral-100);
+  --base-foreground: var(--base-palette-neutral-1000); /* 20.4:1 on background */
+  --base-muted-foreground: var(--base-palette-neutral-600); /* 6.3:1 — AA for body copy */
+  --base-border: var(--base-palette-neutral-200);
+  --base-border-soft: var(--base-palette-neutral-100);
+
+  --base-primary: var(--base-palette-brand-500); /* re-pointed to blue below */
+  --base-primary-foreground: var(--base-palette-neutral-0);
+  --base-accent: var(--base-palette-accent-500);
+  --base-info: var(--base-palette-blue-500);
+  --base-success: var(--base-palette-green-600);
+  --base-danger: var(--base-palette-red-500);
+  --base-warning: var(--base-palette-yellow-400);
+
+  --base-info-subtle: var(--base-palette-blue-100);
+  --base-success-subtle: var(--base-palette-green-200);
+  --base-danger-subtle: var(--base-palette-red-100);
+  --base-warning-subtle: var(--base-palette-yellow-100);
+}
+
+/* Step C — semantic tokens, DARK (under `[data-theme='dark']`).
+ *
+ * Only the tokens that must flip appear here. The accents keep their hue;
+ * the ink layer below is what makes them legible, in both directions. */
+[data-theme='dark'] {
+  --base-background: var(--base-palette-neutral-950); /* #0b0b0b */
+  /* A shadow cannot lift anything off near-black, so the lift comes from the
+     surface being lighter than what it sits on — the same four-point distance
+     --surface-muted keeps from --background at the light end. */
+  --base-surface: #191919;
+  --base-surface-muted: var(--base-palette-neutral-850);
+  /* NOT neutral-0: a pure-white surface colour used as ink on near-black lands
+     at 18:1 and glares. Pulled down two steps. */
+  --base-foreground: #ededed;
+  --base-muted-foreground: #9aa0a6; /* 6.1:1 on the dark background */
+  --base-border: #ffffff1c; /* ~11% white */
+  --base-border-soft: #ffffff12;
+}
+
+/* Step D — the brand override (BOTH selectors, one rule). Verbatim from spec
+ * §2.2. Declaring it for :root and [data-theme='dark'] in the same rule is
+ * deliberate — see the ink block below for why one selector is not enough. */
+:root,
+[data-theme='dark'] {
+  --base-palette-brand-500: var(--base-palette-blue-500);
+  --base-primary-subtle: var(--base-info-subtle);
+  /* Neither the brief nor the spec's semantic list defines a ring colour, but
+   * the base layer's `:focus-visible` rule (Step 3, unmodified) needs one.
+   * The previous site's focus ring rode its accent colour; this one rides
+   * the brand colour instead, since --base-primary already resolves to the
+   * same blue in both themes via the override above. */
+  --base-ring: var(--base-primary);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * Step E — INK: accent colours made safe to set text in.
+ *
+ * Measured against their own backgrounds: accent 2.69:1, info 3.78:1, and
+ * primary on dark 2.68:1. All three fail AA's 4.5:1. They are fine as a fill
+ * and unusable as text.
+ *
+ * Mixing 68% of the accent into the FOREGROUND fixes it in both directions at
+ * once, because the foreground itself flips with the theme: black on light,
+ * white on dark. Measured after mixing: 4.74:1 to 11.32:1.
+ *
+ * Both selectors are required. A custom property is substituted at its
+ * DECLARATION site, so a single :root declaration bakes in the light
+ * foreground and the dark theme quietly keeps unreadable text.
+ * ──────────────────────────────────────────────────────────────────────── */
+:root,
+[data-theme='dark'] {
+  --site-ink-primary: color-mix(in srgb, var(--base-primary) 68%, var(--base-foreground));
+  --site-ink-accent: color-mix(in srgb, var(--base-accent) 68%, var(--base-foreground));
+  --site-ink-info: color-mix(in srgb, var(--base-info) 68%, var(--base-foreground));
+  --site-ink-success: color-mix(in srgb, var(--base-success) 68%, var(--base-foreground));
+}
+
+/* Step F — `@theme inline`: THE FULL TOKEN SURFACE.
+ *
+ * Tailwind 4 only emits a colour utility if the matching `--color-*` token
+ * exists in the theme. Mapping only the four ink colours here would leave
+ * `bg-surface`, `text-muted-foreground`, `border-border` and every other
+ * token class the later section tasks are written against absent from the
+ * theme entirely — the classes would appear in markup and generate no CSS,
+ * silently, with no build error.
+ *
+ * Every one of these is `inline`, not plain `@theme`: the plain form copies
+ * the value into the stylesheet once at build time, and the `data-theme`
+ * flip would do nothing. */
+@theme inline {
+  --color-background: var(--base-background);
+  --color-foreground: var(--base-foreground);
+  --color-surface: var(--base-surface);
+  --color-surface-muted: var(--base-surface-muted);
+  --color-muted-foreground: var(--base-muted-foreground);
+  --color-border: var(--base-border);
+  --color-border-soft: var(--base-border-soft);
+
+  --color-primary: var(--base-primary);
+  --color-primary-foreground: var(--base-primary-foreground);
+  --color-primary-subtle: var(--base-primary-subtle);
+  --color-accent: var(--base-accent);
+  --color-info: var(--base-info);
+  --color-info-subtle: var(--base-info-subtle);
+  --color-success: var(--base-success);
+  --color-success-subtle: var(--base-success-subtle);
+  --color-danger: var(--base-danger);
+  --color-warning: var(--base-warning);
+
+  --color-ink-primary: var(--site-ink-primary);
+  --color-ink-accent: var(--site-ink-accent);
+  --color-ink-info: var(--site-ink-info);
+  --color-ink-success: var(--site-ink-success);
+
+  --radius-xs: var(--base-radius-xs);
+  --radius-sm: var(--base-radius-sm);
+  --radius-md: var(--base-radius-md);
+  --radius-lg: var(--base-radius-lg);
+
+  --shadow-raised: var(--base-shadow-raised);
+  --shadow-overlay: var(--base-shadow-overlay);
+}
+
+/* The brief's plain `@theme` block: durations, easings, `--breakpoint-wide`,
+ * containers. These stay plain and unchanged — the values do not flip with
+ * the theme. */
+@theme {
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-hero: 700ms;
+
+  --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* The section head goes two-column here. Not one of Tailwind's defaults,
+   * because the break is set by the headline's measure, not by device width. */
+  --breakpoint-wide: 900px;
+
+  --container-content: 100rem;
+  --container-prose: 42rem;
+  /* Tailwind ships its own `--max-width-prose: 65ch`, and `max-w-*` reads
+   * `--max-width-*` before ever falling back to `--container-*`. Without this
+   * line, `max-w-prose` would silently keep Tailwind's built-in 65ch instead
+   * of the 42rem this project actually specifies — same failure shape as the
+   * `@theme inline` gap this file exists to close, just in a different
+   * namespace. `max-w-content` needs no such line: Tailwind has no built-in
+   * `--max-width-content`, so it falls through to `--container-content` on
+   * its own. */
+  --max-width-prose: var(--container-prose);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * 3. BASE
+ * ──────────────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* The sticky header is 4rem. Without this, an anchor lands with the
+     * heading underneath it. */
+    scroll-padding-top: 5rem;
+  }
+
+  /* Smooth scrolling is motion, and it is motion aimed at exactly the people
+   * who asked for less of it. It carries no information, so it goes. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--base-background);
+    color: var(--base-foreground);
+    text-rendering: optimizeLegibility;
+    font-feature-settings:
+      'ss01' 1,
+      'cv11' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--base-primary);
+    color: var(--base-primary-foreground);
+  }
+
+  :focus-visible {
+    outline: var(--base-focus-width) solid var(--base-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Both theme icons sit in the DOM and CSS picks one. Doing it in React state
+ * means the icon is wrong until hydration, which is visible. */
+@utility theme-light-only {
+  display: block;
+  [data-theme='dark'] & {
+    display: none;
+  }
+}
+
+@utility theme-dark-only {
+  display: none;
+  [data-theme='dark'] & {
+    display: block;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * 4. THE REST LIVES IN PER-SECTION FILES
+ *
+ * THE ORDER BELOW IS THE CASCADE ORDER. A new file goes in its own group.
+ * ──────────────────────────────────────────────────────────────────────── */
+@import '../styles/motion.css';
+@import '../styles/motion-reduced.css';
+@import '../styles/layout/menu-bar.css';
+@import '../styles/sections/hero.css';
+@import '../styles/sections/work.css';
+@import '../styles/sections/contact.css';

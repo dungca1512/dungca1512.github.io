@@ -1,0 +1,97 @@
+import { describe, it, expect } from 'vitest';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import postcss from 'postcss';
+import tailwindcssPostcss from '@tailwindcss/postcss';
+
+const GLOBALS_CSS = resolve('src/app/globals.css');
+
+/**
+ * Compiles globals.css through the real Tailwind v4 PostCSS pipeline — the
+ * same plugin `next build` runs — and returns the generated CSS for a given
+ * set of candidate class names.
+ *
+ * This is the only thing that actually proves the `@theme inline` block maps
+ * to Tailwind's generated colour utilities. Grepping globals.css for
+ * `--color-surface` only proves the token is spelled correctly in the source;
+ * it says nothing about whether Tailwind picked it up. Tailwind 4 only emits
+ * a utility for a class like `bg-surface` if a matching `--color-surface`
+ * token exists in the theme when the CSS is built — if the mapping is
+ * missing, the class generates NO rule at all, with no error anywhere. A
+ * source grep cannot see that failure mode; only compiling can.
+ */
+async function compileFor(classNames: string[]): Promise<string> {
+  const dir = mkdtempSync(join(tmpdir(), 'tokens-test-'));
+  try {
+    // A file Tailwind's automatic content scanner can see, carrying the
+    // candidate class names as plain text — this is the "virtual source".
+    writeFileSync(join(dir, 'probe.html'), `<div class="${classNames.join(' ')}"></div>`);
+
+    const entry = join(dir, 'probe.css');
+    writeFileSync(entry, `@import "${GLOBALS_CSS}";`);
+
+    const result = await postcss([tailwindcssPostcss({ base: dir })]).process(
+      readFileSync(entry, 'utf8'),
+      { from: entry },
+    );
+    return result.css;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+describe('the @theme inline token surface reaches the built CSS', () => {
+  const REPRESENTATIVE_CLASSES = [
+    'bg-surface',
+    'text-muted-foreground',
+    'border-border',
+    'shadow-raised',
+  ];
+
+  it('compiles bg-surface, text-muted-foreground, border-border and shadow-raised to real rules', async () => {
+    const css = await compileFor(REPRESENTATIVE_CLASSES);
+
+    // Each assertion checks BOTH that the selector exists at all (a missing
+    // `--color-*` mapping means the class produces no rule whatsoever, so the
+    // whole match fails) and that it resolves to the right `--base-*` token
+    // (a wrong mapping would still produce a rule, just pointing at nothing).
+    expect(css, 'bg-surface must compile to a background-color rule').toMatch(
+      /\.bg-surface\s*\{[^}]*background-color:\s*var\(--base-surface\)/,
+    );
+    expect(css, 'text-muted-foreground must compile to a color rule').toMatch(
+      /\.text-muted-foreground\s*\{[^}]*color:\s*var\(--base-muted-foreground\)/,
+    );
+    expect(css, 'border-border must compile to a border-color rule').toMatch(
+      /\.border-border\s*\{[^}]*border-color:\s*var\(--base-border\)/,
+    );
+    expect(css, 'shadow-raised must compile to a box-shadow rule').toMatch(
+      /\.shadow-raised\s*\{[^}]*--tw-shadow:\s*var\(--base-shadow-raised\)/,
+    );
+  });
+
+  it('also reaches the AA-safe ink colours and the wide breakpoint / content containers', async () => {
+    const css = await compileFor([
+      'text-ink-primary',
+      'text-ink-accent',
+      'text-ink-info',
+      'text-ink-success',
+      'max-w-content',
+      'max-w-prose',
+    ]);
+
+    expect(css).toMatch(/\.text-ink-primary\s*\{[^}]*color:\s*var\(--site-ink-primary\)/);
+    expect(css).toMatch(/\.text-ink-accent\s*\{[^}]*color:\s*var\(--site-ink-accent\)/);
+    expect(css).toMatch(/\.text-ink-info\s*\{[^}]*color:\s*var\(--site-ink-info\)/);
+    expect(css).toMatch(/\.text-ink-success\s*\{[^}]*color:\s*var\(--site-ink-success\)/);
+    expect(css).toMatch(/\.max-w-content\s*\{[^}]*max-width:\s*var\(--container-content\)/);
+    // Tailwind ships its own `--max-width-prose: 65ch`, which `max-w-prose`
+    // would use instead of this project's --container-prose token unless
+    // globals.css also bridges `--max-width-prose` to it (see globals.css).
+    // The utility itself always reads the `--max-width-*` variable, so the
+    // rule references `--max-width-prose`, which in turn resolves to
+    // `--container-prose`.
+    expect(css).toMatch(/\.max-w-prose\s*\{[^}]*max-width:\s*var\(--max-width-prose\)/);
+    expect(css).toMatch(/--max-width-prose:\s*var\(--container-prose\)/);
+  });
+});
