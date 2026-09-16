@@ -1,12 +1,13 @@
 import type { Dictionary } from './vi';
 
 /** English half of the chrome dictionary. See vi.ts for the full sourcing
- *  breakdown. Five keys here have no English source anywhere in `data.js`
- *  (there is no data.js entry to port at all, English or Vietnamese-only):
- *  `meta.description`, `nav.skipToContent`, `nav.toggleTheme`, `common.demo`
- *  and `notFound.{title,back}`. Per the porting rule for a gap with no `en`,
- *  the Vietnamese string is carried into both locales here rather than
- *  invented — flagged in task-3-report.md for the owner to replace.
+ *  breakdown. Six keys have no bilingual source in `data.js` because they are
+ *  interface chrome rather than anything the owner wrote: `nav.skipToContent`,
+ *  `nav.toggleTheme`, `common.demo` and `notFound.{title,back}` carry their
+ *  conventional English wording (controller ruling R25 — "no invented content"
+ *  governs claims about the owner, not the words on a skip link).
+ *  `meta.description` IS a claim, so it is not written here either: it is
+ *  `i18n.hero.lead` verbatim, which already exists in both locales.
  *  `meta.title` and `common.present` are exceptions with evidence: `meta.title`
  *  is kept identical in both locales the same way `i18n.hero.eyebrow` already
  *  is in the source data, and `common.present` is the literal word "Present"
@@ -15,27 +16,23 @@ import type { Dictionary } from './vi';
 const en: Dictionary = {
   meta: {
     title: 'Công Anh Dũng — AI/ML Systems Architect',
-    // No English source exists for this description in data.js. Vietnamese
-    // carried into both locales per the "no en" fallback rule — flagged.
-    description: 'Hạ tầng và MLOps. Xây dựng hệ thống AI chạy được trong sản xuất tại eUp Group.',
+    description:
+      'Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.',
   },
   nav: {
-    // No English source exists in data.js. Fallback — flagged.
-    skipToContent: 'Tới nội dung chính',
+    skipToContent: 'Skip to content',
     expertise: 'Expertise',
     projects: 'Projects',
     experience: 'Experience',
     writing: 'Writing',
     contact: 'Contact',
-    // No English source exists in data.js. Fallback — flagged.
-    toggleTheme: 'Đổi giao diện sáng/tối',
+    toggleTheme: 'Toggle light and dark theme',
   },
   common: {
     hireMe: 'Hire Me',
     downloadCv: 'Download CV',
     repository: 'Repository',
-    // No English source exists in data.js. Fallback — flagged.
-    demo: 'Bản chạy thử',
+    demo: 'Demo',
     present: 'Present',
   },
   sections: {
@@ -51,9 +48,6 @@ const en: Dictionary = {
       eyebrow: 'Selected Work',
       title: 'Infrastructure, ML serving, and platform engineering work.',
       lead: 'Nine systems that shipped, plus one case study taken from problem to measured result.',
-      problem: 'Problem',
-      approach: 'Architecture',
-      result: 'Result',
     },
     experience: {
       eyebrow: 'Experience',
@@ -77,9 +71,8 @@ const en: Dictionary = {
     },
   },
   notFound: {
-    // No English source exists in data.js. Fallback — flagged.
-    title: 'Không tìm thấy trang',
-    back: 'Về trang chủ',
+    title: 'Page not found',
+    back: 'Back to home',
   },
 };
 

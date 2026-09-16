@@ -17,16 +17,18 @@
  *     five drafted leads from section-leads.md, authorized by controller
  *     ruling R23 — the only strings in this dictionary not read directly out
  *     of `data.js`.
- *   - `sections.work.{problem,approach,result}` reuse the titles of
- *     `PORTFOLIO_DATA.caseStudy.blocks[0]`, `[1]` and `[3]` verbatim
- *     ("Problem", "Architecture", "Result") under differently-named keys —
- *     `approach` is not literally the word "Architecture", but the *string*
- *     is copied unchanged, not reworded.
+ *   - The case-study band reads its own block titles straight off
+ *     `CASE_STUDY.blocks[]`, which already carries all five bilingual
+ *     ("Problem", "Architecture", "Trade-offs", "Result", "What I'd improve
+ *     next"). There are deliberately no problem/approach/result keys here:
+ *     three renamed aliases would duplicate two of those five and silently
+ *     drop the other three.
  */
 const vi = {
   meta: {
     title: 'Công Anh Dũng — AI/ML Systems Architect',
-    description: 'Hạ tầng và MLOps. Xây dựng hệ thống AI chạy được trong sản xuất tại eUp Group.',
+    description:
+      'Dịch vụ speech (ASR, chấm phát âm và thanh điệu) và embedding trên GCP và DigitalOcean cho người dùng ở VN, JP, KR và CN. Mặc định tối ưu chi phí: chọn đúng cỡ GPU, ưu tiên inference trên CPU, tự host thay cho API trả phí.',
   },
   nav: {
     skipToContent: 'Tới nội dung chính',
@@ -57,9 +59,6 @@ const vi = {
       eyebrow: 'Dự án tiêu biểu',
       title: 'Các dự án hạ tầng, ML serving và platform engineering tiêu biểu.',
       lead: 'Chín hệ thống đã chạy thật, kèm một ca cụ thể mổ xẻ từ vấn đề tới kết quả đo được.',
-      problem: 'Bài toán',
-      approach: 'Kiến trúc',
-      result: 'Kết quả',
     },
     experience: {
       eyebrow: 'Kinh nghiệm',
