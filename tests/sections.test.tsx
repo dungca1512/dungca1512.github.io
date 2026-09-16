@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Illustration } from '@/components/site/illustration';
@@ -46,6 +46,14 @@ describe('Illustration', () => {
 });
 
 describe('CountUp', () => {
+  // In `afterEach`, not at the end of the test body: a failing assertion throws
+  // past an inline `vi.restoreAllMocks()`, leaking `matches: true` into every
+  // test that runs after it. Observed — one real failure in the reduced-motion
+  // test reported itself as four.
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('puts the FINAL number in the exported HTML, not zero', () => {
     // `renderToStaticMarkup` is the same path `next build` takes to produce the
     // static export, and the export is what a search engine, a visitor with JS
@@ -67,17 +75,17 @@ describe('CountUp', () => {
   });
 
   it('leaves the plain figure alone for a reduced-motion visitor', () => {
-    // jsdom's matchMedia answers `false` to every query, so the reduced-motion
-    // branch is unreachable without this stub — and that branch is the entire
-    // reason the odometer is built in an effect instead of in JSX.
+    // jsdom implements no `matchMedia` at all, so tests/setup.ts stubs one that
+    // answers `false`; this overrides it to `true`. The mock answers whatever it
+    // is asked, so asserting the BRANCH alone would also pass if the component
+    // queried `(min-width: 99999px)` — the query itself has to be pinned.
     const mql = { matches: true } as MediaQueryList;
-    vi.spyOn(window, 'matchMedia').mockReturnValue(mql);
+    const spy = vi.spyOn(window, 'matchMedia').mockReturnValue(mql);
 
     const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    expect(spy).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)');
     expect(container.querySelector('span')?.textContent).toBe('1.400+');
     expect(container.querySelector('span')).not.toHaveAttribute('role', 'img');
-
-    vi.restoreAllMocks();
   });
 
   it('keeps the figure as the accessible name once the digits are built', () => {
@@ -106,6 +114,12 @@ describe('CountUp', () => {
 
     const io = MockIntersectionObserver.instances.at(-1);
     io?.trigger(container.querySelector('span')!);
-    expect(columns().some((t) => t.startsWith('translateY('))).toBe(true);
+
+    // Every wheel, and the digit each one LANDS ON. Asserting only that some
+    // transform starts with `translateY(` would pass an odometer that rolls
+    // every wheel to 0, or that animates one digit of four — which is the
+    // feature's entire job, failing silently while the exported text stays
+    // right. One cell per em, cell 0 at the top, so digit d is at -d em.
+    expect(columns()).toEqual([...'1400'].map((d) => `translateY(-${d}em)`));
   });
 });

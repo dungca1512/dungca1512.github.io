@@ -103,6 +103,17 @@ export function CountUp({
       host.removeAttribute('aria-label');
       host.textContent = original;
     };
+    /* KNOWN LIMIT, and deliberately not worked around: this effect destroys the
+       text node React rendered, so on a RE-RUN (a changed `value`, `locale` or
+       `suffix`) the cleanup writes the PREVIOUS figure back, and React's own
+       update lands on a node that is no longer in the tree — the wheels roll to
+       the new number while `aria-label` still reads the old one. Nothing can
+       reach that today: `METRICS` values are resolved at build time, locale is
+       fixed per exported page, and no call site re-renders a mounted CountUp
+       with different props. Unmount and React's StrictMode double-invoke are
+       both safe, because the cleanup clears children before restoring the text.
+       If a figure ever does become dynamic, do not patch the cleanup — keep
+       React's text node and hide it, rather than taking it over. */
   }, [value, locale, suffix, duration]);
 
   return <span ref={ref}>{text}</span>;
