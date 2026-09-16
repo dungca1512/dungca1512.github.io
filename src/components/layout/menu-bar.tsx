@@ -5,6 +5,7 @@ import { localeAnchorHref, localeHref } from '@/lib/paths';
 import { SITE } from '@/content/site';
 import { ThemeToggle } from '@/components/site/theme-toggle';
 import { LocaleSwitch } from './locale-switch';
+import { NavLinks } from './nav-links';
 
 const ANCHORS = ['expertise', 'projects', 'experience', 'writing', 'contact'] as const;
 
@@ -16,18 +17,17 @@ export function MenuBar({ locale, dict }: { locale: Locale; dict: Dictionary }) 
           {SITE.name}
         </Link>
 
-        <ul className="hidden items-center gap-1 md:flex">
-          {ANCHORS.map((anchor) => (
-            <li key={anchor}>
-              <Link
-                href={localeAnchorHref(locale, anchor)}
-                className="duration-fast text-muted-foreground hover:bg-surface-muted hover:text-foreground rounded-full px-3 py-1.5 text-sm transition-colors"
-              >
-                {dict.nav[anchor]}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* The list itself is a client component: which entry is current
+            depends on scroll position, which only exists in the browser. The
+            hrefs and the labels are still resolved here, on the server, so
+            the dictionary and the locale never cross into client code. */}
+        <NavLinks
+          items={ANCHORS.map((anchor) => ({
+            id: anchor,
+            href: localeAnchorHref(locale, anchor),
+            label: dict.nav[anchor],
+          }))}
+        />
 
         <div className="flex items-center gap-2">
           <LocaleSwitch locale={locale} />

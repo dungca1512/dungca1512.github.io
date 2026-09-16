@@ -5,16 +5,32 @@
    mutually exclusive by construction, so they can never both be running on
    the same element. */
 
-@keyframes site-reveal-up {
+/* Opacity and movement are two animations, not one, because they need
+   different timing functions and a single @keyframes block can only carry
+   one. The movement keeps the spring — the overshoot past the resting
+   position is the character of the thing. Opacity cannot have it:
+   `cubic-bezier(0.34, 1.56, 0.64, 1)` crosses y=1 at about t=0.35 and keeps
+   climbing, and opacity clamps at 1, so the fade was finished inside the
+   first third of its range no matter where the range was set. Measured in
+   Chrome at a 900px viewport: the element stood at full opacity while its
+   top edge was still 82% of the way down the screen — in the bottom margin,
+   below anything being read, so the page looked like it had no reveal at
+   all. The fade on its own `linear` track, over the SAME range, reaches
+   half at 77% of viewport height and full at 58%. */
+@keyframes site-reveal-fade {
   from {
     opacity: 0;
+  }
+}
+
+@keyframes site-reveal-up {
+  from {
     transform: translateY(1.25rem);
   }
 }
 
 @keyframes site-reveal-clip {
   from {
-    opacity: 0;
     clip-path: inset(0 0 100% 0);
     transform: translateY(0.75rem);
   }
@@ -26,26 +42,55 @@
   }
 }
 
+/* The end of the range is a LENGTH into `cover`, not a percentage of it.
+   A percentage is measured against the cover range's own size — viewport
+   height PLUS the element's height — so the same `cover 26%` finished at a
+   different place on screen for a one-line paragraph than for a tall card,
+   and a length makes the travel distance the same for both.
+
+   The range is also deliberately short, and stretching it is the wrong way
+   to make a reveal last longer on screen. An element in the page's last
+   band has only so much scroll left underneath it, and a range the page
+   cannot finish leaves it parked part-way with nowhere left to go: at
+   `cover 22vh cover 85vh` the LinkedIn contact row sat at opacity 0.10 at
+   maximum scroll, permanently. Timing, not distance, is what puts a reveal
+   where it can be seen.
+
+   One `animation-timeline` and one `animation-range` cover two animations:
+   CSS repeats a short animation-* list until it matches the number of
+   animation names, so both tracks take the same timeline and the same
+   range, and there is no second copy to drift out of step. */
 @utility reveal {
-  animation: site-reveal-up var(--duration-slow) var(--ease-spring) both;
+  animation:
+    site-reveal-fade var(--duration-slow) linear both,
+    site-reveal-up var(--duration-slow) var(--ease-spring) both;
   animation-timeline: view();
-  animation-range: entry 10% cover 26%;
+  animation-range: cover 4vh cover 42vh;
 }
 
 @utility reveal-clip {
-  animation: site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
+  animation:
+    site-reveal-fade var(--duration-slow) linear both,
+    site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
   animation-timeline: view();
-  animation-range: entry 10% cover 30%;
+  animation-range: cover 5vh cover 46vh;
 }
 
 /* For content that is ALREADY in the viewport at load — the hero. A
-   scroll-driven animation on it would never play, because it never enters. */
+   scroll-driven animation on it would never play, because it never enters.
+   These run on a wall clock, where the easing is read as speed rather than
+   as a position on screen, so the split is kept only so both variants play
+   the same keyframes. */
 @utility reveal-load {
-  animation: site-reveal-up var(--duration-slow) var(--ease-spring) both;
+  animation:
+    site-reveal-fade var(--duration-slow) linear both,
+    site-reveal-up var(--duration-slow) var(--ease-spring) both;
 }
 
 @utility reveal-clip-load {
-  animation: site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
+  animation:
+    site-reveal-fade var(--duration-slow) linear both,
+    site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
 }
 
 @supports not (animation-timeline: view()) {
@@ -94,9 +139,9 @@
 
 .drawn-line path {
   stroke-dasharray: 660;
-  animation: site-draw-underline var(--duration-slow) var(--ease-out-soft) both;
+  animation: site-draw-underline var(--duration-slow) linear both;
   animation-timeline: view();
-  animation-range: entry 10% cover 30%;
+  animation-range: cover 5vh cover 46vh;
 }
 
 @supports not (animation-timeline: view()) {

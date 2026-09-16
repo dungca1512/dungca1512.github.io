@@ -214,10 +214,76 @@ function svgPathLength(d: string, curveSteps = 1000): number {
   return total;
 }
 
+/** The declared value of `prop` inside `@<atName> <params>` in motion.css —
+ *  e.g. utility('reveal', 'animation'). Undefined when the block does not
+ *  declare it. */
+function atRuleDecl(atName: string, params: string, prop: string): string | undefined {
+  const root = postcss.parse(motion);
+  let value: string | undefined;
+  root.walkAtRules(atName, (atRule) => {
+    if (atRule.params.trim() !== params) return;
+    atRule.walkDecls(prop, (decl) => {
+      value = decl.value;
+    });
+  });
+  return value;
+}
+
+/** Every property a @keyframes block animates, across all of its steps. */
+function keyframeProps(name: string): string[] {
+  const root = postcss.parse(motion);
+  const props = new Set<string>();
+  root.walkAtRules('keyframes', (atRule) => {
+    if (atRule.params.trim() !== name) return;
+    atRule.walkDecls((decl) => {
+      props.add(decl.prop);
+    });
+  });
+  return [...props];
+}
+
 describe('reveal', () => {
   it('is scroll-driven, not observer-driven, where the browser supports it', () => {
     expect(motion).toMatch(/animation-timeline:\s*view\(\)/);
   });
+
+  // The fade and the movement are deliberately two animations. A single
+  // @keyframes carries one timing function, and these two cannot share one:
+  // `--ease-spring` is cubic-bezier(0.34, 1.56, 0.64, 1), which passes y=1 at
+  // roughly a third of the way through and keeps climbing. Movement wants
+  // that overshoot. Opacity clamps at 1, so riding the same curve finished
+  // the fade inside the first third of its scroll range — measured in Chrome
+  // at a 900px viewport, fully opaque with its top edge still 82% of the way
+  // down the screen, below anything being read. On its own linear track the
+  // same range reaches full at 58%.
+  it('does not animate opacity from the keyframes that carry the overshooting spring', () => {
+    expect(keyframeProps('site-reveal-up')).not.toContain('opacity');
+    expect(keyframeProps('site-reveal-clip')).not.toContain('opacity');
+    expect(keyframeProps('site-reveal-fade')).toEqual(['opacity']);
+  });
+
+  it.each(['reveal', 'reveal-clip', 'reveal-load', 'reveal-clip-load'])(
+    '%s fades on its own linear track',
+    (name) => {
+      const animation = atRuleDecl('utility', name, 'animation') ?? '';
+      const fade = animation.split(',').find((track) => track.includes('site-reveal-fade'));
+      expect(fade, `${name} runs no site-reveal-fade track`).toBeDefined();
+      expect(fade).toMatch(/\blinear\b/);
+    },
+  );
+
+  it.each(['reveal', 'reveal-clip'])(
+    '%s gives the fade the same scroll range as the movement, by declaring one range for both',
+    (name) => {
+      // CSS repeats a short animation-* list until it matches the number of
+      // animation names, so a single entry covers both tracks — and there is
+      // no second copy to drift out of step with the first. Two entries would
+      // be legal; they would also be two things to keep in sync.
+      const range = atRuleDecl('utility', name, 'animation-range') ?? '';
+      expect(range).not.toContain(',');
+      expect(range).toMatch(/^cover \d+vh cover \d+vh$/);
+    },
+  );
 
   it('keeps the JS fallback behind `@supports not`, so it never double-runs', () => {
     expect(motion).toMatch(/@supports not \(animation-timeline: view\(\)\)/);
