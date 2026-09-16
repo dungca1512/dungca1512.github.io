@@ -16,7 +16,11 @@ const state = {
     motionObserver: null
 };
 
-const ANALYTICS_COLORS = ['#c8944b', '#a67a3d', '#8a6631', '#6d5228', '#514020', '#3a3028', '#2b2c2e'];
+// A heat ramp, hottest first. On a light page it has to run amber -> paper,
+// not amber -> black: the dark end of the old ramp was the page background,
+// which is exactly what made it read as "absent" there and would make it read
+// as "loudest" here.
+const ANALYTICS_COLORS = ['#8f6318', '#a97c2c', '#c8944b', '#d9b47f', '#e3cbab', '#dcdad5', '#cfd0d3'];
 
 function getValueByPath(obj, path) {
     return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);

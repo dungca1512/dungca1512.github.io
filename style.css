@@ -5,33 +5,42 @@
    ============================================================ */
 
 :root {
-    --bg: #0a0b0c;
-    --bg-raise: #0f1112;
-    --ink: #e7e5e1;
-    --ink-mid: #a9a59e;
-    --ink-dim: #6f6c66;
-    --line: #23262a;
-    --line-soft: #17191b;
-    --accent: #c8944b;
-    --accent-dim: #8a6631;
-    --ok: #6f9c6a;
+    /* Light canvas. The page is a printed technical document, so the paper is
+       the default and ink is the exception - inverted from where this sheet
+       started. #f4f4f2 is a neutral grey warmed by two points so the amber
+       accent does not read as a stain on cold paper. */
+    --bg: #f4f4f2;
+    --bg-raise: #ffffff;
+    --ink: #14161a;        /* 16.4:1 on --bg */
+    --ink-mid: #55595f;    /*  6.4:1 - AA for body copy */
+    --ink-dim: #767a80;    /*  3.9:1 - large text and UI furniture only */
+    --line: #d9dade;
+    --line-soft: #e7e7e5;
+    /* The amber had to darken to survive the flip: #c8944b scores 2.4:1 on
+       paper, which is decoration, not a link colour. #8f6318 reads at 4.8:1
+       on --bg AND carries white at 5.3:1, so the same token works as ink and
+       as a button fill. The old amber survives as --accent-dim, demoted to
+       what it is now good for: rules, bars, and other non-text marks. */
+    --accent: #8f6318;
+    --accent-dim: #c8944b;
+    --ok: #3f7a3a;
 
     /* Header over content: opaque enough to read against, sheer enough that the
        page is visibly still there behind it. */
-    --bg-header: rgba(10, 11, 12, 0.85);
+    --bg-header: rgba(244, 244, 242, 0.85);
 
     /* The technical grid. At 2.8% it should register as paper texture, not as
        a visible table. */
-    --grid-line: rgba(255, 255, 255, 0.028);
+    --grid-line: rgba(20, 22, 26, 0.045);
 
     /* Text sitting ON the accent - the amber button, the active language tab.
-       It is the page background colour, used as ink; naming it says so. */
-    --ink-on-accent: #0a0b0c;
+       It is the page's surface colour, used as ink; naming it says so. */
+    --ink-on-accent: #ffffff;
 
     /* Two ends of the freshness bar. They sit outside the amber ramp on purpose:
        "stale" should not read as a warmer shade of "current". */
-    --chart-fresh-180: #4a4238;
-    --chart-fresh-old: #2b2c2e;
+    --chart-fresh-180: #cdbb9a;
+    --chart-fresh-old: #c9cacd;
 
     --container: 1180px;
     --gutter: 32px;
@@ -75,6 +84,9 @@
 }
 
 html {
+    /* Tells the UA the page is light, so scrollbars, form controls and the
+       canvas behind an overscroll match the paper instead of the OS theme. */
+    color-scheme: light;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     /* The header is sticky and ~4.1rem tall. Without this every in-page link
