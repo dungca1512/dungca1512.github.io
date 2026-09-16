@@ -34,6 +34,11 @@
     --ink-dim: #767a80;    /*  3.9:1 - large text and UI furniture only */
     --line: #e2e2e2;
     --line-soft: #ebebeb;
+    /* A card inside the dark room. A shadow cannot lift anything off
+       near-black, so the lift has to come from the surface being lighter than
+       what it sits on - four points, the same distance --bg-muted keeps from
+       --bg at the other end of the scale. */
+    --bg-raise-on-dark: #191919;
 
     /* The dark band inverts the page. Its ink cannot be --bg: a surface colour
        used as ink on near-black lands at 18:1 and glares, so this is pulled
@@ -980,7 +985,14 @@ h3, h4 {
     --line: var(--line-on-dark);
     --line-soft: var(--line-on-dark);
     --blueprint: var(--blueprint-on-dark);
+    --bg-raise: var(--bg-raise-on-dark);
     --accent: var(--accent-dim);
+    /* The one remap that is not a shade of the same idea. On paper the accent
+       is dark, so what sits on it is white; in this room the accent is the
+       LIGHT amber, and white on it scores 2.2:1 - the primary button would have
+       been unreadable. The token means "ink that sits on the accent", and here
+       that ink is the room's own floor. 7.2:1. */
+    --ink-on-accent: var(--bg-dark);
 }
 
 .section-head {
@@ -1853,9 +1865,13 @@ h3, h4 {
     z-index: 1;
 }
 
+/* The last heading on the page and the only one that asks for something, so it
+   is the largest. It takes the display scale like every other h2 rather than
+   the 2.1rem it used to set for itself - a closing ask set smaller than the
+   section headings above it reads as a footnote. */
 .contact-card h2 {
-    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
-    margin: 14px 0 14px;
+    font-size: var(--display-2);
+    margin: 18px 0 18px;
 }
 
 .contact-text {
@@ -1895,8 +1911,11 @@ h3, h4 {
 
 /* ---------- Footer ---------- */
 
+/* Muted, not white. Coming straight off the dark closing section, plain paper
+   reads as a flash; the darker band lets the page land. */
 .site-footer {
-    border-top: 1px solid var(--line-soft);
+    background: var(--bg-muted);
+    border-top: 1px solid var(--line);
     padding: 34px 0;
 }
 
