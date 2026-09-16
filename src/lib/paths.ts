@@ -4,8 +4,11 @@ import { LOCALES, type Locale } from '@/content/locales';
  *  slash. A link to `/vi` instead of `/vi/` still works, but costs the visitor
  *  a redirect on every single click. */
 export function localeHref(locale: Locale, path = '/'): string {
-  const clean = path === '/' ? '' : `/${path.replace(/^\/|\/$/g, '')}`;
-  return `/${locale}${clean}/`;
+  // Strip every leading and trailing slash, not just one: `''`, `'/'`, `'//'`
+  // and `'///'` must all collapse to the locale root. Prepending a slash to an
+  // already-empty remainder is what produced `/vi//` before.
+  const clean = path.replace(/^\/+|\/+$/g, '');
+  return clean ? `/${locale}/${clean}/` : `/${locale}/`;
 }
 
 export function localeAnchorHref(locale: Locale, anchor: string): string {

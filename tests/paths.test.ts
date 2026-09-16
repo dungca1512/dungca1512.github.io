@@ -25,6 +25,19 @@ describe('localeHref', () => {
     expect(localeHref('vi', 'work')).toBe('/vi/work/');
     expect(localeHref('vi', '/work/')).toBe('/vi/work/');
   });
+
+  // These are the inputs that produced `/vi//` before the fix. A malformed href
+  // still resolves, but costs the visitor a redirect on every click — the exact
+  // cost the trailing-slash rule above exists to avoid.
+  it('collapses empty and slash-only paths to the locale root', () => {
+    expect(localeHref('vi', '')).toBe('/vi/');
+    expect(localeHref('vi', '//')).toBe('/vi/');
+    expect(localeHref('vi', '///')).toBe('/vi/');
+  });
+
+  it('strips repeated slashes at either end', () => {
+    expect(localeHref('vi', '//work//')).toBe('/vi/work/');
+  });
 });
 
 describe('localeAnchorHref', () => {
