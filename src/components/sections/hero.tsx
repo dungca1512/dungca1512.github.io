@@ -51,8 +51,17 @@ export async function Hero() {
                 verbatim from the reference site's `.trust-list` (a pill row
                 under the hero's stack line). Quiet by design — small type,
                 a soft fill, wrapping freely — so it reads as a footnote under
-                the headline and CTAs, not as a second headline. */}
-            <ul className="reveal-load mt-8 flex list-none flex-wrap gap-2">
+                the headline and CTAs, not as a second headline.
+
+                `aria-label` reuses `sections.expertise.eyebrow` ("Core
+                Expertise" / "Năng lực cốt lõi") rather than inventing new
+                copy: it is the closest existing string to "what these six
+                things are", it is already bilingual, and it is what stops
+                this list from being announced as a bare "list, 6 items". */}
+            <ul
+              aria-label={dict.sections.expertise.eyebrow}
+              className="reveal-load mt-8 flex list-none flex-wrap gap-2"
+            >
               {HERO_TRUST.map((item) => (
                 <li
                   key={item.en}
@@ -74,9 +83,14 @@ export async function Hero() {
             </p>
           </div>
 
-          <div className="hero-portrait reveal-load">
-            <Illustration name="hero" alt="" width={880} height={880} priority />
-          </div>
+          <Illustration
+            name="hero"
+            alt=""
+            width={880}
+            height={880}
+            priority
+            className="hero-portrait reveal-load"
+          />
         </div>
       </Container>
     </section>

@@ -17,15 +17,29 @@
 
    Fix round 2: the dead-anchor check below originally matched only bare
    `href="#name"` values, deliberately excluding the locale-prefixed
-   `href="/vi/#name"` / `href="/en/#name"` form that the menu bar's nav links
-   and Hero's own CTA actually use — on the reasoning that those already
-   pointed at sections Tasks 9-12 had not written yet, and widening the match
-   would turn the gate red on every commit until Task 12 landed. That
-   deferral was overruled: five of the six real same-page anchors on the site
-   were going unchecked, and "the code comment says to widen it later" is not
-   a mechanism, it is a hope. The check now resolves the locale-prefixed form
-   too, and the still-unbuilt sections are named explicitly in
-   `PENDING_ANCHORS` below rather than silently skipped by a narrower regex. */
+   `href="/vi/#name"` / `href="/en/#name"` form the menu bar's nav and Hero's
+   own CTA actually use. Widened to resolve the locale-prefixed form too, with
+   the still-unbuilt sections named explicitly in `PENDING_ANCHORS`.
+
+   Fix round 3: two checks below turned out to iterate the evidence (whatever
+   hrefs/entries happened to exist) instead of the expectation (what must
+   exist), which is the same failure shape in two places:
+     - the dead-anchor check looped over hrefs found on the page. Rewrite
+       every same-page href to something harmless and the loop body never
+       runs — zero anchors checked, zero failures, exit 0. `REQUIRED_ANCHORS`
+       below closes this: it is asserted independently of what the page
+       happens to still link to.
+     - the "PENDING_ANCHORS is self-cleaning" check looped over hrefs too, so
+       an entry was only ever caught as stale if something still linked to
+       it. Drop the nav link and inject the id and the old code missed it.
+       The check below now iterates `PENDING_ANCHORS` itself against the
+       page's ids, which is what makes it self-cleaning unconditionally.
+   Also: the text floor moved from "whole document" to "inside <main> only"
+   (see MIN_MAIN_TEXT_LENGTH), because a floor over the whole document erodes
+   as chrome (nav, footer) grows and eventually stops catching an emptied
+   <main> at all; and the OK-line miscount when a stale entry was present is
+   fixed by counting "resolves" and "stale" independently instead of as
+   mutually exclusive branches of one loop. */
 import { readFileSync, existsSync } from 'node:fs';
 
 const PAGES = [
@@ -54,8 +68,7 @@ check(
 );
 
 /* Strips script/style contents (their text is never page copy) and every tag,
-   then collapses whitespace. Used both for the text-floor check below and,
-   incidentally, gives a stable string to measure. */
+   then collapses whitespace. */
 function renderedText(html) {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -66,24 +79,58 @@ function renderedText(html) {
     .trim();
 }
 
-// Measured on this build (Hero + menu bar + footer, no other sections yet):
-// vi 772 chars, en 782 chars. Set well under half of that, so the ~700 chars
-// of copy Tasks 9-12 keep adding has headroom and this never needs bumping —
-// but nowhere near the ~0 chars an empty `<body></body>` shell produces (the
-// exact failure this check exists to catch). It pins a floor, not the copy.
-const MIN_TEXT_LENGTH = 300;
+/* Fix round 3, G4: measures only the text inside `<main>…</main>`, not the
+   whole document. The original whole-document floor (300, at a measured
+   772/782) was real coverage today — M10 in the round-3 review emptied
+   `<main>` and left menu bar + footer, which measured 260, so 300 did catch
+   it — but the margin was 40 chars against a moving target: chrome (the
+   footer, the nav) grows independently of `<main>`, and the day chrome alone
+   crosses 300 this floor stops detecting an emptied `<main>` forever, while
+   silently never rising to match the ~700 chars Tasks 9-12 keep adding
+   *inside* `<main>`. Scoping the measurement to `<main>` fixes both: the
+   number now means "the content is there", chrome cannot inflate it, and the
+   margin stays wide as content grows instead of shrinking as chrome grows.
+   Returns `null` (not 0) when no `<main>` exists at all, so that failure mode
+   reads distinctly from "a very short but present `<main>`". */
+function mainText(html) {
+  const match = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+  return match ? renderedText(match[1]) : null;
+}
+
+// Measured on this build's <main> (Hero only, no other sections yet): vi 511
+// chars, en 518. Set well under half of that, so the ~700 chars Tasks 9-12
+// keep adding to <main> has headroom and this should not need bumping — but
+// nowhere near the ~0 chars an emptied <main> produces (the exact failure
+// this exists to catch, per the review's M10).
+const MIN_MAIN_TEXT_LENGTH = 200;
+
+/* Every same-page anchor the site is expected to always link to somewhere on
+   the page, independent of PENDING_ANCHORS below: the skip link's `#main`
+   (permanent — it targets the layout's landmark) and the five nav anchors
+   `MenuBar` renders from its own `ANCHORS` constant (src/components/layout/
+   menu-bar.tsx). Duplicated here rather than imported, because this script
+   runs under plain Node with no TypeScript/JSX transpilation, so it cannot
+   `import` a `.tsx` file — the same tradeoff `PENDING_ANCHORS`'s hardcoded
+   task names already accept. If `MenuBar`'s anchor list ever changes, this
+   list needs the matching edit.
+
+   Fix round 3, G1: this is the "iterate the expectation, not the evidence"
+   fix. The dead-anchor check below iterates the hrefs a page happens to
+   still carry, which is vacuously true when there are none — rewrite every
+   same-page href on the page to something harmless and the old check
+   reported "0 same-page anchor(s) checked", exit 0. Checking each of these
+   six names is present in `fragments`, independent of what the loop below
+   finds, is what makes losing a nav link (or the skip link, or all of them)
+   a hard failure instead of an empty, passing loop. */
+const REQUIRED_ANCHORS = ['main', 'expertise', 'projects', 'experience', 'writing', 'contact'];
 
 /* Anchors whose target section does not exist YET. Each entry names the task
-   that lands it. This set MUST shrink to empty by Task 12 — it is checked
-   both ways below: an anchor listed here that has NOT gained a matching id
-   is excused (expected — the section is still unbuilt); an anchor listed
-   here that HAS gained a matching id is a hard failure, because the entry
-   should have been deleted the moment its section landed. A stale allowlist
-   that silently keeps excusing a case that now passes is just a slower
-   version of the vacuous-gate bug this file exists to fix. When a task below
-   lands its section, delete its line — that is what turns this check from
-   "5 anchors excused" into full, live coverage by Task 12, with nobody
-   needing to remember to widen anything. */
+   that lands it. This set MUST shrink to empty by Task 12 — checked both
+   ways: an anchor listed here that has NOT gained a matching id is excused
+   (expected — the section is still unbuilt); an anchor listed here that HAS
+   gained a matching id is a hard failure (see the stale-entry check below),
+   because the entry should have been deleted the moment its section landed.
+   When a task below lands its section, delete its line. */
 const PENDING_ANCHORS = new Map([
   ['expertise', 'Task 10'],
   ['projects', 'Task 10'],
@@ -93,17 +140,23 @@ const PENDING_ANCHORS = new Map([
 ]);
 
 /* Collects every same-page fragment link on a page: a bare `href="#name"`
-   (same-page on any page — e.g. the skip link's `#main`) and, now, the
-   locale-prefixed `href="/{locale}/#name"` form `localeAnchorHref()`
-   actually emits for the menu bar's nav and Hero's CTA, matched only against
-   THIS page's own locale (a vi page's nav never points at `/en/#foo` — the
-   language switcher carries no fragment — so cross-locale hrefs are not a
-   same-page anchor on this page and are correctly left unmatched). `href="#"`
-   with nothing after the hash is excluded on purpose: it is the conventional
-   "no real destination yet" placeholder, not a link that was pointed at a
-   missing target, and flagging it would not tell anyone anything
-   actionable. None exist in the codebase today, but the exclusion is
-   deliberate. */
+   (same-page on any page — e.g. the skip link's `#main`) and the
+   locale-prefixed `href="/{locale}/#name"` form `localeAnchorHref()` emits
+   for the menu bar's nav and Hero's CTA, matched only against THIS page's
+   own locale (a vi page's nav never points at `/en/#foo` — the language
+   switcher carries no fragment — so cross-locale hrefs are not a same-page
+   anchor on this page). `href="#"` with nothing after the hash is excluded
+   on purpose: it is the conventional "no real destination yet" placeholder,
+   not a link that was pointed at a missing target. None exist in the
+   codebase today, but the exclusion is deliberate.
+
+   NOTE (review G3, confirmed both ways, fails safe): this and the `id="…"`
+   collection below scan raw HTML with a regex, not a parser. An id inside an
+   HTML comment or a `<script>` string counts as a real id; nothing this
+   build emits produces either shape today (React/Next escape script string
+   quotes), so this has not bitten in practice. Left as-is deliberately —
+   fixing it means this file parsing HTML instead of scanning it, which is
+   more than the current failure modes justify. */
 function samePageFragments(html, locale) {
   const barePattern = /href="#([^"]*)"/g;
   const localePattern = new RegExp(`href="/${locale}/#([^"]*)"`, 'g');
@@ -136,47 +189,60 @@ for (const { path, locale } of PAGES) {
     `${path} contains a rendered \`undefined\`.`,
   );
 
-  const text = renderedText(html);
+  const main = mainText(html);
+  const mainLength = main === null ? 0 : main.length;
   check(
-    text.length >= MIN_TEXT_LENGTH,
-    `${path} carries ${text.length} chars of rendered text (>= ${MIN_TEXT_LENGTH})`,
-    `${path} carries only ${text.length} chars of rendered text — looks blank or near-blank (need >= ${MIN_TEXT_LENGTH})`,
+    main !== null && mainLength >= MIN_MAIN_TEXT_LENGTH,
+    `${path} carries ${mainLength} chars of rendered text inside <main> (>= ${MIN_MAIN_TEXT_LENGTH})`,
+    main === null
+      ? `${path} has no <main> element to measure text inside of`
+      : `${path}'s <main> carries only ${mainLength} chars of rendered text — looks blank or near-blank (need >= ${MIN_MAIN_TEXT_LENGTH})`,
   );
 
   const ids = new Set([...html.matchAll(/\bid="([^"]*)"/g)].map((m) => m[1]));
   const fragments = samePageFragments(html, locale);
 
-  const deadUnexcused = [];
-  const stalePending = [];
-  let liveCount = 0;
-  for (const fragment of fragments) {
-    const resolves = ids.has(fragment);
-    const pending = PENDING_ANCHORS.has(fragment);
-    if (resolves && pending) {
-      // The section landed but the allowlist entry was never removed.
-      stalePending.push(fragment);
-    } else if (!resolves && !pending) {
-      deadUnexcused.push(fragment);
-    } else if (resolves) {
-      liveCount += 1;
-    }
-    // (!resolves && pending): excused — the section is still unbuilt, per plan.
-  }
-  const pendingCount = [...fragments].filter((f) => PENDING_ANCHORS.has(f)).length;
+  // G1 fix: asserts the expected anchors are present, rather than only
+  // checking whatever happens to be found — see REQUIRED_ANCHORS above.
+  const requiredMissing = REQUIRED_ANCHORS.filter((anchor) => !fragments.has(anchor));
+  check(
+    requiredMissing.length === 0,
+    `${path}: all ${REQUIRED_ANCHORS.length} required same-page anchor(s) are still linked`,
+    `${path}: required same-page anchor(s) are no longer linked anywhere on the page: ${requiredMissing.join(', ')}`,
+  );
 
+  // Any linked fragment — required or not — that resolves to no id and has
+  // no PENDING_ANCHORS excuse is a dead link.
+  const deadUnexcused = [...fragments].filter(
+    (fragment) => !ids.has(fragment) && !PENDING_ANCHORS.has(fragment),
+  );
+  // G5 fix: counted independently of the stale-entry check below, so an
+  // anchor that resolves is always counted as resolved — previously an
+  // anchor that both resolved and was still (wrongly) listed as pending was
+  // silently excluded from this count, so the OK line undercounted "resolve"
+  // by exactly the number of stale entries.
+  const liveResolved = [...fragments].filter((fragment) => ids.has(fragment)).length;
+  const pendingExcused = [...fragments].filter(
+    (fragment) => !ids.has(fragment) && PENDING_ANCHORS.has(fragment),
+  ).length;
   check(
     deadUnexcused.length === 0,
-    `${path}: ${fragments.size} same-page anchor(s) checked — ${liveCount} resolve, ${pendingCount} pending`,
+    `${path}: ${fragments.size} same-page anchor(s) checked — ${liveResolved} resolve, ${pendingExcused} pending`,
     `${path}: dead anchor(s) — href points at a fragment with no matching id and no PENDING_ANCHORS excuse: ${deadUnexcused.join(', ')}`,
   );
+
+  // G2 fix: iterates PENDING_ANCHORS itself against this page's ids, not the
+  // fragments found above — so an entry is caught as stale even if the href
+  // that used to point at it was also removed in the same change.
+  const stalePending = [...PENDING_ANCHORS.entries()].filter(([anchor]) => ids.has(anchor));
   check(
     stalePending.length === 0,
     `${path}: no stale PENDING_ANCHORS entries`,
-    `${path}: PENDING_ANCHORS still lists ${stalePending.join(', ')}, but its target id now exists — delete the entry, its task has landed`,
+    `${path}: PENDING_ANCHORS still lists ${stalePending.map(([anchor, task]) => `${anchor} (${task})`).join(', ')}, but its target id now exists — delete the entry, its task has landed`,
   );
 }
 
 if (failed) process.exit(1);
 console.log(
-  `OK    ${PAGES.length} pages carry no unresolved content, no dead same-page anchors, and pass the text floor`,
+  `OK    ${PAGES.length} pages carry no unresolved content, no dead same-page anchors, and pass the <main> text floor`,
 );

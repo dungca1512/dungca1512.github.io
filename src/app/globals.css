@@ -217,7 +217,18 @@
    * because the break is set by the headline's measure, not by device width. */
   --breakpoint-wide: 900px;
 
-  --container-content: 100rem;
+  /* The one width both `Container` (via `max-w-content`) and the menu bar
+   * pill (`.menu-bar-pill` in menu-bar.css, via `var(--container-content)`)
+   * read — Task 8 review, V2. They used to carry two independent numbers
+   * (100rem here, a hardcoded 64rem on the pill), so nothing on the page ever
+   * lined up with the nav: 178px of overhang at 1440, 256px at 1920. 76rem
+   * (1216px) is the value that made 1440/1920 read as one designed layout
+   * rather than two stacked ones once actually rendered (Playwright at both
+   * widths, brand text left edge flush with the headline's). Both consumers
+   * reading one token is what stops this from drifting apart again — a
+   * future edit to either has to touch this line, not silently diverge from
+   * it the way the pill's own 64rem did. */
+  --container-content: 76rem;
   --container-prose: 42rem;
   /* Tailwind ships its own `--max-width-prose: 65ch`, and `max-w-*` reads
    * `--max-width-*` before ever falling back to `--container-*`. Without this
