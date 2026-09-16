@@ -1,9 +1,9 @@
 import '@fontsource-variable/inter';
 import '../globals.css';
+import { LOCALES } from '@/content/locales';
 
 export function generateStaticParams() {
-  // Replaced in Task 2 with LOCALES.map(...).
-  return [{ lang: 'vi' }, { lang: 'en' }];
+  return LOCALES.map((locale) => ({ lang: locale }));
 }
 
 export default function RootLayout({ children }: LayoutProps<'/[lang]'>) {
