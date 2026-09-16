@@ -18,7 +18,7 @@ const dir = join(root, 'tests');
 
 // Raise this with the suite. A floor rather than an exact count so adding a
 // test file is not a two-file edit, but deleting one is caught.
-const MINIMUM_FILES = 8;
+const MINIMUM_FILES = 9;
 
 let files;
 try {

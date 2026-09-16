@@ -59,6 +59,17 @@
     --dur-slow: 400ms;      /* section reveal */
     --dur-hero: 700ms;      /* the headline only */
 
+    /* ---- Ambient loop periods ----
+       Deliberately off the scale above. That scale answers "how long should a
+       response take" and tops out at 700ms because anything slower stops
+       feeling like a reply. These two answer a different question: how long
+       should a figure take to come back round. They are measured in tens of
+       seconds precisely so nothing on screen appears to be responding to you.
+       Only the two decorative figures - the contact orbit and the expertise
+       ticker - may spend them. */
+    --loop-orbit: 54s;
+    --loop-ticker: 68s;
+
     /* Decelerates hard at the end: the document settles into place rather than
        coasting to a stop. */
     --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
@@ -1343,14 +1354,163 @@ h1, h2, h3, h4 {
     border: 1px solid var(--line);
 }
 
+/* ---------- Decorative figures ----------
+   Two ambient loops, drawn the way the rest of the page is drawn: 1px strokes,
+   square corners, no fill, no gradient. Both are aria-hidden and inert - each
+   repeats copy printed as text nearby, so neither is the only route to
+   anything. The orbit needs no reduced-motion entry (a completed turn is the
+   identity transform); the ticker does, and has one. */
+
+@keyframes orbit-spin {
+    to { transform: rotate(1turn); }
+}
+
+@keyframes orbit-counter-spin {
+    to { transform: rotate(-1turn); }
+}
+
+.orbit {
+    position: absolute;
+    top: 50%;
+    right: -80px;
+    width: 460px;
+    height: 460px;
+    translate: 0 -50%;
+    pointer-events: none;
+    /* Behind the card's text but still inside the section's own stacking
+       context, so it cannot escape upward over the header. */
+    z-index: 0;
+    /* Low enough that the rings pass behind the card's body copy as a
+       watermark. Nothing here carries meaning, so being hard to see is the
+       point at which it is working. */
+    opacity: 0.55;
+}
+
+.orbit-rings circle {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+}
+
+.orbit-rings .is-dashed {
+    stroke-dasharray: 3 7;
+}
+
+/* Shared origin, different period and direction - otherwise the two rings lock
+   into a pattern and read as one rigid object. */
+.orbit-track {
+    transform-origin: 200px 200px;
+    animation: orbit-spin var(--loop-orbit) linear infinite;
+}
+
+.orbit-track-in {
+    /* Two-thirds the period, the other way. */
+    animation-duration: calc(var(--loop-orbit) * 0.66);
+    animation-direction: reverse;
+}
+
+.orbit-node rect {
+    fill: var(--bg);
+    stroke: var(--accent-dim);
+    stroke-width: 1;
+}
+
+/* Undoes the track's rotation, so a marker stays a square instead of turning
+   into a diamond on its way round.
+
+   The origin is what makes this work and it is not the obvious value. Each
+   .orbit-node carries a translate() attribute, so INSIDE it the local origin is
+   already that node's own centre - which is why `0 0`, in the view-box
+   coordinate system, lands on the node and not on the drawing's centre.
+   Measured, not assumed: rotating a hold 180deg returns the marker to its own
+   unrotated centre to the pixel. */
+.orbit-hold {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: orbit-counter-spin var(--loop-orbit) linear infinite;
+}
+
+.orbit-track-in .orbit-hold {
+    animation-duration: calc(var(--loop-orbit) * 0.66);
+    animation-direction: reverse;
+}
+
+/* Pointer only: `:hover` latches after a tap, so on touch the figure would
+   stop dead and stay stopped. */
+@media (hover: hover) and (pointer: fine) {
+    .contact:hover .orbit-track,
+    .contact:hover .orbit-hold,
+    .contact:focus-within .orbit-track,
+    .contact:focus-within .orbit-hold {
+        animation-play-state: paused;
+    }
+}
+
+/* Removed rather than shrunk below the point where the layout goes single
+   column - a 200px orbit is a smudge. */
+@media (max-width: 860px) {
+    .orbit {
+        display: none;
+    }
+}
+
+@keyframes ticker-drift {
+    /* Half the track, because the track holds the run twice. Anything else
+       jumps at the seam. */
+    to { transform: translateX(-50%); }
+}
+
+.ticker {
+    overflow: hidden;
+    margin-top: 28px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 0;
+    /* Decoration - not a selection or swipe target. */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker-drift var(--loop-ticker) linear infinite;
+}
+
+.ticker-run {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+    white-space: nowrap;
+}
+
+.ticker-run i {
+    font-style: normal;
+    color: var(--accent-dim);
+    padding: 0 14px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .ticker:hover .ticker-track {
+        animation-play-state: paused;
+    }
+}
+
 /* ---------- Contact ---------- */
 
 .contact {
     border-bottom: 0;
+    /* Positioning context and clip for .orbit, which bleeds past the right edge
+       on purpose. */
+    position: relative;
+    overflow: hidden;
 }
 
 .contact-card {
     max-width: 720px;
+    /* Above .orbit (z-index: 0). Needs a position for z-index to apply at all. */
+    position: relative;
+    z-index: 1;
 }
 
 .contact-card h2 {
@@ -1520,6 +1680,14 @@ h1, h2, h3, h4 {
         opacity: 1 !important;
         transform: none !important;
         clip-path: none !important;
+    }
+
+    /* The one loop the global reset below gets WRONG: that reset parks an
+       element on its `to` frame, and this `to` frame is translateX(-50%) -
+       scrolled half off. Every other loop ends where it began. */
+    .ticker-track {
+        animation: none !important;
+        transform: none !important;
     }
 
     /* No positional movement and no loops anywhere. `transition-property` is

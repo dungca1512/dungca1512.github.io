@@ -59,3 +59,25 @@ export function cssOutsideRoot() {
     }
     return source.replace(match[0], match[0].replace(/[^\n]/g, ' '));
 }
+
+/* Splits one flat CSS block into `{ selector, body }` rules and keeps only the
+   ones whose selector list reaches EVERY element: `*`, its pseudo-element
+   forms, and the document-level elements. This is what "blanket" means in the
+   reduced-motion gates - the distinction those gates were always trying to draw
+   but expressed as "does this declaration appear anywhere in the block", which
+   also condemns a rule naming one decorative class.
+
+   Flat blocks only. The reduced-motion media block contains no nested at-rules,
+   and the `[^{}]` selector match would mis-split it if one appeared - so if a
+   nested @supports or @media ever lands inside it, this stops being correct
+   before it stops returning results. Blank comments before calling: a selector
+   is read from raw text, and a comment containing a brace would shift every
+   rule after it. */
+export function blanketRules(block) {
+    const UNIVERSAL = /^(\*(::?[a-z-]+(\([^)]*\))?)*|html|body|:root)$/i;
+    return [...block.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .map((rule) => ({ selector: rule[1].trim(), body: rule[2] }))
+        .filter((rule) =>
+            rule.selector.split(',').some((part) => UNIVERSAL.test(part.trim()))
+        );
+}

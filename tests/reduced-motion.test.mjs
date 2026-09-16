@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { css, js, blankComments } from './helpers.mjs';
+import { css, js, blankComments, blanketRules } from './helpers.mjs';
 
 /* EVERY reduced-motion block, not the first one.
    `.match()` returns one result, so the negative assertions below used to see
@@ -29,26 +29,49 @@ const reducedBlocks = () => {
    assertions have to look block by block. */
 const reducedCss = () => reducedBlocks().join('\n');
 
+/* These two ask whether a reduced-motion block reaches EVERY element with
+   `animation: none` or `transition: none`. They used to ask whether the
+   declaration appeared anywhere in the block at all, which is a different and
+   wrong question: it condemned `.ticker-track { animation: none !important }`,
+   a rule that names one decorative element because the global 1ms reset parks
+   that one element mid-slide. The regression they exist to catch - a second
+   block ending `* { animation: none !important }` - still fails, because `*`
+   is what blanketRules() selects for. */
 test('no reduced-motion block blanket-kills every animation', () => {
-    const blocks = reducedBlocks();
-    blocks.forEach((block, index) => {
-        assert.doesNotMatch(
-            block,
-            /animation:\s*none\s*!important/,
-            `reduced-motion block ${index + 1} of ${blocks.length}: blanket \`animation: none !important\` removes feedback along with decoration`
-        );
+    reducedBlocks().forEach((block, index, blocks) => {
+        blanketRules(block).forEach((rule) => {
+            assert.doesNotMatch(
+                rule.body,
+                /animation:\s*none\s*!important/,
+                `reduced-motion block ${index + 1} of ${blocks.length}, rule \`${rule.selector}\`: blanket \`animation: none !important\` removes feedback along with decoration`
+            );
+        });
     });
 });
 
 test('no reduced-motion block blanket-kills every transition', () => {
-    const blocks = reducedBlocks();
-    blocks.forEach((block, index) => {
-        assert.doesNotMatch(
-            block,
-            /transition:\s*none\s*!important/,
-            `reduced-motion block ${index + 1} of ${blocks.length}: blanket \`transition: none !important\` removes hover feedback`
-        );
+    reducedBlocks().forEach((block, index, blocks) => {
+        blanketRules(block).forEach((rule) => {
+            assert.doesNotMatch(
+                rule.body,
+                /transition:\s*none\s*!important/,
+                `reduced-motion block ${index + 1} of ${blocks.length}, rule \`${rule.selector}\`: blanket \`transition: none !important\` removes hover feedback`
+            );
+        });
     });
+});
+
+/* The refinement above only holds if blanketRules() actually finds the blanket
+   rule in the sheet we ship. If it silently returned nothing - a selector shape
+   it does not recognise, a parse that mis-splits - both tests above would pass
+   by examining zero rules, which is this branch's signature defect. */
+test('the reduced-motion blanket reset is found, not skipped', () => {
+    const rules = reducedBlocks().flatMap(blanketRules);
+    assert.ok(rules.length > 0, 'blanketRules() found no universal rule; the two gates above would pass vacuously');
+    assert.ok(
+        rules.some((rule) => /animation-duration:\s*1ms\s*!important/.test(rule.body)),
+        'the global 1ms animation reset is not inside any rule blanketRules() recognises as universal'
+    );
 });
 
 test('reduced motion keeps colour and opacity feedback, capped at --dur-fast', () => {

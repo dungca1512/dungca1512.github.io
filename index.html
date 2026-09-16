@@ -177,6 +177,17 @@
                 </div>
                 <div class="expertise-grid" id="expertiseGrid"></div>
 
+                <!-- Decorative: every token is also in the skill matrix below, so
+                     aria-hidden spares a reader the same list twice. The second run is
+                     the seam - the track shifts by its own half, so the copy lands
+                     where the original started. -->
+                <div class="ticker" aria-hidden="true">
+                    <div class="ticker-track">
+                        <span class="ticker-run">kubernetes<i>·</i>argo cd<i>·</i>helm<i>·</i>terraform<i>·</i>ansible<i>·</i>docker<i>·</i>prometheus<i>·</i>grafana<i>·</i>loki<i>·</i>faster-whisper<i>·</i>wav2vec2<i>·</i>qwen3<i>·</i>vllm<i>·</i>fastapi<i>·</i>postgres<i>·</i>gcp<i>·</i>aws<i>·</i></span>
+                        <span class="ticker-run">kubernetes<i>·</i>argo cd<i>·</i>helm<i>·</i>terraform<i>·</i>ansible<i>·</i>docker<i>·</i>prometheus<i>·</i>grafana<i>·</i>loki<i>·</i>faster-whisper<i>·</i>wav2vec2<i>·</i>qwen3<i>·</i>vllm<i>·</i>fastapi<i>·</i>postgres<i>·</i>gcp<i>·</i>aws<i>·</i></span>
+                    </div>
+                </div>
+
                 <div class="skill-matrix">
                     <h3 data-i18n="skills.label">Technical Skills</h3>
                     <dl class="skill-rows" id="skillMatrix"></dl>
@@ -251,6 +262,30 @@
         </section>
 
         <section class="section contact" id="contact">
+            <!-- A watermark, not a diagram: rings and markers only. Labels were tried
+                 and removed - .contact-card is CENTRED, so a figure bleeding off the
+                 right edge overlaps it at any viewport under ~1420px, and a decorative
+                 element must never land on body copy. Unlabelled 1px geometry can.
+                 aria-hidden and focusable="false": nothing here is information. -->
+            <svg class="orbit" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+                <g class="orbit-rings">
+                    <circle cx="200" cy="200" r="176"></circle>
+                    <circle cx="200" cy="200" r="124" class="is-dashed"></circle>
+                    <circle cx="200" cy="200" r="72"></circle>
+                </g>
+                <g class="orbit-track orbit-track-out">
+                    <g class="orbit-node" transform="translate(376 200)"><g class="orbit-hold"><rect x="-4" y="-4" width="8" height="8"></rect></g></g>
+                    <g class="orbit-node" transform="translate(200 376)"><g class="orbit-hold"><rect x="-4" y="-4" width="8" height="8"></rect></g></g>
+                    <g class="orbit-node" transform="translate(24 200)"><g class="orbit-hold"><rect x="-4" y="-4" width="8" height="8"></rect></g></g>
+                    <g class="orbit-node" transform="translate(200 24)"><g class="orbit-hold"><rect x="-4" y="-4" width="8" height="8"></rect></g></g>
+                </g>
+                <g class="orbit-track orbit-track-in">
+                    <g class="orbit-node" transform="translate(307 262)"><g class="orbit-hold"><rect x="-3" y="-3" width="6" height="6"></rect></g></g>
+                    <g class="orbit-node" transform="translate(93 262)"><g class="orbit-hold"><rect x="-3" y="-3" width="6" height="6"></rect></g></g>
+                    <g class="orbit-node" transform="translate(200 76)"><g class="orbit-hold"><rect x="-3" y="-3" width="6" height="6"></rect></g></g>
+                </g>
+            </svg>
+
             <div class="container contact-card">
                 <p class="kicker" data-i18n="contact.kicker">Contact</p>
                 <h2 data-i18n="contact.title">Building an AI product or platform?</h2>
