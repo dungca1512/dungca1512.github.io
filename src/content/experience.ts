@@ -119,16 +119,21 @@ export const EDUCATION: Education = {
 /** `PORTFOLIO_DATA.certification` is `{ name, status }`; `name` is a plain
  *  string, not bilingual — ported into both locales per the "no en" fallback
  *  rule and flagged in the report. Per A5: `title` <- `name`, `detail` <-
- *  `status` (already bilingual, verbatim). */
-export type Certification = { title: Localized<string>; detail: Localized<string> };
+ *  `status` (already bilingual, verbatim).
+ *
+ *  `detail` is optional, and this entry now omits it. It carried the status
+ *  line ("In progress" / "Đang theo học"), which the owner asked to drop so
+ *  the certification stands on its own. The field stays on the type rather
+ *  than being deleted because Education next to it still uses it, and a
+ *  future certification may want an issue date here. The card in
+ *  experience.tsx renders the line only when a detail exists — an empty
+ *  string would leave a blank paragraph and knock the two cards out of
+ *  alignment. */
+export type Certification = { title: Localized<string>; detail?: Localized<string> };
 
 export const CERTIFICATION: Certification = {
   title: {
     en: 'AWS Certified Solutions Architect — Associate (SAA-C03)',
     vi: 'AWS Certified Solutions Architect — Associate (SAA-C03)',
-  },
-  detail: {
-    en: 'In progress',
-    vi: 'Đang theo học',
   },
 };

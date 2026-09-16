@@ -86,7 +86,11 @@ export async function Experience() {
         {[EDUCATION, CERTIFICATION].map((entry, i) => (
           <div key={i} className="reveal border-border bg-surface rounded-lg border p-6">
             <h3 className="text-lg font-semibold tracking-tight">{entry.title[locale]}</h3>
-            <p className="text-muted-foreground mt-1">{entry.detail[locale]}</p>
+            {/* Rendered only when there is one. The certification carries no
+                detail line, and an unconditional <p> would emit an empty
+                paragraph — visible as uneven card heights, and the kind of
+                blank the check:content `undefined` gate does not catch. */}
+            {entry.detail && <p className="text-muted-foreground mt-1">{entry.detail[locale]}</p>}
           </div>
         ))}
       </div>
