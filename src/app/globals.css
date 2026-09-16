@@ -331,3 +331,5 @@
 @import '../styles/sections/hero.css';
 @import '../styles/sections/work.css';
 @import '../styles/sections/contact.css';
+@import '../styles/motion/scribble.css';
+@import '../styles/motion/marquee.css';
