@@ -48,6 +48,7 @@ const vi = {
   },
   sections: {
     hero: {
+      trustList: 'Công nghệ và phương pháp đã làm việc cùng',
       lead: 'Dịch vụ speech (ASR, chấm phát âm và thanh điệu) và embedding trên GCP và DigitalOcean cho người dùng ở VN, JP, KR và CN. Mặc định tối ưu chi phí: chọn đúng cỡ GPU, ưu tiên inference trên CPU, tự host thay cho API trả phí.',
     },
     expertise: {

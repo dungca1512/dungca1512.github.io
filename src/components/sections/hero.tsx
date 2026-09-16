@@ -53,13 +53,14 @@ export async function Hero() {
                 a soft fill, wrapping freely — so it reads as a footnote under
                 the headline and CTAs, not as a second headline.
 
-                `aria-label` reuses `sections.expertise.eyebrow` ("Core
-                Expertise" / "Năng lực cốt lõi") rather than inventing new
-                copy: it is the closest existing string to "what these six
-                things are", it is already bilingual, and it is what stops
-                this list from being announced as a bare "list, 6 items". */}
+                `aria-label` stops this from being announced as a bare
+                "list, 6 items". It has its own dictionary string rather than
+                borrowing the Expertise section's eyebrow: sharing that string
+                would put two identically-named regions on one page, and would
+                silently rename this list whenever that section edits its own
+                copy. */}
             <ul
-              aria-label={dict.sections.expertise.eyebrow}
+              aria-label={dict.sections.hero.trustList}
               className="reveal-load mt-8 flex list-none flex-wrap gap-2"
             >
               {HERO_TRUST.map((item) => (

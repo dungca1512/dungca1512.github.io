@@ -124,6 +124,18 @@ const MIN_MAIN_TEXT_LENGTH = 200;
    a hard failure instead of an empty, passing loop. */
 const REQUIRED_ANCHORS = ['main', 'expertise', 'projects', 'experience', 'writing', 'contact'];
 
+/* Same guard `PAGES` carries, for the same reason and against a sharper
+   temptation: `requiredMissing.length === 0` is vacuously true on an empty
+   list, so the cheapest way to green this gate after a section rename is to
+   delete the entry that failed — which restores G1 exactly, and silently. If a
+   nav link is genuinely dropped, RENAME the entry to the anchor that replaced
+   it. The list is not allowed to shrink. */
+check(
+  REQUIRED_ANCHORS.length > 0,
+  `${REQUIRED_ANCHORS.length} anchor(s) are required to stay linked`,
+  'REQUIRED_ANCHORS is empty - the anchor gate would pass without checking anything',
+);
+
 /* Anchors whose target section does not exist YET. Each entry names the task
    that lands it. This set MUST shrink to empty by Task 12 — checked both
    ways: an anchor listed here that has NOT gained a matching id is excused

@@ -14,18 +14,19 @@ type IllustrationProps = {
   className?: string;
   /** Only for art visible without scrolling. Everything else stays lazy. */
   priority?: boolean;
-  /** Adds a `<name>@2x.<ext>` companion to every format's srcSet with a `2x`
-   *  density descriptor, so a HiDPI screen renders the sharper file instead
-   *  of upscaling the 1x one (Task 8 review, V4: an 880px source rendered at
-   *  ~600-670 CSS px is ~1200-1340 device px on a 2x display — visibly soft).
-   *  Opt-in and off by default: every current call site's `@2x` file does not
-   *  exist yet (Task 13 generates these assets), and turning this on before
-   *  then would only add a second silent 404 for no benefit. Flip it on a
-   *  call site once its `<name>@2x.{avif,webp,jpg}` files land. */
-  retina?: boolean;
 };
 
-/* next/image is off (images.unoptimized), so this is a plain <picture>. It is
+/* There is deliberately NO `2x` density candidate here, and adding one would
+   break the art rather than sharpen it. Task 13 generates ONE file per format
+   at 1600px wide — the widest any illustration is ever displayed — and no `@2x`
+   companion. A `srcSet` advertising `<name>@2x.<ext> 2x` would therefore point
+   at a file that does not exist, and a HiDPI browser PREFERS the 2x candidate,
+   so the 404 would land on exactly the devices the candidate was meant to
+   serve. The `width`/`height` props below are a layout hint for aspect-ratio
+   reservation, not the file's pixel width; 1600px already covers a 2x display
+   at every size these are rendered at.
+
+   next/image is off (images.unoptimized), so this is a plain <picture>. It is
    doing three jobs that a bare <img> would not:
 
    - format negotiation, avif then webp then jpg, so a modern browser gets the
@@ -36,26 +37,15 @@ type IllustrationProps = {
    An empty alt is the normal case here. Every illustration on this site sits
    beside text that already says the same thing, and an alt string would make a
    screen reader read the fact twice. */
-export function Illustration({
-  name,
-  alt,
-  width,
-  height,
-  className,
-  priority,
-  retina,
-}: IllustrationProps) {
+export function Illustration({ name, alt, width, height, className, priority }: IllustrationProps) {
   const base = `/images/illustrations/${name}`;
-  const srcSetFor = (ext: string) =>
-    retina ? `${base}.${ext} 1x, ${base}@2x.${ext} 2x` : `${base}.${ext}`;
 
   return (
     <picture className={className}>
-      <source srcSet={srcSetFor('avif')} type="image/avif" />
-      <source srcSet={srcSetFor('webp')} type="image/webp" />
+      <source srcSet={`${base}.avif`} type="image/avif" />
+      <source srcSet={`${base}.webp`} type="image/webp" />
       <img
         src={`${base}.jpg`}
-        srcSet={retina ? srcSetFor('jpg') : undefined}
         alt={alt}
         aria-hidden={alt === '' ? 'true' : undefined}
         width={width}

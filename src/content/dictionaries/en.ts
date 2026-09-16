@@ -37,6 +37,11 @@ const en: Dictionary = {
   },
   sections: {
     hero: {
+      /* The accessible name for the hero's pill row. Deliberately NOT
+         `sections.expertise.eyebrow`: reusing that gave two regions on one page
+         the same accessible name, and tied this list's name to copy that
+         belongs to a different section. */
+      trustList: 'Technologies and practices worked with',
       lead: 'Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.',
     },
     expertise: {
