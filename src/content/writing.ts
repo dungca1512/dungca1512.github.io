@@ -55,8 +55,8 @@ export const WRITING: Article[] = [
       vi: 'Tối ưu chi phí GPU: để benchmark chọn phần cứng',
     },
     blurb: {
-      en: 'Measuring before buying: p95 1.86s at 20 concurrent users on ~8% of a commodity GPU, why the H100 line item (~$2,475/mo) was never justified, and how CPU-only serving died on a ~1 req/s throughput wall.',
-      vi: 'Đo trước khi mua: p95 1.86s với 20 người dùng đồng thời chỉ dùng ~8% một GPU phổ thông, vì sao khoản H100 (~$2,475/tháng) không bao giờ hợp lý, và vì sao CPU-only chết ở trần throughput ~1 req/s.',
+      en: 'Measuring before buying: p95 1.86s under concurrent load on ~8% of a commodity GPU, why the H100 line item (~$2,475/mo) was never justified, and how CPU-only serving died on a ~1 req/s throughput wall.',
+      vi: 'Đo trước khi mua: p95 1.86s dưới tải đồng thời, chỉ dùng ~8% một GPU phổ thông, vì sao khoản H100 (~$2,475/tháng) không bao giờ hợp lý, và vì sao CPU-only chết ở trần throughput ~1 req/s.',
     },
     tags: ['Cost Engineering', 'GPU', 'Benchmarking'],
   },

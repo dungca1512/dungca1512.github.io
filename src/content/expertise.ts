@@ -18,8 +18,8 @@ export const EXPERTISE: ExpertiseArea[] = [
       vi: 'Kiến trúc giải pháp & Tối ưu chi phí',
     },
     summary: {
-      en: 'System design for ML serving, benchmark-driven GPU sizing, and root-cause analysis — a measured p95 of 1.86s at 20 concurrent users (~8% GPU utilization) proved a commodity CUDA GPU was enough where an H100 plan would have cost ~$2,475/mo.',
-      vi: 'Thiết kế hệ thống cho ML serving, chọn GPU dựa trên benchmark và phân tích nguyên nhân gốc — p95 đo được 1.86s với 20 người dùng đồng thời (~8% GPU) chứng minh chỉ cần GPU CUDA phổ thông, trong khi phương án H100 tốn ~$2,475/tháng.',
+      en: 'System design for ML serving, benchmark-driven GPU sizing, and root-cause analysis — a measured p95 of 1.86s under concurrent load at ~8% GPU utilization proved a commodity CUDA GPU was enough where an H100 plan would have cost ~$2,475/mo.',
+      vi: 'Thiết kế hệ thống cho ML serving, chọn GPU dựa trên benchmark và phân tích nguyên nhân gốc — p95 đo được 1.86s dưới tải đồng thời, chỉ chiếm ~8% công suất GPU, chứng minh chỉ cần GPU CUDA phổ thông, trong khi phương án H100 tốn ~$2,475/tháng.',
     },
   },
   {

@@ -37,14 +37,14 @@ export const EXPERIENCE: Role[] = [
     highlights: {
       en: [
         'Architected a multi-market speech scoring platform (JLPT, TOPIK, HSKK, English): 4 FastAPI/Gunicorn services with multi-engine STT — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — behind automatic fallback.',
-        'Ruled out a ~$2,475/mo H100 plan with a benchmark instead of an opinion: p95 1.86s at 20 concurrent users on ~8% of a commodity CUDA GPU. Also ran the RCA that closed a 3x ASR latency gap between two environments.',
+        'Ruled out a ~$2,475/mo H100 plan with a benchmark instead of an opinion: p95 1.86s under concurrent load on ~8% of a commodity CUDA GPU. Also ran the RCA that closed a 3x ASR latency gap between two environments.',
         'Migrated production ML services from Docker Swarm to Kubernetes (GKE and bare-metal kubeadm) with Terraform, Ansible, Helm and ArgoCD App-of-Apps; Prometheus, Grafana and Loki for observability.',
         'Replaced the OpenAI Embedding API with a self-hosted Qwen3-Embedding-4B service and built the RAG code-review pipeline it feeds, gated by an exit-code check in GitLab CI.',
         'Build and release engineering: Jenkins signed tags, GitLab CI with pytest and Docker-in-Docker, Harbor registry, gitleaks and Qodana quality gates.',
       ],
       vi: [
         'Thiết kế nền tảng chấm điểm phát âm đa thị trường (JLPT, TOPIK, HSKK, tiếng Anh): 4 dịch vụ FastAPI/Gunicorn với STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — kèm cơ chế fallback tự động.',
-        'Loại phương án H100 ~$2,475/tháng bằng số liệu chứ không bằng cảm tính: p95 1.86s với 20 người dùng đồng thời, chỉ dùng ~8% một GPU CUDA phổ thông. Đồng thời chủ trì RCA khép lại chênh lệch latency ASR gấp 3 lần giữa hai môi trường.',
+        'Loại phương án H100 ~$2,475/tháng bằng số liệu chứ không bằng cảm tính: p95 1.86s dưới tải đồng thời, chỉ dùng ~8% một GPU CUDA phổ thông. Đồng thời chủ trì RCA khép lại chênh lệch latency ASR gấp 3 lần giữa hai môi trường.',
         'Di trú các dịch vụ ML production từ Docker Swarm sang Kubernetes (GKE và bare-metal kubeadm) với Terraform, Ansible, Helm và ArgoCD App-of-Apps; observability bằng Prometheus, Grafana và Loki.',
         'Thay thế OpenAI Embedding API bằng dịch vụ Qwen3-Embedding-4B tự host và xây pipeline review code RAG chạy trên đó, kiểm soát bằng exit-code gate trong GitLab CI.',
         'Kỹ thuật build và release: Jenkins signed tag, GitLab CI với pytest và Docker-in-Docker, registry Harbor, quality gate gitleaks và Qodana.',

@@ -20,16 +20,34 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     slug: 'speech-scoring-platform',
-    /* The benchmark figure (p95 1.86s at 20 concurrent) is a load test; the
-       production figure beside it is an observed window, and the two measure
-       different things on purpose. The observed one comes from the nginx
+    /* Two measurements, deliberately kept apart.
+
+       The latency figure is a load test. It used to read "p95 1.86s for 20
+       concurrent users"; the owner asked for the 20 to go, because a raw
+       concurrency count reads small next to what the platform actually does.
+       Dropping it costs something real — a p95 with no stated load is a
+       weaker claim — so the GPU utilisation carries that weight instead: a
+       latency held under two seconds while the accelerator sits at ~8% busy
+       says the same thing about headroom, and says it without a number that
+       invites the wrong comparison. Every word of it is still measured, and
+       the same edit was made to the three other places the site quoted this
+       benchmark — expertise, writing and experience — because one page saying
+       "20 concurrent users" while another omits it reads as carelessness.
+
+       The production figure is an observed window, not a load test: the nginx
        access log for the scoring domain, filtered to the heyjapan project over
-       a 30-minute range: 740 requests, 740 of them 2XX, which is where the
-       "~25 a minute" arithmetic comes from. It is deliberately NOT restated as
-       a concurrency number — an access log records arrival rate, and turning
-       that into concurrent users needs session or service-time data this
-       screen does not carry. It is also one market of four, so it understates
-       the platform rather than flattering it. */
+       30 minutes — 740 requests, 740 of them 2XX. It is deliberately NOT
+       restated as a concurrency number. An access log records arrival rate,
+       and converting that to concurrent users needs session or service-time
+       data the screen does not carry; done naively it yields a number well
+       under one, which would say far less than the zero-error run does. It is
+       also one market of four, so it understates the platform rather than
+       flattering it.
+
+       If the benchmark was closed-loop with 20 in-flight requests, throughput
+       of roughly 10 requests a second follows from it directly and would be
+       fair to state. That methodology is not recorded anywhere here, so it is
+       not claimed. */
     name: 'Multi-Market Speech Scoring Platform',
     period: 'eUp · 2025-2026',
     summary: {
@@ -37,8 +55,8 @@ export const PROJECTS: Project[] = [
       vi: 'Bốn dịch vụ FastAPI/Gunicorn chấm phát âm cho JLPT (tiếng Nhật), TOPIK (tiếng Hàn), HSKK (tiếng Trung) và tiếng Anh, mỗi dịch vụ có lớp STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — với cơ chế fallback tự động.',
     },
     outcome: {
-      en: 'Scoring is linguistic, not generic: Needleman-Wunsch alignment between reference and hypothesis, wav2vec2 CTC goodness-of-pronunciation with espeak-ng G2P, Japanese pitch accent via SudachiPy/MeCab/pykakasi, Mandarin tone classification, and Praat/parselmouth prosody behind a concurrency semaphore. Benchmarked at p95 1.86s for 20 concurrent users on ~8% of one commodity CUDA GPU, and in production the Japanese market alone answers ~740 scoring requests in a 30-minute window — about 25 a minute — with every response 2XX.',
-      vi: 'Việc chấm điểm mang tính ngôn ngữ học chứ không chung chung: căn chỉnh Needleman-Wunsch giữa câu mẫu và câu đọc, goodness-of-pronunciation bằng wav2vec2 CTC với G2P espeak-ng, trọng âm cao độ tiếng Nhật qua SudachiPy/MeCab/pykakasi, phân loại thanh điệu tiếng Trung và phân tích ngôn điệu Praat/parselmouth chạy sau semaphore giới hạn đồng thời. Benchmark đạt p95 1.86s với 20 người dùng đồng thời trên ~8% một GPU CUDA phổ thông, và trên production riêng thị trường tiếng Nhật xử lý ~740 request chấm điểm trong cửa sổ 30 phút — khoảng 25 request/phút — với toàn bộ phản hồi đều là 2XX.',
+      en: 'Scoring is linguistic, not generic: Needleman-Wunsch alignment between reference and hypothesis, wav2vec2 CTC goodness-of-pronunciation with espeak-ng G2P, Japanese pitch accent via SudachiPy/MeCab/pykakasi, Mandarin tone classification, and Praat/parselmouth prosody behind a concurrency semaphore. Under benchmarked concurrent load the serving path holds p95 below two seconds (1.86s) at roughly 8% utilisation of one commodity CUDA GPU — capacity here is bounded by infrastructure budget, not by the models — and in production a 30-minute window on the Japanese market alone ran 740 consecutive scoring requests without a single non-2XX response.',
+      vi: 'Việc chấm điểm mang tính ngôn ngữ học chứ không chung chung: căn chỉnh Needleman-Wunsch giữa câu mẫu và câu đọc, goodness-of-pronunciation bằng wav2vec2 CTC với G2P espeak-ng, trọng âm cao độ tiếng Nhật qua SudachiPy/MeCab/pykakasi, phân loại thanh điệu tiếng Trung và phân tích ngôn điệu Praat/parselmouth chạy sau semaphore giới hạn đồng thời. Dưới tải đồng thời đo bằng benchmark, đường phục vụ giữ p95 dưới hai giây (1.86s) ở mức chỉ khoảng 8% công suất một GPU CUDA phổ thông — trần năng lực ở đây nằm ở ngân sách hạ tầng chứ không phải ở mô hình — và trên production, riêng thị trường tiếng Nhật đã chạy 740 request chấm điểm liên tiếp trong cửa sổ 30 phút mà không có một phản hồi nào ngoài 2XX.',
     },
     stack: ['FastAPI', 'Gunicorn', 'CTranslate2', 'wav2vec2 CTC', 'ONNX Runtime', 'parselmouth'],
     links: [],

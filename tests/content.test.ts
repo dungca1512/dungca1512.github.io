@@ -166,3 +166,65 @@ describe('the hero headline', () => {
     }
   });
 });
+
+/* The 1.86s benchmark is quoted on four pages — the project card, the
+ * expertise list, an article summary and a role's highlights. It used to carry
+ * "20 concurrent users" in all four; the owner asked for the count to go, and
+ * an edit applied to three of four is worse than no edit, because the page
+ * then contradicts itself in the reader's scroll.
+ *
+ * So this asserts the decision rather than the wording: the count is absent
+ * everywhere, and the utilisation figure that replaced its evidentiary job is
+ * present everywhere the latency is. Checking only the first half would let
+ * the claim degrade into a bare "p95 1.86s" with nothing behind it, which is
+ * the failure this pairing exists to prevent. */
+describe('the 1.86s benchmark, quoted in four places', () => {
+  const quoting = [
+    'src/content/projects.ts',
+    'src/content/expertise.ts',
+    'src/content/writing.ts',
+    'src/content/experience.ts',
+  ]
+    /* Comments are stripped before anything is asserted, and that is not a
+     * convenience: the sourcing note in projects.ts *quotes* the phrase that
+     * was removed, in order to explain why it was removed. Reading raw source
+     * would fail on the very comment that documents the decision, and the
+     * obvious way to make that green again is to delete the explanation. The
+     * assertions are about what ships to a reader, so they run on what ships. */
+    .map((file) => {
+      const src = readFileSync(file, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '');
+      return [file, src] as const;
+    });
+
+  it('is actually quoted in all four — a renamed file would empty this suite', () => {
+    for (const [file, src] of quoting) expect(src, file).toContain('1.86');
+  });
+
+  it('states a concurrency count nowhere', () => {
+    for (const [file, src] of quoting) {
+      // Any digit directly qualifying "concurrent"/"đồng thời", in either order.
+      expect(src, file).not.toMatch(/\d+\s*(concurrent|người dùng đồng thời)/i);
+    }
+  });
+
+  /* Per LINE, not per file. The first version of this searched everything
+   * after the first "1.86" in the file and passed when the English sentence
+   * lost its "8%", because the Vietnamese sentence further down still had one
+   * — a gate that was green while the thing it guards was broken in half the
+   * site's languages. Each locale's sentence is its own line here (prettier
+   * keeps these long strings unwrapped), so the line is the unit that has to
+   * stand up on its own. */
+  it('keeps the utilisation figure that now carries the claim, in every locale', () => {
+    for (const [file, src] of quoting) {
+      const quotingLines = src.split('\n').filter((line) => line.includes('1.86'));
+      expect(quotingLines.length, `${file}: expected one line per locale`).toBeGreaterThanOrEqual(
+        2,
+      );
+      for (const line of quotingLines) {
+        expect(line, `${file}: 1.86s quoted with no GPU figure behind it`).toMatch(/8%/);
+      }
+    }
+  });
+});
