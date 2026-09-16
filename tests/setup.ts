@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import { afterEach } from 'vitest';
 
 /* On Node runtimes that ship the experimental Web Storage globals
  * (localStorage/sessionStorage exist on globalThis without a
@@ -87,3 +88,14 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   globalThis.IntersectionObserver =
     MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
+
+// Reset here, globally, rather than leaving it to each test file's own
+// `afterEach`. Task 7 renders a `Section` (which wraps every band in
+// `RevealScope`) in a test file per section; each render pushes a new
+// instance onto this static array, and a file that forgets its own reset
+// would leak instances into every test that runs after it in the same
+// process, silently corrupting `MockIntersectionObserver.instances[0]`
+// lookups in unrelated files.
+afterEach(() => {
+  MockIntersectionObserver.instances.length = 0;
+});

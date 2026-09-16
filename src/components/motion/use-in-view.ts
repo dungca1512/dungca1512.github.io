@@ -51,9 +51,14 @@ export function useInView<T extends HTMLElement>(rootMargin = '0px 0px -12% 0px'
       { rootMargin },
     );
 
-    const targets = el.matches(TARGET_SELECTOR)
+    // `Element`, not `HTMLElement`: `.drawn-line` matches an `<svg>`
+    // (an `SVGSVGElement`), which is not an `HTMLElement`. The code below
+    // only ever calls `setAttribute` and hands elements to `observe`, both
+    // of which are plain `Element` methods, so there is no reason to claim
+    // a narrower type than what actually flows through here.
+    const targets: Element[] = el.matches(TARGET_SELECTOR)
       ? [el]
-      : Array.from(el.querySelectorAll<HTMLElement>(TARGET_SELECTOR));
+      : Array.from(el.querySelectorAll<Element>(TARGET_SELECTOR));
     targets.forEach((t) => io.observe(t));
 
     return () => io.disconnect();

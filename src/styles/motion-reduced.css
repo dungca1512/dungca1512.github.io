@@ -20,8 +20,15 @@
      animation but hand back the dash values, or the line vanishes. */
   .drawn-line path {
     animation: none !important;
-    stroke-dasharray: none;
-    stroke-dashoffset: 0;
+    /* Every other declaration in this file is !important; these two were
+       not, which let an old-browser `.js .drawn-line path` fallback rule
+       ((0,2,1), see motion.css) outrank this reset ((0,1,1)) on
+       `stroke-dashoffset` — the underline still ended up visible, but only
+       because `stroke-dasharray: none` happened to win its own tie and
+       made the pinned offset irrelevant. Matching the file's own
+       convention removes that accident. */
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
   }
 
   .pop-on-hover {
