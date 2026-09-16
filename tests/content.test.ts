@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { LOCALES } from '@/content/locales';
 import { SITE, HERO_TRUST } from '@/content/site';
 import { METRICS } from '@/content/metrics';
@@ -90,5 +91,78 @@ describe('the content the page actually needs is present', () => {
   it('points at the real CV and avatar files', () => {
     expect(SITE.cv).toBe('/CV_CongAnhDung.pdf');
     expect(SITE.avatar).toBe('/profile.webp');
+  });
+});
+
+/* The <h1> used to be `SITE.name`, and the owner's complaint was exactly that:
+ * a name in 6rem type says who is speaking and nothing about what they do. The
+ * headline is now a claim from the dictionary, and the name is a byline in the
+ * index row.
+ *
+ * Two things can quietly undo that. The headline can drift back to the name —
+ * it is one `{SITE.name}` away. Or the name can be moved out of the <h1> and
+ * not land anywhere else, which reads as tidier code and loses the byline. So
+ * this asserts both directions, and reads hero.tsx as text because Hero is an
+ * async Server Component that calls `lang()` from next/root-params — rendering
+ * it under jsdom asserts nothing about what ships. */
+describe('the hero headline', () => {
+  const hero = readFileSync('src/components/sections/hero.tsx', 'utf8');
+  // The doc comment above the <h1> names `SITE.name` while explaining why it
+  // is gone. Matching on the comment would pass forever regardless of the JSX.
+  const heroCode = hero.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+
+  it('is a claim from the dictionary, in both locales', () => {
+    for (const [locale, dict] of [
+      ['vi', vi],
+      ['en', en],
+    ] as const) {
+      const lines = dict.sections.hero.title;
+      expect(Array.isArray(lines), locale).toBe(true);
+      expect(lines.length, locale).toBeGreaterThanOrEqual(2);
+      for (const line of lines)
+        expect(line.trim().length, `${locale}: "${line}"`).toBeGreaterThan(0);
+      // A headline that is the owner's name is the thing this replaced.
+      expect(lines.join(' '), locale).not.toContain(SITE.name);
+    }
+  });
+
+  it('breaks in the same place in every locale', () => {
+    expect(en.sections.hero.title.length).toBe(vi.sections.hero.title.length);
+  });
+
+  it('renders that headline in the <h1>, not the name', () => {
+    const h1 = heroCode.match(/<h1[\s\S]*?<\/h1>/)?.[0];
+    expect(h1, 'hero.tsx has no <h1>').toBeDefined();
+    expect(h1).toContain('dict.sections.hero.title');
+    expect(h1).not.toContain('SITE.name');
+  });
+
+  /* The headline wrapped mid-phrase the first time it shipped — "Đưa mô /
+   * hình AI" — because it was sized in `vw` while its column stops growing at
+   * the Container's max width. Measured in the browser: the longest line is
+   * 8.67x its own font size, so `11cqi` (a share of the column, not the
+   * viewport) holds the authored break at every width from 1600 down to 390 in
+   * both locales. jsdom applies no stylesheet and lays nothing out, so it
+   * cannot re-measure that — but it can hold the two structural facts the
+   * measurement depends on, either of which can be undone by a one-word edit
+   * that looks harmless. */
+  it('sizes the headline against its column, so the authored break survives', () => {
+    const h1 = heroCode.match(/<h1[\s\S]*?>/)?.[0] ?? '';
+    expect(h1, 'the <h1> must size in cqi, not vw — see the comment above').toMatch(/\d+cqi/);
+    expect(h1).not.toMatch(/\dvw/);
+  });
+
+  it('declares the container those cqi units are a share of', () => {
+    // `cqi` with no container resolves against the small viewport instead,
+    // which is the bug wearing the fix's clothes.
+    expect(heroCode).toMatch(/className="[^"]*@container/);
+  });
+
+  it('keeps the name on the page as a byline rather than dropping it', () => {
+    // In the hero itself, and in the two places it has always also appeared.
+    expect(heroCode, 'hero.tsx').toContain('{SITE.name}');
+    for (const file of ['src/components/layout/menu-bar.tsx', 'src/components/site/footer.tsx']) {
+      expect(readFileSync(file, 'utf8'), file).toContain('{SITE.name}');
+    }
   });
 });

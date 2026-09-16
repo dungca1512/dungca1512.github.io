@@ -38,6 +38,9 @@ const en: Dictionary = {
   },
   sections: {
     hero: {
+      /* See vi.ts for why the <h1> is a claim rather than the owner's name.
+         Same two-line shape, so both locales break in the same place. */
+      title: ['Taking AI models', 'into real production.'],
       /* The accessible name for the hero's pill row. Deliberately NOT
          `sections.expertise.eyebrow`: reusing that gave two regions on one page
          the same accessible name, and tied this list's name to copy that

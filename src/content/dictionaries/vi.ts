@@ -49,6 +49,15 @@ const vi = {
   },
   sections: {
     hero: {
+      /* The <h1>. It was `SITE.name` — a name in 6rem type says who is
+         speaking and nothing about what they do, and the first screen is the
+         one place that has to answer the second question. These two lines are
+         the claim `sections.hero.lead` then evidences: speech and embedding
+         services actually serving users in four countries, not models in a
+         notebook. Split across two array entries because the <h1> animates one
+         line at a time, and a line break is a typographic decision this file
+         should own rather than a browser guess. */
+      title: ['Đưa mô hình AI', 'ra vận hành thật.'],
       trustList: 'Công nghệ và phương pháp đã làm việc cùng',
       lead: 'Dịch vụ speech (ASR, chấm phát âm và thanh điệu) và embedding trên GCP và DigitalOcean cho người dùng ở VN, JP, KR và CN. Mặc định tối ưu chi phí: chọn đúng cỡ GPU, ưu tiên inference trên CPU, tự host thay cho API trả phí.',
     },
