@@ -17,3 +17,20 @@ export const SITE = {
     vi: 'AI/ML Systems Architect · Hạ tầng & MLOps @ eUp Group',
   } satisfies Localized<string>,
 } as const;
+
+/** The capability strip under the hero headline, ported verbatim from
+ *  `PORTFOLIO_DATA.heroTrust`. Six badges, bilingual. Two of them read the same
+ *  in both locales because the source does — they are product names, not prose.
+ *
+ *  This nearly went missing: no task in the plan claimed it, so the port had
+ *  nowhere to put it and the review caught it with no home. It is the densest
+ *  thing available to the hero, which is exactly where the page was reading
+ *  thin against the reference. */
+export const HERO_TRUST: Localized<string>[] = [
+  { en: 'Kubernetes & GitOps (GKE)', vi: 'Kubernetes & GitOps (GKE)' },
+  { en: 'Production ML Serving', vi: 'Triển khai ML thực chiến' },
+  { en: 'Agentic RAG & LLM Systems', vi: 'Hệ thống Agentic RAG & LLM' },
+  { en: 'IaC (Terraform · Ansible)', vi: 'IaC (Terraform · Ansible)' },
+  { en: 'Cloud Cost Engineering', vi: 'Tối ưu chi phí hạ tầng' },
+  { en: 'Multi-cloud (GCP · AWS · OCI)', vi: 'Đa cloud (GCP · AWS · OCI)' },
+];

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { LOCALES } from '@/content/locales';
-import { SITE } from '@/content/site';
+import { SITE, HERO_TRUST } from '@/content/site';
 import { METRICS } from '@/content/metrics';
 import { EXPERTISE, FOCUS } from '@/content/expertise';
 import { PROJECTS, CASE_STUDY } from '@/content/projects';
@@ -84,6 +84,7 @@ describe('the content the page actually needs is present', () => {
     expect(EXPERTISE.length).toBe(4);
     expect(FOCUS.length).toBe(5);
     expect(PLAYBOOK.length).toBe(5);
+    expect(HERO_TRUST.length).toBe(6);
   });
 
   it('points at the real CV and avatar files', () => {
