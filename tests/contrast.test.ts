@@ -67,11 +67,44 @@ function darkThemeBlock(): string {
   return match[1];
 }
 
-const ACCENT = '#40a69f';
-const INFO = '#2b7fd4';
-const LIGHT_BG = '#f5f5f5';
-const DARK_BG = '#0b0b0b';
+/**
+ * Follows a `var(--x)` chain to the literal at the end of it. `--base-background`
+ * does not hold a hex; it holds `var(--base-palette-neutral-50)`, and the number
+ * this file needs is the one that variable resolves to.
+ */
+function resolveColour(name: string, source: string = css): string {
+  let value = readCustomProperty(name, source);
+  for (let hops = 0; hops < 8; hops++) {
+    const ref = value.match(/^var\(\s*(--[\w-]+)\s*\)$/);
+    if (!ref) return value;
+    // Only the first hop may come from the dark block; a palette entry it
+    // points at is declared once, on :root.
+    value = readCustomProperty(ref[1], css);
+  }
+  throw new Error(`${name} does not resolve to a literal in 8 hops`);
+}
+
+// Every one of these is read out of globals.css, not copied. Hardcoding them
+// is not a shortcut, it is the bug: a test holding its own copy of a colour
+// keeps measuring the OLD colour after someone re-tunes the palette, and stays
+// green while the shipped site fails AA. This file already learned that once
+// with the dark foreground; these four were the same mistake, unfixed.
+const ACCENT = readCustomProperty('--base-palette-accent-500');
+const INFO = readCustomProperty('--base-palette-blue-500');
+const LIGHT_BG = resolveColour('--base-background');
+const DARK_BG = resolveColour('--base-background', darkThemeBlock());
 const MIX = 68;
+
+describe('the colours this file measures', () => {
+  it('reads four literal hex values out of globals.css', () => {
+    // If a rename makes one of the lookups above return something that is not
+    // a colour, every ratio below becomes nonsense that still compares fine.
+    for (const [name, value] of Object.entries({ ACCENT, INFO, LIGHT_BG, DARK_BG })) {
+      expect(value, `${name} did not resolve to a hex literal`).toMatch(/^#[0-9a-fA-F]{3,8}$/);
+    }
+    expect(LIGHT_BG).not.toBe(DARK_BG);
+  });
+});
 // Read straight out of globals.css's Step C block rather than hardcoded, so
 // this test cannot drift from the CSS it is meant to be checking.
 const DARK_FOREGROUND = readCustomProperty('--base-foreground', darkThemeBlock());

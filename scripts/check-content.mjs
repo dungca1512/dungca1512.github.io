@@ -198,6 +198,31 @@ const MIN_SECTION_HEADINGS = 36;
    sections may add their own definition lists. */
 const MIN_DEFINITION_TERMS = 9;
 
+/* Everything above this line is locale-BLIND. Project names are proper nouns,
+   and the <h3>, <dt> and text-length floors count shapes, not words - so a
+   /en/ page rendering the Vietnamese dictionary satisfies every one of them.
+   Proven: swapping the Vietnamese page in as out/en/index.html, with only the
+   URLs and <html lang> rewritten, passed the whole chain.
+
+   So each locale gets strings that exist in ITS dictionary and nowhere else,
+   asserted in both directions: present on its own page, absent from the other.
+   One direction alone is not enough - a page carrying BOTH dictionaries would
+   pass a presence-only check.
+
+   Pick replacements the same way if the copy changes: run the candidate
+   through `grep -c` on both exported pages and keep it only if it scores 1 and
+   0. "Experience" looks locale-exclusive and is not; it appears on both. */
+const LOCALE_SENTINELS = {
+  vi: ['Tải CV', 'Kinh nghiệm', 'Năm xây dựng'],
+  en: ['Download CV', 'Years building', 'Repository'],
+};
+
+check(
+  Object.values(LOCALE_SENTINELS).every((list) => list.length >= 3),
+  `${Object.keys(LOCALE_SENTINELS).length} locale(s) carry sentinel strings`,
+  'LOCALE_SENTINELS was emptied - the language check would pass without checking anything',
+);
+
 /* Collects every same-page fragment link on a page: a bare `href="#name"`
    (same-page on any page — e.g. the skip link's `#main`) and the
    locale-prefixed `href="/{locale}/#name"` form `localeAnchorHref()` emits
@@ -275,6 +300,26 @@ for (const { path, locale } of PAGES) {
     missingText.length === 0,
     `${path} renders all ${REQUIRED_TEXT.length} project name(s)`,
     `${path} is missing project name(s) that should be rendered: ${missingText.join(', ')}`,
+  );
+
+  check(
+    new RegExp(`<html[^>]+lang="${locale}"`).test(html),
+    `${path} declares <html lang="${locale}">`,
+    `${path} does not declare lang="${locale}" - the directory and the document disagree about the language`,
+  );
+
+  const ownSentinels = LOCALE_SENTINELS[locale] ?? [];
+  const otherSentinels = Object.entries(LOCALE_SENTINELS)
+    .filter(([key]) => key !== locale)
+    .flatMap(([, list]) => list);
+  const missingOwn = ownSentinels.filter((needle) => !mainCopy.includes(needle));
+  const foreign = otherSentinels.filter((needle) => mainCopy.includes(needle));
+  check(
+    ownSentinels.length > 0 && missingOwn.length === 0 && foreign.length === 0,
+    `${path} renders the ${locale} dictionary and no other`,
+    missingOwn.length > 0
+      ? `${path} is missing ${locale} copy that should be rendered: ${missingOwn.join(', ')}`
+      : `${path} renders copy from another locale: ${foreign.join(', ')}`,
   );
 
   const headingCount = [...html.matchAll(/<h3\b/g)].length;

@@ -9,6 +9,7 @@ export async function Experience() {
   return (
     <Section id="experience" className="bg-surface-muted">
       <SectionHeading
+        titleId="experience"
         eyebrow={dict.sections.experience.eyebrow}
         title={dict.sections.experience.title}
         lead={dict.sections.experience.lead}

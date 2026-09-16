@@ -30,6 +30,7 @@ export async function Contact() {
       <div className="wide:grid-cols-[minmax(0,1fr)_minmax(14rem,20rem)] wide:items-center grid gap-12">
         <div>
           <SectionHeading
+            titleId="contact"
             eyebrow={dict.sections.contact.eyebrow}
             title={dict.sections.contact.title}
             lead={dict.sections.contact.lead}

@@ -60,6 +60,42 @@ for (const page of PAGES) {
     }
   }
 
+  /* Every local asset the page points at, resolved against the export. The
+     script loop above already does this for chunks; nothing did it for images
+     or stylesheets, so renaming an <Illustration name> left a page full of
+     404s with all four gates green - the files were still on disk, so the
+     count passed, and no gate compared the names on disk to the names in the
+     HTML. Verified: it does now. */
+  const assets = [
+    ...html.matchAll(/<img[^>]+src="([^"]+)"/gi),
+    ...html.matchAll(/<source[^>]+srcset="([^"]+)"/gi),
+    ...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/gi),
+  ]
+    // A srcSet entry may carry a `1x` / `640w` descriptor after the URL.
+    .map((m) => m[1].split(/\s+/)[0])
+    .filter((src) => src.startsWith('/'));
+  const uniqueAssets = [...new Set(assets)];
+
+  const pictures = uniqueAssets.filter((src) => IMAGE_RE.test(src));
+  if (pictures.length === 0) {
+    fail(
+      `FAIL  ${page} points at no local image, so this check measured nothing.`,
+      `      Every locale page renders four illustrations in three formats.`,
+    );
+  }
+
+  for (const src of uniqueAssets) {
+    try {
+      statSync(join(OUT, src.replace(/^\//, '')));
+    } catch {
+      fail(`FAIL  ${page} points at ${src}, which is not in the export.`);
+      missing = true;
+    }
+  }
+  if (!missing) {
+    console.log(`OK    ${page}  ${uniqueAssets.length} local asset(s), all present`);
+  }
+
   const kb = (total / 1024).toFixed(1);
   if (missing) {
     // already reported

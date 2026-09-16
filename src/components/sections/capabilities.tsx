@@ -18,6 +18,7 @@ export async function Capabilities() {
   return (
     <Section id="capabilities" blueprint>
       <SectionHeading
+        titleId="capabilities"
         eyebrow={dict.sections.capabilities.eyebrow}
         title={dict.sections.capabilities.title}
         lead={dict.sections.capabilities.lead}

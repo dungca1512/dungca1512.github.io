@@ -10,6 +10,7 @@ export async function Expertise() {
   return (
     <Section id="expertise" blueprint className="bg-surface-muted">
       <SectionHeading
+        titleId="expertise"
         eyebrow={dict.sections.expertise.eyebrow}
         title={dict.sections.expertise.title}
         lead={dict.sections.expertise.lead}

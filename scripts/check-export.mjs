@@ -128,6 +128,38 @@ for (const page of pages) {
     `${page} has no duplicate ids`,
     `${page} has duplicate id(s): ${duplicates.join(', ')}`,
   );
+
+  /* An aria-labelledby that points at nothing is worse than none at all: the
+     element keeps claiming a name and a screen reader announces an empty one.
+     `Section` derives its reference from its own `id` (`<id>-title`) while the
+     matching `<h2 id>` comes from `SectionHeading`'s `titleId` prop - two
+     halves in two files, so half of it is exactly the kind of thing that gets
+     forgotten. This is the gate that notices. Same for aria-describedby. */
+  const idSet = new Set(ids);
+  const dangling = [...html.matchAll(/\baria-(?:labelledby|describedby)="([^"]*)"/g)].flatMap((m) =>
+    m[1].split(/\s+/).filter((token) => token && !idSet.has(token)),
+  );
+  check(
+    dangling.length === 0,
+    `${page} has no aria-labelledby/describedby pointing at a missing id`,
+    `${page} references id(s) that do not exist: ${[...new Set(dangling)].join(', ')}`,
+  );
+
+  if (needsLandmark) {
+    /* Every band is a <section id> the nav links to. One without a name is not
+       a landmark at all - it is a generic container the rotor cannot list. */
+    const sections = [...html.matchAll(/<section\b[^>]*>/g)].map((m) => m[0]);
+    const named = sections.filter((tag) => /\bid="/.test(tag)).length;
+    const labelled = sections.filter(
+      (tag) => /\bid="/.test(tag) && /\baria-label(?:ledby)?="/.test(tag),
+    ).length;
+    check(
+      named >= 6 && labelled === named,
+      `${page} names all ${named} of its <section id> landmarks`,
+      `${page} has ${named} <section id> element(s) but only ${labelled} carry an accessible name` +
+        (named < 6 ? ` - and ${named} is below the six the page is built from` : ''),
+    );
+  }
 }
 
 if (failed) {

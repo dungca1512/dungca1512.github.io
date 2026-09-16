@@ -11,6 +11,7 @@ export async function Work() {
   return (
     <Section id="projects">
       <SectionHeading
+        titleId="projects"
         eyebrow={dict.sections.work.eyebrow}
         title={dict.sections.work.title}
         lead={dict.sections.work.lead}
@@ -39,9 +40,15 @@ export async function Work() {
                 </li>
               ))}
             </ul>
+            {/* Five links on this page read "Repository" and point at four
+                different repos. Listed out of context - a standard screen
+                reader navigation mode - they are indistinguishable, which is
+                WCAG 2.4.9. The visible text stays short; the accessible name
+                carries what it is a repository FOR. */}
             <a
               href={CASE_STUDY.repoUrl}
               rel="noreferrer noopener"
+              aria-label={`${dict.common.repository} — ${CASE_STUDY.title[locale]}`}
               className="link-underline mt-6 inline-block text-sm font-medium"
             >
               {dict.common.repository}
@@ -109,6 +116,7 @@ export async function Work() {
                       key={link.url}
                       href={link.url}
                       rel="noreferrer noopener"
+                      aria-label={`${link.label[locale]} — ${project.name}`}
                       className="link-underline font-medium"
                     >
                       {link.label[locale]}

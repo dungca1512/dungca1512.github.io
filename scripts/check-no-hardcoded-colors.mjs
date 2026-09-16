@@ -52,7 +52,22 @@ const PATTERN = new RegExp(
   'i',
 );
 
-const files = globSync('src/**/*.{ts,tsx,css}').filter((f) => !f.endsWith(ALLOWED));
+/* Glob for everything and filter by extension here rather than writing a brace
+   pattern: `fs.globSync` is still experimental, CI runs the Node 22 pinned in
+   .nvmrc, and a brace a runtime does not expand matches nothing. A loop over
+   nothing passes while measuring nothing, which is the one failure this repo
+   keeps shipping. The floor below is the other half of that guard - run from
+   the wrong cwd, this script used to print `OK 0 files` and exit 0. */
+const files = globSync('src/**/*')
+  .filter((f) => /\.(ts|tsx|css)$/.test(f))
+  .filter((f) => !f.endsWith(ALLOWED));
+
+if (files.length < 20) {
+  console.error(`FAIL  matched ${files.length} source file(s) under src/, expected at least 20.`);
+  console.error(`      This gate measured nothing. Check the cwd and the glob, not the ceiling.`);
+  process.exit(1);
+}
+
 let failed = false;
 
 /**

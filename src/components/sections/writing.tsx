@@ -10,6 +10,7 @@ export async function Writing() {
   return (
     <Section id="writing" className="bg-surface-muted">
       <SectionHeading
+        titleId="writing"
         eyebrow={dict.sections.writing.eyebrow}
         title={dict.sections.writing.title}
         lead={dict.sections.writing.lead}

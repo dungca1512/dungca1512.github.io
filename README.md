@@ -83,14 +83,32 @@ redrawn rather than a ceiling that was moved.
 Pushing to `main` builds, runs the full gate, and publishes `out/` to Pages.
 Nothing else publishes; there is no manual step and no committed build output.
 
-**One-time setup, which no workflow can do for you:**
+### The switch comes before the merge, and the order is not optional
 
-1. **Settings → Pages → Source must be set to "GitHub Actions".** Branch-based
-   Pages serves the repository root, and the repository root is not the site —
-   `out/` is, and `out/` is gitignored. Left on "Deploy from a branch", the
-   deploy workflow succeeds and the live site never changes.
+Today `main`'s **repository root** is the published site: it holds `index.html`
+and `CNAME`, and Pages serves them from the branch. This rebuild deletes both
+from the root — `CNAME` moved into `public/`, and the site it produces is `out/`,
+which is gitignored.
+
+So merging this work into `main` while Pages is still on "Deploy from a branch"
+publishes a repository root that has **no `index.html` and no `CNAME`**: the
+custom domain 404s and can detach itself, and `deploy-pages@v4` cannot deploy
+into a site still configured for a legacy branch build either. Both halves of
+the site are down, and the workflow's green tick does not say so.
+
+**Do this first, then merge:**
+
+1. **Settings → Pages → Source → "GitHub Actions".** No workflow can set this;
+   the API for it is not something an Actions token may touch.
 2. **Settings → Environments → `github-pages`** must allow deployments from
    `main` (the default).
+3. Confirm the Pages settings page shows the custom domain
+   `portfolio-dungca.ai-innovation-homelab.org` and its DNS check still passes.
+4. Then merge to `main`. The first deploy takes a few minutes; watch the
+   `deploy` workflow rather than reloading the domain.
+
+If the switch is made and the merge never happens, nothing breaks — Pages simply
+has no Actions deployment yet and keeps serving the last branch build.
 
 ### Three files in `public/` are load-bearing
 
