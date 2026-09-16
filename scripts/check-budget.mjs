@@ -1,7 +1,25 @@
-/* This site's advantage over a framework build is that it is 31KB. That is only
-   true until someone stops watching. The ceilings below are roughly 25% above
-   where the site sits today - enough room to work, not enough to drift into a
-   different class of page. */
+/* This site's advantage over a framework build is its weight. That is only true
+   until someone stops watching. The ceilings below are set above where the site
+   sits today - enough room to work, not enough to drift into a different class
+   of page.
+
+   The code ceiling moved from 40KB to 48KB when the sheet was redesigned from
+   hairlines to raised surfaces (radii, shadows, washes, and the prose that
+   argues for them). It moved because the page changed on purpose, not because a
+   gate was inconvenient - and it moved by less than the old "25% above today"
+   rule would give (that would be 53KB), for a measured reason:
+
+     style.css  63.3KB raw / 17.1KB gzip
+     the same sheet with comments stripped  39.4KB raw / 7.1KB gzip
+
+   Roughly 10KB gzip - about a quarter of everything a visitor downloads - is
+   commentary, and Pages serves the sheet exactly as it is written. That is a
+   deliberate trade (the comments are why the next person can edit this safely)
+   but it is also the single largest line item here, and it is bigger than the
+   entire redesign that pushed this ceiling up. The headroom left above is
+   therefore small on purpose: the next increase should have to confront that
+   10KB - by minifying on deploy, which this repo does not do today - rather
+   than quietly absorb it. */
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { dirname, join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +29,7 @@ import { execFileSync } from 'node:child_process';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CODE = ['index.html', 'style.css', 'main.js', 'data.js'];
-const CODE_CEILING_KB = 40;
+const CODE_CEILING_KB = 48;
 const IMAGE_CEILING_KB = 40;
 const IMAGE_TYPES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.ico']);
 

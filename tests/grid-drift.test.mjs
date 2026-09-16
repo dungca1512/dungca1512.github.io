@@ -2,9 +2,34 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { css, rootBlock, cssOutsideRoot } from './helpers.mjs';
 
-test('the grid line colour is a token', () => {
-    assert.match(rootBlock(), /--grid-line\s*:/);
-    assert.doesNotMatch(cssOutsideRoot(), /rgba\(255,\s*255,\s*255,\s*0\.028\)/);
+test('the ground wash is a token', () => {
+    assert.match(rootBlock(), /--wash\s*:/);
+    assert.doesNotMatch(cssOutsideRoot(), /rgba\(143,\s*99,\s*24,/);
+});
+
+/* The charter at the top of the sheet says structure is carried by raised
+   surfaces, not hairlines, and the ground layer is where that is easiest to
+   break: one `linear-gradient(to right, <colour> 1px, transparent 1px)` and the
+   graph paper is back under everything, undoing the redesign globally from a
+   single declaration. The wash has to stay edgeless. */
+test('the ground is an edgeless wash, not graph paper', () => {
+    const layer = css().match(/body::before\s*\{([\s\S]*?)\n\}/);
+    assert.ok(layer, 'style.css has no body::before ground layer');
+    assert.match(layer[1], /radial-gradient\(/, 'the ground should be painted with radial washes');
+
+    /* Split on `;` and test each declaration whole. The obvious regex -
+       /linear-gradient\([^)]*1px/ - cannot see a grid line at all, because
+       `[^)]*` stops at the first `)`, which in `var(--wash) 1px` arrives
+       BEFORE the 1px. That version passes against real reintroduced graph
+       paper; this one was mutation-proved against it. */
+    const gridLine = layer[1]
+        .split(';')
+        .find((decl) => /linear-gradient\(/.test(decl) && /\b[0-9.]+px\b/.test(decl));
+    assert.equal(
+        gridLine,
+        undefined,
+        `a linear-gradient with a pixel stop on the ground layer is a grid line - the sheet no longer draws graph paper: ${gridLine}`
+    );
 });
 
 test('the grid moved off body onto its own fixed layer', () => {

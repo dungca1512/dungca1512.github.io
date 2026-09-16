@@ -118,16 +118,12 @@ const ALLOWED_DURATIONS = new Map([
     // width/height), and three exceed the 700ms ceiling of law 3 - recorded
     // here rather than fixed because retiming them is a visual change, not a
     // gate change.
-    ['transition: color 0.15s linear;', 3],
-    ['transition: color 0.15s linear, background 0.15s linear;', 1],
-    ['transition: background 0.15s linear, color 0.15s linear;', 1],
-    ['transition: border-color 0.15s linear, background 0.15s linear, color 0.15s linear;', 1],
+    ['transition: color 0.15s linear;', 2],
     ['transition: filter 0.25s linear;', 1],
     ['transition: transform 0.9s var(--ease) 0.12s;', 1],
     ['transition: color 0.3s linear;', 1],
     ['transition: background 0.15s linear;', 2],
     ['transition: border-color 0.15s linear, color 0.15s linear;', 1],
-    ['transition: transform 0.28s var(--ease);', 1],
     ['animation: sd-print 0.45s var(--ease) forwards;', 1],
     ['animation-delay: calc(var(--i, 0) * 85ms + 250ms);', 1],
     ['animation: sd-caret-in 0s linear 700ms forwards, sd-blink 1.15s steps(1) 700ms infinite;', 1],
