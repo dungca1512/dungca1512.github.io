@@ -163,6 +163,32 @@
        seconds precisely so nothing on screen appears to be responding to you.
        Only the decorative figures may spend them - the contact orbit, the
        expertise ticker, and the portrait's three. */
+    /* The drawn scenes. A solid is three faces of ONE colour at three weights,
+       never three colours - that is what lets the same cube re-ink itself on
+       paper and on the dark section and still read as one object lit from one
+       side. Three colours would have to be re-chosen per surface. */
+    --art-top: 24%;
+    --art-left: 14%;
+    --art-right: 8%;
+    /* The surface a scene is standing on. Faces are mixed INTO this rather than
+       laid over it at an opacity, which is the only way a stack of solids stays
+       opaque - see the note on .art-top. Every placement that does not sit on
+       plain paper re-declares it. */
+    --art-ground: var(--bg);
+    /* A hairline around every face. Without it a solid is three flat washes and
+       dissolves into whatever it sits on; with it the same three washes read as
+       one object with edges. It is the difference between a smudge and a cube. */
+    --art-edge: 0.16;
+    --art-line: 0.3;
+
+    --loop-wave: 3.2s;
+    --loop-drift-a: 9s;
+    --loop-drift-b: 13s;
+    /* Negative, and per bar. Six bars sharing one period look like one bar six
+       times; six phases of the same period look like a voice. Stepping the
+       delay backwards starts every bar mid-cycle, so none of them waits. */
+    --delay-wave-step: -0.36s;
+
     --loop-orbit: 54s;
     --loop-ticker: 68s;
     /* The portrait. Three periods rather than one, and mutually prime enough
@@ -541,6 +567,119 @@ h3, h4 {
     background: var(--ink-mid);
 }
 
+/* ---------- Drawn scenes ----------
+   Illustration with no image files. Each figure is inline SVG painted in
+   `currentColor`: about a kilobyte gzipped rather than the megabytes a
+   photograph costs, no `width`/`height` needed to prevent reflow because the
+   viewBox already carries the ratio, and correct on every surface for free.
+   The reference reaches the same look by shipping seven 5504x3072 JPEGs -
+   26.5MB, roughly 150x this entire site.
+
+   One cube is defined once, in the hero's <defs>, and referenced by all three
+   scenes. `href="#art-cube"` resolves across SVG boundaries because IDs are
+   document-wide, so the second and third scenes cost about 40 bytes a cube. */
+
+.art {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: var(--ink);
+    /* Faces and strokes are `currentColor` at an opacity, so a scene inherits
+       whatever ink the section it lands in uses. Nothing below names a colour
+       except the one element per scene allowed to be loud. */
+    fill: currentColor;
+}
+
+.art-top,
+.art-left,
+.art-right {
+    stroke: currentColor;
+    stroke-opacity: var(--art-edge);
+    stroke-width: 1;
+}
+
+/* Opaque, not translucent, and this is the difference between an illustration
+   and a smear. Faces painted as washes let every solid behind them show
+   through: the first pass of this scene had the middle slab's far edge visible
+   straight through the near one, and three stacked objects read as one piece of
+   dirty glass. Mixing the ink INTO the ground instead gives the same weight
+   with none of the transparency.
+
+   `color-mix()` names no colour of its own - both operands are tokens - so this
+   is not the literal that check-tokens hunts, and a hex inside one would still
+   trip its regex. */
+.art-top { fill: color-mix(in srgb, currentColor var(--art-top), var(--art-ground)); }
+.art-left { fill: color-mix(in srgb, currentColor var(--art-left), var(--art-ground)); }
+.art-right { fill: color-mix(in srgb, currentColor var(--art-right), var(--art-ground)); }
+
+/* Not a face, so it takes no edge: a hairline around a cast shadow turns it
+   into a saucer the object appears to be standing in. */
+.art-shadow {
+    fill: currentColor;
+    fill-opacity: 0.07;
+    stroke: none;
+}
+
+/* Exactly one object per scene carries the accent, and it is the one the scene
+   is about: the model on top of the stack, the router between the callers and
+   the providers, the node that is doing the work. The weights go up as well as
+   the hue changing - an accent at 17% would be a hint, not a subject.
+
+   These are custom properties and not a `.art-lit .art-top` rule for a reason
+   that cost a debugging round: a descendant selector does not cross into the
+   shadow tree `<use>` builds, so the cubes - which are all `<use>` - kept the
+   pale weights and rendered as ghosts. Custom properties inherit, and
+   inheritance does cross that boundary. */
+.art-lit {
+    color: var(--accent);
+    --art-top: 100%;
+    --art-left: 66%;
+    --art-right: 42%;
+    --art-edge: 0.5;
+}
+
+.art-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-opacity: var(--art-line);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.art-dashed {
+    stroke: var(--accent);
+    stroke-opacity: 0.7;
+    stroke-dasharray: 4 6;
+}
+
+/* A voice, drawn. Each bar squeezes toward its own centre rather than growing
+   from a baseline: `transform-box: fill-box` makes the origin the bar's own
+   box, without which every bar would pivot on the SVG's origin and the group
+   would fan instead of pulse. */
+@keyframes art-wave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.42); }
+}
+
+.art-wave line {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: art-wave var(--loop-wave) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * var(--delay-wave-step));
+}
+
+/* Two periods, not one, and not multiples of each other: at 9s and 13s the two
+   drifting cubes take just under two minutes to line up again. */
+@keyframes art-drift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+
+.art-drift-a { animation: art-drift var(--loop-drift-a) ease-in-out infinite; }
+.art-drift-b { animation: art-drift var(--loop-drift-b) ease-in-out infinite; }
+
 /* ---------- Hero ---------- */
 
 .hero {
@@ -717,6 +856,90 @@ h3, h4 {
     color: var(--accent);
 }
 
+/* ---------- Hero figure ----------
+   The reference gives its hero a whole grid column of illustration; ours gave
+   that column to a datasheet and a 92px portrait, which is why the page read as
+   text with a stamp on it. The scene goes ABOVE the datasheet rather than in
+   place of it - the mission and the stack are what a visitor came for, and no
+   drawing is worth deleting them. */
+.hero-side {
+    display: grid;
+    align-content: start;
+}
+
+.hero-figure {
+    margin: 72px 0 0;
+}
+
+/* The blob, the ring and the float are the portrait's, reused at seven times
+   the size. Same three loops, same three periods - the hero reads as one idea
+   at two scales rather than as two ideas. */
+.hero-figure-frame {
+    /* The blob's fill, named once and spent twice: as the blob, and as the
+       ground the scene's faces are mixed into. Leave the two to be chosen
+       separately and the solids start reading as cut-outs pasted onto the
+       blob rather than objects standing on it - which is exactly what the
+       first pass looked like, cool grey slabs on a warm disc. */
+    --art-blob: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    position: relative;
+    width: min(100%, 24rem);
+    /* Square from the ratio, not from a height: the ring is an inset border on
+       this box, and a box that is not square draws an oval ring. */
+    aspect-ratio: 1;
+    margin-inline: auto;
+    isolation: isolate;
+    animation: portrait-float var(--loop-float) ease-in-out infinite;
+}
+
+.hero-figure-blob {
+    position: absolute;
+    inset: 3%;
+    z-index: -1;
+    background: var(--art-blob);
+    animation: portrait-morph var(--loop-morph) ease-in-out infinite;
+}
+
+.hero-figure-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: 1px solid var(--accent-dim);
+    pointer-events: none;
+    animation:
+        portrait-morph var(--loop-morph) ease-in-out infinite,
+        portrait-ring var(--loop-ring) linear infinite;
+}
+
+/* Inset far enough that the drawing stays inside the blob at every frame of the
+   morph, including the frame where the blob is narrowest. */
+.hero-figure-art {
+    --art-ground: var(--art-blob);
+    position: absolute;
+    inset: 9%;
+    width: 82%;
+    height: 82%;
+}
+
+.hero-figure-index {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+}
+
+.hero-figure-index b {
+    font-weight: 500;
+    color: var(--accent);
+}
+
 /* Spec sheet — reads as a datasheet, not a floating panel. */
 
 /* The hero's right-hand column was defined by the 1px rule on its left. With
@@ -725,7 +948,9 @@ h3, h4 {
    it. */
 .spec-sheet {
     align-self: start;
-    margin: 72px 0 64px;
+    /* 28px, not 72px: the figure above it already holds the column down to the
+       headline's top. The old value was this element's cost of being first. */
+    margin: 28px 0 64px;
     padding: var(--room-card);
     border-radius: var(--radius-lg);
     background: var(--bg-raise);
@@ -986,6 +1211,7 @@ h3, h4 {
     --line-soft: var(--line-on-dark);
     --blueprint: var(--blueprint-on-dark);
     --bg-raise: var(--bg-raise-on-dark);
+    --art-ground: var(--bg-dark);
     --accent: var(--accent-dim);
     /* The one remap that is not a shade of the same idea. On paper the accent
        is dark, so what sits on it is white; in this room the accent is the
@@ -1021,6 +1247,20 @@ h3, h4 {
     transform: scaleX(1);
     transform-origin: left;
     transition: transform 0.9s var(--ease) 0.12s;
+}
+
+/* A third column for the section head. The reference puts a lead paragraph
+   here; we have none that would be true, and writing one in two languages to
+   fill a gap would be inventing content. A drawing says the same thing the
+   heading says without claiming anything extra. */
+.section-head--art {
+    grid-template-columns: 56px minmax(0, 1fr) 200px;
+    align-items: center;
+}
+
+/* The only section head carrying art today sits on a muted band. */
+.section-head-art {
+    --art-ground: var(--bg-muted);
 }
 
 .section-index {
@@ -1176,6 +1416,17 @@ h3, h4 {
     /* The inner cells are ruled edge to edge; the clip is what keeps them from
        poking through the rounded corners. */
     overflow: hidden;
+}
+
+/* The band is the first child of a card that already clips to its own radius,
+   so it needs no rounding and no overflow rule of its own. The tint is what
+   separates it from the card body; without it the drawing floats on white and
+   the card loses its top edge. */
+.case-band {
+    background: var(--bg-muted);
+    --art-ground: var(--bg-muted);
+    border-bottom: 1px solid var(--line-soft);
+    padding: 20px 0;
 }
 
 .case-header {
@@ -2181,6 +2432,28 @@ h3, h4 {
 
     .hero-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* One column now, so the figure is no longer beside the headline - it is
+       under it, and 72px of its own margin would push the datasheet off a phone
+       screen for a decoration. */
+    .hero-figure {
+        margin-top: 40px;
+    }
+
+    .hero-figure-frame {
+        width: min(100%, 17rem);
+    }
+
+    /* The head is back to two columns, and the third one's content goes with
+       it. Squeezing a 168px drawing into a phone's gutter would leave a smudge
+       nobody can read; it is decorative, so it can simply not be there. */
+    .section-head--art {
+        grid-template-columns: 56px minmax(0, 1fr);
+    }
+
+    .section-head-art {
+        display: none;
     }
 
     .stack-diagram code {

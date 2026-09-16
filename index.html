@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260916d">
+    <link rel="stylesheet" href="style.min.css?v=20260916e">
 </head>
 <body>
     <a class="skip-link" href="#experience">Skip to content</a>
@@ -79,38 +79,101 @@
                     </div>
                 </div>
 
-                <aside class="spec-sheet" aria-label="Profile summary">
-                    <div class="spec-id">
-                        <div class="hero-portrait">
-                            <img
-                                id="heroAvatar"
-                                class="hero-avatar"
-                                src="profile.webp"
-                                alt="Portrait of Công Anh Dũng"
-                                width="88"
-                                height="88"
-                                decoding="async"
-                                referrerpolicy="no-referrer"
-                            >
-                        </div>
-                        <div class="spec-id-meta">
-                            <strong>Công Anh Dũng</strong>
-                            <span id="profileLocation">Hanoi, Vietnam</span>
-                            <span class="spec-status" id="profileStatus">Open to collaboration</span>
-                        </div>
-                    </div>
+                <div class="hero-side">
+                    <!-- Decorative, and drawn rather than photographed. An inline SVG
+                         scene costs about a kilobyte gzipped, needs no width/height to
+                         avoid reflow because the viewBox already carries the ratio, and
+                         re-inks itself through currentColor wherever it is placed. The
+                         reference ships this same composition as a 6.1MB JPEG.
 
-                    <dl class="spec-rows">
-                        <div class="spec-row">
-                            <dt data-i18n="panel.title">Current Mission</dt>
-                            <dd><ul class="focus-list" id="focusList"></ul></dd>
+                         <defs> lives here because this is the first scene on the page;
+                         the other two reference #art-cube across SVG boundaries, which
+                         resolves document-wide. Move this figure and they lose their
+                         cubes. -->
+                    <figure class="hero-figure">
+                        <div class="hero-figure-frame">
+                            <span class="hero-figure-blob" aria-hidden="true"></span>
+                            <svg class="art hero-figure-art" viewBox="0 0 320 320" fill="none" aria-hidden="true" focusable="false">
+                                <defs>
+                                    <g id="art-cube">
+                                        <path class="art-left" d="M-20 0 0 10 0 28 -20 18Z" />
+                                        <path class="art-right" d="M20 0 0 10 0 28 20 18Z" />
+                                        <path class="art-top" d="M0 -10 20 0 0 10 -20 0Z" />
+                                    </g>
+                                </defs>
+
+                                <ellipse class="art-shadow" cx="160" cy="294" rx="94" ry="13" />
+
+                                <!-- Three solids, each standing on the centre of the one
+                                     below. Nothing is in perspective: the stack simply
+                                     narrows, which is the whole trick. -->
+                                <path class="art-left" d="M56 228 160 280 160 297 56 245Z" />
+                                <path class="art-right" d="M264 228 160 280 160 297 264 245Z" />
+                                <path class="art-top" d="M160 176 264 228 160 280 56 228Z" />
+
+                                <path class="art-left" d="M80 174 160 214 160 228 80 188Z" />
+                                <path class="art-right" d="M240 174 160 214 160 228 240 188Z" />
+                                <path class="art-top" d="M160 134 240 174 160 214 80 174Z" />
+
+                                <g class="art-lit">
+                                    <path class="art-left" d="M104 133 160 161 160 174 104 146Z" />
+                                    <path class="art-right" d="M216 133 160 161 160 174 216 146Z" />
+                                    <path class="art-top" d="M160 105 216 133 160 161 104 133Z" />
+                                </g>
+
+                                <!-- Speech going in: six bars, each on its own phase. -->
+                                <g class="art-wave" stroke-width="8">
+                                    <line style="--i:0" x1="44" y1="50" x2="44" y2="78" />
+                                    <line style="--i:1" x1="64" y1="34" x2="64" y2="94" />
+                                    <line style="--i:2" x1="84" y1="24" x2="84" y2="104" />
+                                    <line style="--i:3" x1="104" y1="44" x2="104" y2="84" />
+                                    <line style="--i:4" x1="124" y1="30" x2="124" y2="98" />
+                                    <line style="--i:5" x1="144" y1="52" x2="144" y2="76" />
+                                </g>
+                                <path class="art-line art-dashed" d="M156 64C180 70 178 88 164 101" />
+
+                                <g class="art-drift-a art-lit"><use href="#art-cube" x="244" y="86" /></g>
+                                <g class="art-drift-b"><use href="#art-cube" x="272" y="156" /></g>
+                            </svg>
                         </div>
-                        <div class="spec-row">
-                            <dt data-i18n="hero.stackLabel">Stack</dt>
-                            <dd><ul class="trust-list" id="heroTrust"></ul></dd>
+                        <figcaption class="hero-figure-index">
+                            <b>01</b><span>Speech · Platform · Score</span>
+                        </figcaption>
+                    </figure>
+
+                    <aside class="spec-sheet" aria-label="Profile summary">
+                        <div class="spec-id">
+                            <div class="hero-portrait">
+                                <img
+                                    id="heroAvatar"
+                                    class="hero-avatar"
+                                    src="profile.webp"
+                                    alt="Portrait of Công Anh Dũng"
+                                    width="88"
+                                    height="88"
+                                    decoding="async"
+                                    referrerpolicy="no-referrer"
+                                >
+                            </div>
+                            <div class="spec-id-meta">
+                                <strong>Công Anh Dũng</strong>
+                                <span id="profileLocation">Hanoi, Vietnam</span>
+                                <span class="spec-status" id="profileStatus">Open to collaboration</span>
+                            </div>
                         </div>
-                    </dl>
-                </aside>
+
+                        <dl class="spec-rows">
+                            <div class="spec-row">
+                                <dt data-i18n="panel.title">Current Mission</dt>
+                                <dd><ul class="focus-list" id="focusList"></ul></dd>
+                            </div>
+                            <div class="spec-row">
+                                <dt data-i18n="hero.stackLabel">Stack</dt>
+                                <dd><ul class="trust-list" id="heroTrust"></ul></dd>
+                            </div>
+                        </dl>
+                    </aside>
+                </div>
             </div>
         </section>
 
@@ -158,6 +221,42 @@
                 </div>
 
                 <article class="case-card">
+                    <!-- The gateway, drawn: speech in on the left, one router in the
+                         middle, three providers fanned out, one answer back. It is the
+                         only picture on the page that states an architecture, which is
+                         why it sits on the case study and nowhere else. -->
+                    <svg class="art case-band" viewBox="0 0 720 160" fill="none" aria-hidden="true" focusable="false">
+                        <g class="art-wave" stroke-width="7">
+                            <line style="--i:0" x1="44" y1="70" x2="44" y2="90" />
+                            <line style="--i:1" x1="60" y1="56" x2="60" y2="104" />
+                            <line style="--i:2" x1="76" y1="46" x2="76" y2="114" />
+                            <line style="--i:3" x1="92" y1="64" x2="92" y2="96" />
+                            <line style="--i:4" x1="108" y1="52" x2="108" y2="108" />
+                            <line style="--i:5" x1="124" y1="68" x2="124" y2="92" />
+                        </g>
+                        <path class="art-line art-dashed" d="M138 80H236" />
+
+                        <g class="art-lit">
+                            <path class="art-left" d="M244 80 300 108 300 124 244 96Z" />
+                            <path class="art-right" d="M356 80 300 108 300 124 356 96Z" />
+                            <path class="art-top" d="M300 52 356 80 300 108 244 80Z" />
+                        </g>
+
+                        <path class="art-line" d="M362 74C420 74 430 34 492 34" />
+                        <path class="art-line" d="M362 80H492" />
+                        <path class="art-line" d="M362 86C420 86 430 126 492 126" />
+
+                        <g class="art-drift-a"><use href="#art-cube" x="528" y="34" /></g>
+                        <use href="#art-cube" x="528" y="80" />
+                        <g class="art-drift-b"><use href="#art-cube" x="528" y="126" /></g>
+
+                        <path class="art-line" d="M552 40C600 40 612 76 644 78" />
+                        <path class="art-line" d="M552 86H644" />
+                        <path class="art-line" d="M552 132C600 132 612 88 644 84" />
+
+                        <g class="art-lit"><use href="#art-cube" x="668" y="82" /></g>
+                    </svg>
+
                     <header class="case-header">
                         <div>
                             <p class="case-label" data-i18n="caseStudy.label">From architecture to execution</p>
@@ -174,12 +273,28 @@
 
         <section class="section section--muted" id="expertise">
             <div class="container">
-                <div class="section-head reveal">
+                <div class="section-head section-head--art reveal">
                     <span class="section-index">04</span>
                     <div>
                         <p class="kicker" data-i18n="expertise.kicker">Core Expertise</p>
                         <h2 data-i18n="expertise.title">How I build and operate AI infrastructure.</h2>
                     </div>
+
+                    <!-- A field of nine, one of them lifted and lit. Painted back to
+                         front: in an isometric field the draw order IS the depth, so the
+                         rows below run by (row + column) ascending and not by row. -->
+                    <svg class="art section-head-art" viewBox="0 0 200 180" fill="none" aria-hidden="true" focusable="false">
+                        <use href="#art-cube" x="100" y="46" />
+                        <use href="#art-cube" x="60" y="66" />
+                        <use href="#art-cube" x="140" y="66" />
+                        <use href="#art-cube" x="20" y="86" />
+                        <use href="#art-cube" x="180" y="86" />
+                        <use href="#art-cube" x="60" y="106" />
+                        <use href="#art-cube" x="140" y="106" />
+                        <use href="#art-cube" x="100" y="126" />
+                        <path class="art-line art-dashed" d="M100 76 120 86 100 96 80 86Z" />
+                        <g class="art-drift-a art-lit"><use href="#art-cube" x="100" y="42" /></g>
+                    </svg>
                 </div>
                 <div class="expertise-grid" id="expertiseGrid"></div>
 
@@ -312,7 +427,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260916d"></script>
-    <script src="main.js?v=20260916d"></script>
+    <script src="data.js?v=20260916e"></script>
+    <script src="main.js?v=20260916e"></script>
 </body>
 </html>

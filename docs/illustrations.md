@@ -1,133 +1,120 @@
-# Illustrations — prompts and how they get onto the page
+# Illustrations — three drawn scenes, no image files
 
-The hands portfolio you sent me is not using a template and not using an
-illustration pack. Its seven images carry a C2PA manifest signed by Google LLC
-(`c2pa.created` → "Created by Google Generative AI", `digitalSourceType` →
-`trainedAlgorithmicMedia`, plus an applied SynthID watermark). They were
-generated, not licensed.
+The page has three illustrations. None of them is a file. Each is inline SVG in
+`index.html`, painted in `currentColor` through the tokens in `style.css`.
 
-So this is the one part of the redesign I cannot finish for you: I have no image
-generation in this session. What follows is everything needed so that generating
-them is the only step left.
-
-**Do not copy how hands ships them.** Their `next.config.ts` sets
-`output: 'export'` with `images: { unoptimized: true }`, so the raw generator
-output goes to the browser: every file is 5504×3072, 3–6 MB, 26.5 MB for the
-page. Their hero image alone is about 150× the weight of this entire site.
+This replaces an earlier version of this document, which specified generated
+raster images for the same three slots — prompts, `cwebp`/`avifenc` commands, a
+40 KB-per-image budget and `<picture>` markup. That route was abandoned once the
+reference turned out to contain the better answer. Keeping the old plan here
+would describe a page that does not exist.
 
 ---
 
-## The three slots
+## Why drawn and not generated
+
+The hands portfolio you sent me does both. Its hero is a generated raster, and
+the C2PA manifest says so: `c2pa.created` → "Created by Google Generative AI",
+`digitalSourceType` → `trainedAlgorithmicMedia`, plus a SynthID watermark. But
+`src/components/work/project-art.tsx` is 7.5 KB of hand-written SVG, and its own
+doc comment gives the reason:
+
+> Dựng bằng SVG + token nên không có file ảnh nào, không có CLS, tự đúng ở cả
+> hai theme.
+
+That is the technique used here, for four reasons that a raster cannot match:
+
+- **Weight.** All three scenes together are about a kilobyte gzipped. The
+  reference's hero is a single 6,135,247-byte JPEG, and its seven images total
+  26.5 MB — roughly 150× this entire site, which is 35.9 KB.
+- **No layout shift.** The `viewBox` carries the aspect ratio, so the box is
+  correct before anything loads. A raster needs `width`/`height` to avoid
+  reflowing the page on arrival.
+- **Both themes for free.** Faces are `currentColor` mixed into `--art-ground`.
+  Drop a scene on the dark section and it re-inks itself; a raster would need a
+  second file.
+- **No licence.** Nothing was downloaded, so nothing has terms. (For reference,
+  had we gone the pack route: unDraw is free with no attribution but forbids
+  compiling its assets into a competing service and forbids AI training;
+  Humaaans is CC0; Storyset *requires* attribution and restricts commercial use
+  unless you pay for Flaticon Premium.)
+
+---
+
+## The three scenes
 
 Three, not seven. The page is mostly text with real numbers in it, and an
-illustration every two sections would start arguing with the content instead of
-framing it.
+illustration every two sections would argue with the content instead of framing
+it. Each scene says something different — repeating one composition three times
+is what makes a page look templated.
 
-### 1. Case study — a band above the card
+| Where | Size | What it draws |
+| --- | --- | --- |
+| Hero, `.hero-figure` | 320×320 in a 24rem blob | An isometric three-slab stack with the top slab lit, a voice entering as six bars, two cubes drifting. The platform, and what runs on it. |
+| Case study, `.case-band` | 720×160 | The gateway end to end: speech in → one router → three providers → one answer back. The only picture on the page that states an architecture. |
+| Expertise, `.section-head-art` | 200×180 | A field of nine cubes with one lifted out of its dashed socket. |
 
-Widest and most visible. Goes directly above `<header class="case-header">` in
-`index.html:155`.
+## How they are built
 
-> A warm editorial illustration, flat vector style with soft rounded shapes and
-> visible hand-drawn line weight. A speech waveform entering from the left
-> travels through three simple rounded containers and leaves on the right as a
-> neat printed score card with a number on it. Muted palette: warm amber
-> (#8f6318), deep charcoal (#14161a), cream background (#f4f4f2), one soft
-> sage accent. No text, no letters, no numbers rendered as glyphs. Generous
-> empty space. Light, optimistic, unhurried. Wide banner composition, roughly
-> 3:1.
+**One cube, defined once.** `<defs><g id="art-cube">` lives in the hero, because
+the hero is the first scene on the page. The other two scenes reference it with
+`<use href="#art-cube">`, which resolves across SVG boundaries because IDs are
+document-wide. Each reused cube costs about 40 bytes.
 
-### 2. Expertise — a spot illustration beside the section head
+**Move the hero and the other two lose their cubes.** That is the one fragile
+thing here, and it is why the `<defs>` block carries a comment saying so.
 
-Goes in the right-hand space of the expertise `.section-head`.
+**A solid is three faces of one colour at three weights**, never three colours:
+`--art-top: 24%`, `--art-left: 14%`, `--art-right: 8%`. That is what lets the
+same cube re-ink itself on paper and on the dark band and still read as one
+object lit from one side.
 
-> A warm editorial spot illustration, flat vector, soft rounded shapes, gentle
-> hand-drawn line weight. A small stack of rounded slabs seen at a slight
-> angle — the bottom one wide and plain, the top one small with a single glowing
-> amber dot on it — suggesting infrastructure holding up a model. Muted palette:
-> warm amber (#8f6318), deep charcoal (#14161a), cream (#f4f4f2). No text, no
-> glyphs. Lots of air around the subject. Square composition.
-
-### 3. Contact — beside the card
-
-Replaces nothing: it sits where the orbit figure currently drifts, at lower
-opacity than the other two so the card stays the loudest thing there.
-
-> A warm editorial illustration, flat vector, soft rounded shapes, hand-drawn
-> line quality. Two simple rounded forms leaning slightly toward each other with
-> a short amber arc passing between them, reading as a handshake without drawing
-> hands. Muted palette: warm amber (#8f6318), deep charcoal (#14161a), cream
-> (#f4f4f2). No text, no glyphs. Calm, generous, a lot of empty space. Square
-> composition.
-
-Keep the palette line verbatim in all three. It is what stops the set from
-looking like three illustrations from three different sites.
-
----
-
-## What to hand back to me
-
-For each slot, the generator's raw output is fine — I do the conversion. If you
-want to do it yourself:
-
-```bash
-# from the raw file, e.g. case-study-raw.png
-cwebp -q 72 -resize 1440 0 case-study-raw.png -o img/case-study.webp
-avifenc --min 24 --max 34 -s 4 case-study-raw.png img/case-study.avif
-```
-
-Rules the budget gate already enforces (`npm run check:budget`):
-
-- **40 KB per image, raw bytes.** Images ship uncompressed by the CDN, so the
-  file size is exactly what the visitor pays. AVIF at 1440px wide reaches this
-  comfortably for flat vector-style art; photographs would not.
-- The gate measures every tracked image, anywhere in the repo, so putting them
-  in `img/` does not hide them.
-
-If a file genuinely cannot fit 40 KB, tell me and we raise the image ceiling the
-same way the code ceiling moved — with the measurement written into the gate,
-not by quietly editing the number.
-
----
-
-## The markup, ready to paste
-
-I have not added these to `index.html`, because markup pointing at files that do
-not exist ships a broken image to every visitor. The moment the files land, this
-goes in.
-
-```html
-<figure class="figure figure--band">
-    <picture>
-        <source srcset="img/case-study.avif" type="image/avif">
-        <img src="img/case-study.webp" width="1440" height="480" alt=""
-             loading="lazy" decoding="async">
-    </picture>
-</figure>
-```
-
-`alt=""` is correct here and not laziness: all three are decorative, and each
-one restates something the adjacent text already says. An alt string would make
-a screen reader announce the same fact twice.
-
-`loading="lazy"` on all three — none are above the fold. Do **not** add it to
-anything that ever becomes the LCP element.
-
-`width` and `height` are required, not optional. Without them the image has no
-intrinsic size until it downloads, and the page reflows around it on arrival.
-
-The CSS is about six lines and I will add it with the markup:
+**Faces are opaque, via `color-mix`, not `fill-opacity`.** This is not a style
+preference — translucent faces let every solid behind them show through, and
+three stacked slabs read as one piece of dirty glass. Each face is mixed *into*
+`--art-ground`, so every surface that is not plain paper re-declares that token:
 
 ```css
-.figure {
-    margin-bottom: 32px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
+.case-band       { --art-ground: var(--bg-muted); }
+.section-head-art{ --art-ground: var(--bg-muted); }
+.section--dark   { --art-ground: var(--bg-dark); }
+.hero-figure-art { --art-ground: var(--art-blob); }
 ```
+
+Forget one and the scene dropped there will mix paper-white into a near-black
+band.
+
+**`.art-lit` uses custom properties, not descendant selectors.** This cost a
+debugging round: `.art-lit .art-top` does **not** match, because a descendant
+selector cannot cross into the shadow tree that `<use>` builds, and every cube is
+a `<use>`. Custom properties *do* inherit across that boundary. So `.art-lit`
+sets `--art-top: 100%` and friends rather than restyling `.art-top`. Do not
+"simplify" it back.
+
+**Exactly one object per scene carries the accent**, and it is the one the scene
+is about — the model on the stack, the router between callers and providers, the
+node doing the work.
+
+## Accessibility and motion
+
+All three are `aria-hidden="true" focusable="false"` with no title. They are
+decorative: each restates something the adjacent text already says, so announcing
+them would make a screen reader say the same fact twice.
+
+Every keyframe returns to its start frame (`0%, 100%` identical), so the sheet's
+global `animation-duration: 1ms` reset under `prefers-reduced-motion` parks each
+one at rest rather than mid-pose.
+
+## Adding a fourth
+
+1. Draw it with the existing primitives — `.art-top/.art-left/.art-right` for
+   faces, `.art-line` and `.art-dashed` for connections, `.art-wave` for a voice,
+   `.art-drift-a/-b` to float something. New primitives only if the scene truly
+   needs one.
+2. Give its container an `--art-ground` matching whatever it sits on.
+3. `aria-hidden="true" focusable="false"`, and no colour literals — `check-tokens`
+   will catch those.
+4. Decide what it does on a phone. Two of the three shrink; the expertise spot
+   sets `display: none`, because a 168px drawing squeezed into a phone gutter is
+   a smudge nobody can read.
+5. `npm run build && npm run verify`.
