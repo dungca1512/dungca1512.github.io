@@ -2,8 +2,3 @@ out/
 .next/
 node_modules/
 public/github-data.json
-
-# Legacy content source. Task 3 copies its strings verbatim into the typed
-# content modules and then deletes it; reformatting it now would churn the
-# one file the copy is checked against.
-data.js
