@@ -149,6 +149,55 @@ const PENDING_ANCHORS = new Map([
   ['contact', 'Task 12'],
 ]);
 
+/* Task 10 review, L1. Everything above this line measures the SHAPE of a page —
+   it has a <main>, its anchors resolve, nothing stringified to [object Object].
+   None of it notices whether the sections rendered their DATA. The reviewer
+   proved that the hard way: on a copy of the tree they deleted one of four
+   expertise areas, two of nine projects and one of five case-study blocks, and
+   the whole eight-link chain stayed green — 6816 chars of real text sails past
+   a 200-char floor no matter how much of the content is missing.
+
+   These are proper nouns: `Project.name` is declared "a proper noun — not
+   translated" in src/content/projects.ts and `work.tsx` renders it as
+   `{project.name}` with no locale index, so every one of them must appear
+   verbatim on BOTH exported pages. Drop a project from the data, or stop
+   mapping over the list, and the page loses its name here.
+
+   The list may grow. It must not shrink: an entry that fails is a project that
+   stopped rendering, and deleting the entry is how this gate would be made
+   vacuous again. */
+const REQUIRED_TEXT = [
+  'Multi-Market Speech Scoring Platform',
+  'Hey Translate',
+  'Ultimate Lesson',
+  'Internal Embedding Service',
+  'AI Gateway',
+  'Homelab Kubernetes & GitOps Platform',
+  'Whisper Finetune JA',
+  'Raspberry Pi Homelab',
+  'NewsPulse Reco Engine',
+];
+
+check(
+  REQUIRED_TEXT.length === 9,
+  `${REQUIRED_TEXT.length} project name(s) are required to stay rendered`,
+  'REQUIRED_TEXT no longer holds all nine project names - the content gate would pass without checking them',
+);
+
+/* One <h3> per expertise area (4), per project card (9), and one for the case
+   study = 14. Counted rather than named because the headings themselves are
+   localized, so there is no single literal to search for. `>=`, not `===`:
+   Tasks 11 and 12 add sections with their own h3s, and this number is a floor
+   they raise. Lowering it is how a lost section would be hidden. */
+const MIN_SECTION_HEADINGS = 14;
+
+/* The case study's five blocks and the proof bar's four metrics are <dt>/<dd>
+   pairs, not headings, so the <h3> floor above does not see them — dropping one
+   case-study block was one of the three mutations that sailed through the whole
+   chain. Four metrics + five blocks = 9. A floor again, not an equality: later
+   sections may add their own definition lists. */
+const MIN_DEFINITION_TERMS = 9;
+
 /* Collects every same-page fragment link on a page: a bare `href="#name"`
    (same-page on any page — e.g. the skip link's `#main`) and the
    locale-prefixed `href="/{locale}/#name"` form `localeAnchorHref()` emits
@@ -207,6 +256,39 @@ for (const { path, locale } of PAGES) {
     main === null
       ? `${path} has no <main> element to measure text inside of`
       : `${path}'s <main> carries only ${mainLength} chars of rendered text — looks blank or near-blank (need >= ${MIN_MAIN_TEXT_LENGTH})`,
+  );
+
+  /* Searched in the RENDERED TEXT of <main>, not in the raw HTML, and with the
+     entities React emits decoded first — `Homelab Kubernetes & GitOps Platform`
+     ships as `&amp;` and matched nothing against raw HTML. Two things follow
+     from searching the text instead: the name has to be visible copy, not an
+     attribute or a comment, and it has to be inside the landmark rather than
+     anywhere on the page. */
+  const mainCopy = (main ?? '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'");
+  const missingText = REQUIRED_TEXT.filter((needle) => !mainCopy.includes(needle));
+  check(
+    missingText.length === 0,
+    `${path} renders all ${REQUIRED_TEXT.length} project name(s)`,
+    `${path} is missing project name(s) that should be rendered: ${missingText.join(', ')}`,
+  );
+
+  const headingCount = [...html.matchAll(/<h3\b/g)].length;
+  check(
+    headingCount >= MIN_SECTION_HEADINGS,
+    `${path} renders ${headingCount} section heading(s) (>= ${MIN_SECTION_HEADINGS})`,
+    `${path} renders only ${headingCount} <h3> heading(s) — expected at least ${MIN_SECTION_HEADINGS}, so a section has stopped rendering its list`,
+  );
+
+  const termCount = [...html.matchAll(/<dt\b/g)].length;
+  check(
+    termCount >= MIN_DEFINITION_TERMS,
+    `${path} renders ${termCount} definition term(s) (>= ${MIN_DEFINITION_TERMS})`,
+    `${path} renders only ${termCount} <dt> element(s) — expected at least ${MIN_DEFINITION_TERMS}, so a definition list has stopped rendering its data`,
   );
 
   const ids = new Set([...html.matchAll(/\bid="([^"]*)"/g)].map((m) => m[1]));
