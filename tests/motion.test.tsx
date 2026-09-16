@@ -20,18 +20,29 @@ afterEach(() => {
   // many files and needs that reset everywhere, not just here).
 });
 
+const REDUCED_MOTION_MEDIA = /prefers-reduced-motion:\s*reduce/;
+
 /**
  * Finds the (comma-separated) rule whose selector LIST includes `selector`
- * exactly, and returns that Rule node — not a string match anywhere in the
- * file. Used so a reduced-motion assertion is tied to the specific selector
- * that is supposed to carry the reset, rather than to the declaration
- * merely existing somewhere in the stylesheet.
+ * exactly — but only among rules that live inside a
+ * `@media (prefers-reduced-motion: reduce)` at-rule, not merely anywhere in
+ * the file. An earlier version of this helper used `root.walkRules()`
+ * unscoped: it found a rule regardless of what at-rule (if any) enclosed
+ * it, so renaming the wrapper to e.g. `@media (min-width: 1px)` — applying
+ * the whole reset to everyone, and to no one who actually asked for less
+ * motion — left every caller of this helper green. Scoping the walk to
+ * `@media` at-rules whose params match the reduced-motion query closes
+ * that hole: a rule under an unrelated (or absent) at-rule is invisible to
+ * it, on purpose.
  */
 function ruleFor(css: string, selector: string): Rule | undefined {
   const root = postcss.parse(css);
   let found: Rule | undefined;
-  root.walkRules((rule) => {
-    if (rule.selectors.includes(selector)) found = rule;
+  root.walkAtRules('media', (atRule) => {
+    if (!REDUCED_MOTION_MEDIA.test(atRule.params)) return;
+    atRule.walkRules((rule) => {
+      if (rule.selectors.includes(selector)) found = rule;
+    });
   });
   return found;
 }
@@ -93,6 +104,14 @@ function cubicBezierLength(p0: Point, p1: Point, p2: Point, p3: Point, steps: nu
   return length;
 }
 
+/** The only path commands this approximator understands. */
+const SUPPORTED_PATH_COMMANDS = 'MmLlCcZz';
+/** Every letter SVG's path grammar recognises as a command at all — used
+ *  only to detect ones we DON'T support; note `e`/`E` (scientific-notation
+ *  numbers, e.g. `1e-5`) is deliberately excluded, since it is not a path
+ *  command and must not trip the guard below. */
+const ALL_PATH_COMMANDS = /[MmLlHhVvCcSsQqTtAaZz]/g;
+
 /**
  * A small, deliberately partial SVG path-length approximator: it handles
  * exactly the commands a hand-drawn decorative underline is plausibly built
@@ -104,8 +123,28 @@ function cubicBezierLength(p0: Point, p1: Point, p2: Point, p3: Point, steps: nu
  * hard-coded constant that would go stale silently the moment the artwork
  * changes. At 1000 subdivisions per curve it agrees with Chromium's real
  * `getTotalLength()` (633.5823) to within 0.0001 on the current path.
+ *
+ * The command splitter below (`[MmLlCcZz][^MmLlCcZz]*`) treats any OTHER
+ * command letter (H/V/S/Q/T/A) as plain trailing text on the command
+ * before it, rather than as a delimiter — so its coordinates silently
+ * vanish into the previous command's number list instead of raising an
+ * error. Rather than let that produce a confident, wrong answer, this
+ * throws up front whenever `d` contains a command outside the supported
+ * set, so a future artwork edit that adds one of them fails loudly instead
+ * of quietly reporting a stale length.
  */
 function svgPathLength(d: string, curveSteps = 1000): number {
+  const unsupported = [
+    ...new Set(
+      (d.match(ALL_PATH_COMMANDS) ?? []).filter((c) => !SUPPORTED_PATH_COMMANDS.includes(c)),
+    ),
+  ];
+  if (unsupported.length > 0) {
+    throw new Error(
+      `svgPathLength only understands ${SUPPORTED_PATH_COMMANDS} commands; "${d}" uses unsupported command(s): ${unsupported.join(', ')}`,
+    );
+  }
+
   const commands = d.match(/[MmLlCcZz][^MmLlCcZz]*/g) ?? [];
   let current: Point = [0, 0];
   let start: Point = [0, 0];
@@ -244,6 +283,25 @@ describe('the drawn underline', () => {
   });
 });
 
+describe('the SVG path-length approximator', () => {
+  it('throws on a command it does not handle, instead of silently dropping it', () => {
+    // Each of these embeds an unsupported command's coordinates into the
+    // preceding M/C command's number list if unguarded — e.g. `H600` was
+    // measured as contributing 0, and a smooth-cubic `S` tail vanished
+    // entirely, both leaving the reported length stale and wrong rather
+    // than absent.
+    expect(() => svgPathLength('M4 16H600')).toThrow(/unsupported command/);
+    expect(() => svgPathLength('M0 0V50')).toThrow(/unsupported command/);
+    expect(() => svgPathLength('M0 0C10 0 20 0 30 0S50 0 60 0')).toThrow(/unsupported command/);
+    expect(() => svgPathLength('M0 0Q50 50 100 0')).toThrow(/unsupported command/);
+  });
+
+  it('does not mistake scientific-notation numbers (containing the letter e) for a command', () => {
+    expect(() => svgPathLength('M0 0L1e1 0')).not.toThrow();
+    expect(svgPathLength('M0 0L1e1 0')).toBeCloseTo(10, 5);
+  });
+});
+
 describe('the drawn underline in the DOM', () => {
   it('is observed by RevealScope, via the .drawn-line class on its <svg> root', () => {
     const { container } = render(
@@ -261,7 +319,16 @@ describe('the drawn underline in the DOM', () => {
     expect(observer.observed.has(svg as Element)).toBe(true);
   });
 
-  it('gets data-inview set on the <svg> root itself when it enters view', () => {
+  it("the observer's callback sets data-inview on the <svg> root, not on the nested <path>", () => {
+    // This drives the callback by hand via `observer.trigger`, which sets
+    // the attribute on whatever element it's given whether or not that
+    // element was ever actually observed — so on its own this does NOT
+    // prove .drawn-line is observed (the sibling test above carries that
+    // load). What it does prove: when the callback fires for the <svg>,
+    // it lands the attribute on the <svg> itself and not on the <path>
+    // inside it, matching the CSS's `.drawn-line[data-inview='true'] path`
+    // selector (see the "reads data-inview off the .drawn-line root"
+    // test above).
     const { container } = render(
       <RevealScope>
         <DrawnUnderline />
@@ -405,8 +472,20 @@ describe('motion.css and motion-reduced.css reach the built stylesheet', () => {
     expect(css, 'a motion.css marker must survive the build').toMatch(
       /@keyframes site-draw-underline/,
     );
-    expect(css, 'a motion-reduced.css marker must survive the build').toMatch(
-      /prefers-reduced-motion:\s*reduce/,
-    );
+    // NOT a bare `/prefers-reduced-motion:\s*reduce/` match: globals.css's
+    // own base layer has its own `@media (prefers-reduced-motion: reduce)
+    // { html { scroll-behavior: auto } }`, entirely independent of
+    // motion-reduced.css. That regex is satisfied by globals.css alone, so
+    // it stayed green even with motion-reduced.css's own @import removed —
+    // the whole reduced-motion reset gone from the build while the test
+    // matched an unrelated rule. `ruleFor` (which only looks inside a
+    // `prefers-reduced-motion: reduce` at-rule to begin with) pinned to a
+    // selector motion-reduced.css alone emits closes that gap.
+    const rule = ruleFor(css, '.drawn-line path');
+    expect(
+      rule,
+      "the built stylesheet must carry .drawn-line path's own reduced-motion rule",
+    ).toBeDefined();
+    expect(declValue(rule, 'stroke-dasharray'), 'must survive the build').toBe('none !important');
   });
 });
