@@ -78,14 +78,24 @@ for (const file of [
 }
 
 // Every page must have at most one visible <main> landmark — the HTML spec
-// permits only one — and no `id` value that appears twice in the same
-// document. A duplicate id is not cosmetic: `#main` (what the skip link
+// permits only one — and the pages that carry the site's content must have
+// exactly one, because the skip link points at it. `<= 1` alone would let a
+// later task delete the landmark outright and stay green, which is the
+// mistake this check was written to stop, only inverted. The 404 is excluded
+// deliberately: it renders its own standalone document with no skip link, so
+// it has no landmark to point at. Also asserted: no `id` value appearing
+// twice in the same document. A duplicate id is not cosmetic: `#main` (what the skip link
 // targets) resolving to whichever element happens to come first is exactly
 // how a second <main id="main"> stayed invisible here. Tasks 8-12 each
 // rewrite page.tsx, and any one of them is a chance to reintroduce either
 // mistake, so this walks every page the build actually emits — not just the
 // two locale roots — the same way check:colors reports how many files it
 // looked at, so a glob that matched nothing cannot pass silently.
+/* The pages that must carry a <main>: one per locale, the same two this file
+   already asserts exist above. Everything else the build emits — the root
+   redirect stub, the 404 — is chrome around the content, not content. */
+const CONTENT_PAGES = ['vi/index.html', 'en/index.html'];
+
 const pages = globSync('**/*.html', { cwd: out });
 
 check(
@@ -98,10 +108,15 @@ for (const page of pages) {
   const html = readFileSync(join(out, page), 'utf8');
 
   const mainCount = (html.match(/<main[\s>]/gi) ?? []).length;
+  const needsLandmark = CONTENT_PAGES.includes(page);
   check(
-    mainCount <= 1,
-    `${page} has at most one <main> element (found ${mainCount})`,
-    `${page} has ${mainCount} <main> elements - the HTML spec allows at most one`,
+    needsLandmark ? mainCount === 1 : mainCount <= 1,
+    needsLandmark
+      ? `${page} has exactly one <main> landmark`
+      : `${page} has at most one <main> element (found ${mainCount})`,
+    needsLandmark
+      ? `${page} has ${mainCount} <main> elements - a content page needs exactly one, and the skip link targets it`
+      : `${page} has ${mainCount} <main> elements - the HTML spec allows at most one`,
   );
 
   const ids = Array.from(html.matchAll(/\bid="([^"]*)"/g)).map((m) => m[1]);
