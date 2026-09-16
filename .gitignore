@@ -6,3 +6,15 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 .DS_Store
+
+# Secrets. `.env` carries the GEMINI_API_KEY the illustrations are generated
+# with — it has never been committed on this branch (checked: `git log --all --
+# .env` is empty), and this line is what keeps that true. `.env.example` is
+# exempt so the variable NAMES can still be documented in the repo.
+.env
+.env.*
+!.env.example
+
+# Raw generator output. The illustrations ship as compressed avif/webp/jpg under
+# public/images/; the multi-megabyte originals they are derived from stay local.
+raw/
