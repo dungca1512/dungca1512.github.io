@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-05T04:42:01.502Z",
+  "generatedAt": "2026-09-16T17:36:31.918Z",
   "source": "https://api.github.com/users/dungca1512",
   "profile": {
     "username": "dungca1512",
@@ -18,19 +18,10 @@
     "dungca1512.github.io": {
       "name": "dungca1512.github.io",
       "html_url": "https://github.com/dungca1512/dungca1512.github.io",
-      "language": "JavaScript",
-      "stargazers_count": 0,
-      "forks_count": 0,
-      "pushed_at": "2026-08-17T16:25:43Z",
-      "description": null
-    },
-    "dungca-blog": {
-      "name": "dungca-blog",
-      "html_url": "https://github.com/dungca1512/dungca-blog",
       "language": "TypeScript",
       "stargazers_count": 0,
       "forks_count": 0,
-      "pushed_at": "2026-08-17T16:14:37Z",
+      "pushed_at": "2026-09-16T17:34:37Z",
       "description": null
     },
     "dungca1512": {
@@ -39,7 +30,16 @@
       "language": null,
       "stargazers_count": 0,
       "forks_count": 0,
-      "pushed_at": "2026-08-17T16:05:36Z",
+      "pushed_at": "2026-09-05T09:46:19Z",
+      "description": null
+    },
+    "dungca-blog": {
+      "name": "dungca-blog",
+      "html_url": "https://github.com/dungca1512/dungca-blog",
+      "language": "TypeScript",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "pushed_at": "2026-09-05T08:52:41Z",
       "description": null
     },
     "homelab": {
