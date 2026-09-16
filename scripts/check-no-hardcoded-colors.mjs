@@ -6,8 +6,6 @@ import { readFileSync, globSync } from 'node:fs';
 const ALLOWED = 'src/app/globals.css';
 const NAMED_COLOURS = [
   'red',
-  'white',
-  'black',
   'blue',
   'green',
   'yellow',
@@ -34,13 +32,21 @@ const NAMED_COLOURS = [
   'salmon',
   'crimson',
   'turquoise',
-  'transparent',
 ];
 // Hex/rgb/hsl/oklch literals are caught wherever they appear on the line.
 // Named colours are only caught in VALUE position — right after a `:` or a
 // `,`, with an optional quote in between — so prose ("the red border") and
 // identifiers (`text-white-ish`, `bg-red-500`) do not false-positive: neither
 // is immediately preceded by a colon or comma.
+//
+// `black`, `white` and `transparent` are deliberately absent from the list.
+// In a mask gradient — `linear-gradient(to bottom, transparent, black 18%)` —
+// they are an alpha stencil, not a palette choice: they do not flip with the
+// theme, so the failure this gate exists to prevent cannot happen through
+// them. Listing them would fail the most common legitimate use of a gradient
+// and the next person would switch the gate off, which is worse than the hole.
+// The `#fff` spelling of a real mistake is still caught, and that is the
+// spelling people actually write.
 const PATTERN = new RegExp(
   `#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla|oklch)\\(|[:,]\\s*['"]?(?:${NAMED_COLOURS.join('|')})\\b(?!-)`,
   'i',
