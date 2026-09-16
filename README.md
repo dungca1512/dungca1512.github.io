@@ -23,15 +23,26 @@ Personal portfolio website for AI/ML Engineer profile, built as a static GitHub 
 ## Run Locally
 
 ```bash
+npm run build          # style.css -> style.min.css
 npm run serve          # http://localhost:8011
 ```
 
-No build step and no dependencies — the repo is the site. `npm` exists here only
-for the checks below.
+No dependencies — the repo is the site, and `npm install` installs nothing. There
+is exactly one build step, and it is thirty lines of Node with no packages behind
+it: `style.css` is written to be read (two thirds of it is prose arguing for the
+rule underneath), and `scripts/build-css.mjs` strips that prose into
+`style.min.css`, which is the file `index.html` actually loads. It removes
+comments and indentation and changes nothing else — the token stream is
+identical, which a test asserts.
+
+Both files are committed, because Pages publishes the repository as it stands.
+So edit `style.css`, never `style.min.css`, and run `npm run build` before you
+commit. Forgetting is not silent: `npm run verify` rebuilds and compares, and
+fails if the two have drifted.
 
 ## Quality gates
 
-`npm run verify` runs all three. CI runs the same command on every pull request and on
+`npm run verify` runs all four. CI runs the same command on every pull request and on
 pushes to `main` — a push to a feature branch does not trigger it, so run `verify`
 locally before opening the PR:
 
@@ -39,7 +50,8 @@ locally before opening the PR:
 | -------------- | -------------------------------------------------------------------- |
 | `npm test`     | The motion system going missing: tokens, `@supports` branches, guards |
 | `check:tokens` | Colour or duration literals creeping in outside `:root`               |
-| `check:budget` | Code over 40KB gzip, or any image over 40KB                           |
+| `build --check` | `style.min.css` drifting from `style.css`                            |
+| `check:budget` | Code over 48KB gzip, or any image over 40KB                           |
 
 These assert against the source, so they prove the system is *present*, not that
 it *looks* right. For that, see the manual checklist in

@@ -3,23 +3,27 @@
    sits today - enough room to work, not enough to drift into a different class
    of page.
 
-   The code ceiling moved from 40KB to 48KB when the sheet was redesigned from
-   hairlines to raised surfaces (radii, shadows, washes, and the prose that
-   argues for them). It moved because the page changed on purpose, not because a
-   gate was inconvenient - and it moved by less than the old "25% above today"
-   rule would give (that would be 53KB), for a measured reason:
+   This gate measures `style.min.css`, not `style.css`, because that is the file
+   index.html loads and therefore the only one a visitor pays for. The two are
+   the same sheet: scripts/build-css.mjs removes comments and indentation and
+   changes nothing else, and `npm run verify` refuses a build that has gone
+   stale, so measuring the built file cannot become a way of hiding growth in
+   the source.
 
-     style.css  63.3KB raw / 17.1KB gzip
-     the same sheet with comments stripped  39.4KB raw / 7.1KB gzip
+   That split is what the previous note here demanded. It read: roughly 10KB
+   gzip - a quarter of everything a visitor downloaded - was commentary, the
+   single largest line item on the page, and "the next increase should have to
+   confront that 10KB - by minifying on deploy, which this repo does not do
+   today - rather than quietly absorb it." The illustrations were that next
+   increase. The confrontation, measured at the commit that added them:
 
-   Roughly 10KB gzip - about a quarter of everything a visitor downloads - is
-   commentary, and Pages serves the sheet exactly as it is written. That is a
-   deliberate trade (the comments are why the next person can edit this safely)
-   but it is also the single largest line item here, and it is bigger than the
-   entire redesign that pushed this ceiling up. The headroom left above is
-   therefore small on purpose: the next increase should have to confront that
-   10KB - by minifying on deploy, which this repo does not do today - rather
-   than quietly absorb it. */
+     style.css      85.0KB raw / 24.1KB gzip
+     style.min.css  39.9KB raw /  8.0KB gzip
+
+   16KB gzip, five times the overage that forced the question. The ceiling
+   therefore does NOT move - it stays at 48KB while the page it measures
+   dropped to around 35KB, which is the most headroom this gate has ever had.
+   Spend it on the page, not on the prose: the comments are now free. */
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { dirname, join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +32,8 @@ import { execFileSync } from 'node:child_process';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const CODE = ['index.html', 'style.css', 'main.js', 'data.js'];
+// The built sheet, not the source. See the note above.
+const CODE = ['index.html', 'style.min.css', 'main.js', 'data.js'];
 const CODE_CEILING_KB = 48;
 const IMAGE_CEILING_KB = 40;
 const IMAGE_TYPES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.ico']);

@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static portfolio. No build step - npm is used only for tests and quality gates.",
+  "description": "Static portfolio. One build step (style.min.css) plus tests and quality gates.",
   "scripts": {
+    "build": "node scripts/build-css.mjs",
     "test": "node scripts/run-tests.mjs",
     "check:tokens": "node scripts/check-tokens.mjs",
     "check:budget": "node scripts/check-budget.mjs",
-    "verify": "npm test && npm run check:tokens && npm run check:budget",
+    "verify": "node scripts/build-css.mjs --check && npm test && npm run check:tokens && npm run check:budget",
     "serve": "python3 -m http.server 8011"
   },
   "engines": {
