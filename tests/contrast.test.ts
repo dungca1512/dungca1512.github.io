@@ -46,11 +46,35 @@ function mix(colour: string, base: string, pct: number): string {
   return `#${out.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
+/**
+ * Pulls a `--custom-property: <value>;` declaration's raw value out of a
+ * slice of CSS text. Used so the constants this file checks against are read
+ * from globals.css rather than hardcoded a second time — a hardcoded copy is
+ * exactly how the bug this replaces happened: this file used to assert
+ * against '#fff' for the dark foreground when the CSS actually declares
+ * '#ededed'.
+ */
+function readCustomProperty(name: string, source: string = css): string {
+  const match = source.match(new RegExp(`${name}:\\s*([^;]+);`));
+  if (!match) throw new Error(`${name} not found`);
+  return match[1].trim();
+}
+
+/** Pulls out the `[data-theme='dark'] { ... }` block's raw contents. */
+function darkThemeBlock(): string {
+  const match = css.match(/\[data-theme='dark'\]\s*\{([^}]*)\}/s);
+  if (!match) throw new Error(`[data-theme='dark'] block not found`);
+  return match[1];
+}
+
 const ACCENT = '#40a69f';
 const INFO = '#2b7fd4';
 const LIGHT_BG = '#f5f5f5';
 const DARK_BG = '#0b0b0b';
 const MIX = 68;
+// Read straight out of globals.css's Step C block rather than hardcoded, so
+// this test cannot drift from the CSS it is meant to be checking.
+const DARK_FOREGROUND = readCustomProperty('--base-foreground', darkThemeBlock());
 
 describe('the accent colours', () => {
   it('fail AA when used raw — which is why the ink layer exists', () => {
@@ -61,8 +85,44 @@ describe('the accent colours', () => {
   it('pass AA once mixed 68% with the foreground, in BOTH themes', () => {
     expect(ratio(mix(ACCENT, '#000', MIX), LIGHT_BG)).toBeGreaterThanOrEqual(4.5);
     expect(ratio(mix(INFO, '#000', MIX), LIGHT_BG)).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(mix(ACCENT, '#fff', MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(mix(INFO, '#fff', MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
+    // The dark theme's foreground is #ededed, not pure white — read out of
+    // globals.css above rather than hardcoded. Measured: 9.14:1 and 7.31:1.
+    expect(ratio(mix(ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(9.14, 1);
+    expect(ratio(mix(INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(7.31, 1);
+    expect(ratio(mix(ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(mix(INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('--base-primary (the filled-button / ::selection ground)', () => {
+  it('mixes the brand hue toward black at the percentage declared in globals.css, read out of the CSS itself', () => {
+    // Read the mix formula's percentage and both endpoint colours out of the
+    // CSS rather than hardcoding them a second time here — a hardcoded copy
+    // is exactly the failure mode M4 fixed for the dark foreground.
+    const primaryBlock = css.match(
+      /--base-primary:\s*color-mix\(\s*in srgb,\s*var\(--base-palette-brand-500\)\s*(\d+)%,\s*var\(--base-palette-neutral-1000\)\s*\)/,
+    );
+    expect(
+      primaryBlock,
+      '--base-primary must be a color-mix of brand-500 toward neutral-1000',
+    ).not.toBeNull();
+    const pct = Number(primaryBlock![1]);
+
+    // --base-palette-brand-500 is itself overridden to --base-palette-blue-500
+    // in Step D, so the brand hue actually mixed at runtime is blue, not the
+    // raw indigo declared in Step A.
+    const brand500 = readCustomProperty('--base-palette-blue-500');
+    const neutral1000 = readCustomProperty('--base-palette-neutral-1000');
+    const white = readCustomProperty('--base-palette-neutral-0');
+
+    const mixed = mix(brand500, neutral1000, pct);
+
+    expect(
+      ratio(white, mixed),
+      'white on --base-primary must clear AA (4.5:1)',
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(white, mixed)).toBeCloseTo(5.33, 1);
+    expect(ratio(LIGHT_BG, mixed)).toBeCloseTo(4.89, 1);
   });
 });
 

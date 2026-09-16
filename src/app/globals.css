@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* ───────────────────────────────────────────────────────────────────────────
- * 0. THE SEMANTIC LAYER
+ * 1. THE SEMANTIC LAYER
  *
  * This project used to consume `--base-*` tokens from `@levi-it/design-system`
  * (an SSH-only private package). That package is gone, so this file now IS
@@ -60,7 +60,17 @@
   --base-border: var(--base-palette-neutral-200);
   --base-border-soft: var(--base-palette-neutral-100);
 
-  --base-primary: var(--base-palette-brand-500); /* re-pointed to blue below */
+  /* NOT the raw brand blue. White on #2b7fd4 measures 4.13:1 — under AA — and
+   * this token is the ground that --base-primary-foreground (white) sits on,
+   * in every filled button and in ::selection. Darkened along its own hue
+   * until white clears AA with margin: measured 5.33:1 on the mix, and 4.89:1
+   * against the light page ground. Declared again under Step D so both
+   * themes get it. */
+  --base-primary: color-mix(
+    in srgb,
+    var(--base-palette-brand-500) 86%,
+    var(--base-palette-neutral-1000)
+  );
   --base-primary-foreground: var(--base-palette-neutral-0);
   --base-accent: var(--base-palette-accent-500);
   --base-info: var(--base-palette-blue-500);
@@ -100,6 +110,14 @@
 [data-theme='dark'] {
   --base-palette-brand-500: var(--base-palette-blue-500);
   --base-primary-subtle: var(--base-info-subtle);
+  /* Re-declared here, not only in Step B: a custom property is substituted at
+   * its declaration site, and the brand override above changes what the mix
+   * resolves to. Without this line the dark theme keeps the pre-override mix. */
+  --base-primary: color-mix(
+    in srgb,
+    var(--base-palette-brand-500) 86%,
+    var(--base-palette-neutral-1000)
+  );
   /* Neither the brief nor the spec's semantic list defines a ring colour, but
    * the base layer's `:focus-visible` rule (Step 3, unmodified) needs one.
    * The previous site's focus ring rode its accent colour; this one rides
@@ -161,7 +179,9 @@
   --color-success: var(--base-success);
   --color-success-subtle: var(--base-success-subtle);
   --color-danger: var(--base-danger);
+  --color-danger-subtle: var(--base-danger-subtle);
   --color-warning: var(--base-warning);
+  --color-warning-subtle: var(--base-warning-subtle);
 
   --color-ink-primary: var(--site-ink-primary);
   --color-ink-accent: var(--site-ink-accent);
@@ -181,11 +201,14 @@
  * containers. These stay plain and unchanged — the values do not flip with
  * the theme. */
 @theme {
-  --duration-instant: 100ms;
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 400ms;
-  --duration-hero: 700ms;
+  /* Tailwind 4's `duration-*` utility reads `--transition-duration-*`, not
+   * `--duration-*` — the utility class names below are unaffected by this
+   * namespace; only the theme key changes. */
+  --transition-duration-instant: 100ms;
+  --transition-duration-fast: 150ms;
+  --transition-duration-base: 250ms;
+  --transition-duration-slow: 400ms;
+  --transition-duration-hero: 700ms;
 
   --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -207,8 +230,20 @@
   --max-width-prose: var(--container-prose);
 }
 
+/* The `duration-*` utility reads --transition-duration-*, but the section
+ * stylesheets (Tasks 6, 7, 9, 10, 11) write var(--duration-slow) and friends
+ * directly in raw `animation` shorthands. Aliased rather than duplicated, so
+ * there is still one source of truth and the two spellings cannot drift. */
+:root {
+  --duration-instant: var(--transition-duration-instant);
+  --duration-fast: var(--transition-duration-fast);
+  --duration-base: var(--transition-duration-base);
+  --duration-slow: var(--transition-duration-slow);
+  --duration-hero: var(--transition-duration-hero);
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
- * 3. BASE
+ * 2. BASE
  * ──────────────────────────────────────────────────────────────────────── */
 @layer base {
   html {
@@ -275,7 +310,7 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
- * 4. THE REST LIVES IN PER-SECTION FILES
+ * 3. THE REST LIVES IN PER-SECTION FILES
  *
  * THE ORDER BELOW IS THE CASCADE ORDER. A new file goes in its own group.
  * ──────────────────────────────────────────────────────────────────────── */

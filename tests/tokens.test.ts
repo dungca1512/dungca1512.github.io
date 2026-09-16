@@ -94,4 +94,68 @@ describe('the @theme inline token surface reaches the built CSS', () => {
     expect(css).toMatch(/\.max-w-prose\s*\{[^}]*max-width:\s*var\(--max-width-prose\)/);
     expect(css).toMatch(/--max-width-prose:\s*var\(--container-prose\)/);
   });
+
+  it('compiles all five duration-* utilities and both custom easings', async () => {
+    // Tailwind 4's `duration-*` utility reads `--transition-duration-*`, not
+    // `--duration-*`. If globals.css declared the wrong theme key, none of
+    // these five classes would produce a rule at all — no build error, no
+    // failing type check, just an absent transition-duration declaration.
+    const css = await compileFor([
+      'duration-instant',
+      'duration-fast',
+      'duration-base',
+      'duration-slow',
+      'duration-hero',
+      'ease-out-soft',
+      'ease-spring',
+    ]);
+
+    expect(css, 'duration-instant must compile').toMatch(
+      /\.duration-instant\s*\{[^}]*transition-duration:\s*var\(--transition-duration-instant\)/,
+    );
+    expect(css, 'duration-fast must compile').toMatch(
+      /\.duration-fast\s*\{[^}]*transition-duration:\s*var\(--transition-duration-fast\)/,
+    );
+    expect(css, 'duration-base must compile').toMatch(
+      /\.duration-base\s*\{[^}]*transition-duration:\s*var\(--transition-duration-base\)/,
+    );
+    expect(css, 'duration-slow must compile').toMatch(
+      /\.duration-slow\s*\{[^}]*transition-duration:\s*var\(--transition-duration-slow\)/,
+    );
+    expect(css, 'duration-hero must compile').toMatch(
+      /\.duration-hero\s*\{[^}]*transition-duration:\s*var\(--transition-duration-hero\)/,
+    );
+    expect(css, 'ease-out-soft must compile').toMatch(
+      /\.ease-out-soft\s*\{[^}]*transition-timing-function:\s*var\(--ease-out-soft\)/,
+    );
+    expect(css, 'ease-spring must compile').toMatch(
+      /\.ease-spring\s*\{[^}]*transition-timing-function:\s*var\(--ease-spring\)/,
+    );
+  });
+
+  it('aliases the short --duration-* spelling onto --transition-duration-* for raw animation shorthands', async () => {
+    // Tasks 6, 7, 9, 10 and 11 write `var(--duration-slow)` directly inside
+    // `animation:` shorthands rather than through a Tailwind utility class.
+    // Without the :root alias block, that reference is undefined, which
+    // makes the whole `animation` shorthand invalid at computed-value time
+    // and silently resolves it to `none` — no build error, no failing type
+    // check, the reveal animations simply never fire.
+    const css = await compileFor([]);
+    expect(css, '--duration-slow must resolve to the canonical transition-duration token').toMatch(
+      /--duration-slow:\s*var\(--transition-duration-slow\)/,
+    );
+    expect(
+      css,
+      '--duration-instant must resolve to the canonical transition-duration token',
+    ).toMatch(/--duration-instant:\s*var\(--transition-duration-instant\)/);
+    expect(css, '--duration-fast must resolve to the canonical transition-duration token').toMatch(
+      /--duration-fast:\s*var\(--transition-duration-fast\)/,
+    );
+    expect(css, '--duration-base must resolve to the canonical transition-duration token').toMatch(
+      /--duration-base:\s*var\(--transition-duration-base\)/,
+    );
+    expect(css, '--duration-hero must resolve to the canonical transition-duration token').toMatch(
+      /--duration-hero:\s*var\(--transition-duration-hero\)/,
+    );
+  });
 });
