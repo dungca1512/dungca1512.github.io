@@ -1,0 +1,61 @@
+# Branch-based Pages publishes the repository root. What we publish is out/,
+# which does not exist in the repo - so Pages has to be served from Actions.
+# Set Settings > Pages > Source to "GitHub Actions" once, by hand; this
+# workflow cannot set it.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never two deploys at once. `cancel-in-progress: false` so a running deploy
+# finishes rather than leaving the site half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No ssh-agent step. The plan carried one, for a deploy key to the private
+      # `@levi-it/design-system` the reference consumes its tokens from. This
+      # site has no such dependency - the tokens were ported into
+      # src/app/globals.css - so package.json is public npm only, and a
+      # webfactory/ssh-agent step would fail the job on a secret that has no
+      # reason to exist. `grep -r 'git+ssh' package-lock.json` is the check.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The full gate, not just `build`. A deploy that skips verify is a deploy
+      # that can publish a page nothing checked. `verify` ends in `build`,
+      # `check:export`, `check:content` and `check:budget`, so out/ exists and
+      # has been inspected by the time the upload below reads it.
+      - run: npm run verify
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
