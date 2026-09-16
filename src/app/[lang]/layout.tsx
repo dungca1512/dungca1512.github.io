@@ -50,10 +50,15 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
       <body className="bg-background text-foreground flex min-h-full flex-col">
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
-        <main id="main" className="flex-1">
+        {/* tabIndex=-1: Safari has historically not moved focus to a
+            non-focusable fragment target, so #main needs to be focusable for
+            the skip link to actually work there. Chromium and Firefox already
+            handle an unfocusable target correctly; this is the one-attribute
+            hedge for the browser that doesn't. */}
+        <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <Footer locale={locale} dict={dict} />
+        <Footer locale={locale} />
       </body>
     </html>
   );

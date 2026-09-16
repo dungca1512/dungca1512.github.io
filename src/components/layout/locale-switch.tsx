@@ -19,8 +19,14 @@ export function LocaleSwitch({ locale }: { locale: Locale }) {
           key={l}
           href={swapLocale(pathname, l)}
           hrefLang={l}
-          aria-current={l === locale ? 'true' : undefined}
-          aria-label={LOCALE_LABEL[l]}
+          aria-current={l === locale ? 'page' : undefined}
+          // Composed from the two strings that already exist — the visible
+          // code (`l`, rendered upper-cased by CSS) and the full name — so
+          // the accessible name contains what the link visibly says. An
+          // aria-label of the full name alone ("Tiếng Việt") replaces the
+          // visible content entirely and does not begin with it, which fails
+          // WCAG 2.5.3 Label in Name for a speech-input user saying "vi".
+          aria-label={`${l} — ${LOCALE_LABEL[l]}`}
           className={cn(
             'duration-fast rounded-full px-2 py-1 uppercase transition-colors',
             l === locale

@@ -1,14 +1,13 @@
 import type { Locale } from '@/content/locales';
-import type { Dictionary } from '@/content/dictionaries';
 import { SITE } from '@/content/site';
 import { CONTACTS } from '@/content/contacts';
 import { Container } from './container';
 
-/** Draws only from `CONTACTS` and `SITE` — no string here is invented. `dict`
- *  is accepted to match the rest of the layout shell's call shape (`MenuBar`
- *  takes the same two props) but this component has nothing of its own to
- *  read out of it. */
-export function Footer({ locale }: { locale: Locale; dict: Dictionary }) {
+/** Draws only from `CONTACTS` and `SITE` — no string here is invented. No
+ *  `dict` prop: unlike `MenuBar`, this component has nothing of its own to
+ *  read out of the dictionary, and a required-but-unread prop is a false
+ *  claim in a signature every later task calls. */
+export function Footer({ locale }: { locale: Locale }) {
   return (
     <footer className="border-border border-t">
       <Container className="flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">

@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import '@fontsource-variable/inter';
 import './globals.css';
 import { ThemeScript } from '@/components/site/theme-script';
 import { localeHref } from '@/lib/paths';
 import vi from '@/content/dictionaries/vi';
 import en from '@/content/dictionaries/en';
+
+// Both existing `notFound.title` strings, composed rather than one invented:
+// there is no locale to pick a single title from, same as the body below.
+export const metadata: Metadata = {
+  title: `${vi.notFound.title} / ${en.notFound.title}`,
+  icons: { icon: '/favicon.svg' },
+};
 
 /** There is no `app/layout.tsx` — the root layout that carries `<html>` and
  *  `<body>` lives at `app/[lang]/layout.tsx`, scoped to the `[lang]` segment.
