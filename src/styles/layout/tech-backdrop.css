@@ -1,0 +1,98 @@
+/* ─── The tech backdrop ───────────────────────────────────────────────────
+   A faint circuit board under the whole page, so the ground reads as
+   something built rather than as a flat fill.
+
+   Drawn in CSS, not shipped as an image, for three reasons: a raster would
+   cost a slice of the 40KB-per-file image budget for something nobody is
+   meant to look at; it would not flip with the theme, so dark mode would
+   show a light board; and at the scale it tiles, gradients are sharper than
+   any compressed texture.
+
+   Every colour is a token. `--base-border` is ~11% white in dark mode and a
+   near-white grey in light mode, so the same declarations read as dark lines
+   on a light page and light lines on a dark one with no second rule.
+
+   Four layers, coarse to fine:
+     1. two long horizontal traces and two vertical ones, on a 16rem tile
+     2. a 45° diagonal trace, the thing that makes it read as a board rather
+        than graph paper
+     3. vias: small filled dots where traces would meet
+     4. a fine dot matrix, at half strength, to fill the empty field
+
+   It is fixed to the viewport rather than to the document. The page is long,
+   and a backdrop that scrolls with it turns into visible wallpaper motion;
+   held still, it reads as the surface the content sits on. */
+
+.tech-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* The dark band sections (Contact) paint their own ground over this, which
+     is intended: the board belongs to the page, not to every section. */
+  background-image:
+    /* 3. vias — a filled dot at two of the trace crossings */
+    radial-gradient(
+      circle at 2rem 3rem,
+      color-mix(in srgb, var(--base-info) 22%, transparent) 0 2px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 11rem 12rem,
+      color-mix(in srgb, var(--base-accent) 20%, transparent) 0 2px,
+      transparent 2px
+    ),
+    /* 2. the diagonal trace */
+    repeating-linear-gradient(
+        45deg,
+        transparent 0 7.5rem,
+        color-mix(in srgb, var(--base-border) 70%, transparent) 7.5rem 7.5rem,
+        color-mix(in srgb, var(--base-border) 70%, transparent) calc(7.5rem + 1px),
+        transparent calc(7.5rem + 1px) 15rem
+      ),
+    /* 1. the orthogonal traces */
+    repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--base-border) 85%, transparent) 0 1px,
+        transparent 1px 8rem
+      ),
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--base-border) 85%, transparent) 0 1px,
+      transparent 1px 8rem
+    ),
+    /* 4. the dot matrix, at half the strength of everything above */
+    radial-gradient(
+        circle,
+        color-mix(in srgb, var(--base-border) 45%, transparent) 0 1px,
+        transparent 1px
+      );
+  background-size:
+    16rem 16rem,
+    16rem 16rem,
+    auto,
+    auto,
+    auto,
+    2rem 2rem;
+  /* Strongest at the edges, clearing out behind the column of text. Without
+     this the traces run under body copy and cost it contrast. */
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, transparent 0%, black 100%);
+}
+
+/* The board is decoration that competes with text. Under a reduced-contrast
+   preference it goes, rather than being made even fainter — half a pattern
+   is the worst of both. */
+@media (prefers-contrast: more) {
+  .tech-backdrop {
+    display: none;
+  }
+}
+
+/* A band that alternates the page colour without hiding the board.
+   `bg-surface-muted` is opaque, and four of the eight bands carry it — laid
+   over `.tech-backdrop` they blanked half the page back to the flat fill the
+   backdrop exists to break up. 88% keeps the tonal step that makes the bands
+   read as separate, and lets the traces through underneath. */
+@utility band-muted {
+  background-color: color-mix(in srgb, var(--base-surface-muted) 88%, transparent);
+}

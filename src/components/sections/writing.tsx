@@ -1,5 +1,6 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { CursorLabel } from '@/components/motion/cursor-label';
+import { Illustration } from '@/components/site/illustration';
 import { WRITING } from '@/content/writing';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 
@@ -11,13 +12,25 @@ export async function Writing() {
   const dict = await getDictionary();
 
   return (
-    <Section id="writing" className="bg-surface-muted">
-      <SectionHeading
-        titleId="writing"
-        eyebrow={dict.sections.writing.eyebrow}
-        title={dict.sections.writing.title}
-        lead={dict.sections.writing.lead}
-      />
+    <Section id="writing" className="band-muted">
+      <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center grid gap-10">
+        <SectionHeading
+          stacked
+          titleId="writing"
+          eyebrow={dict.sections.writing.eyebrow}
+          title={dict.sections.writing.title}
+          lead={dict.sections.writing.lead}
+        />
+        <div className="reveal wide:order-none order-first">
+          <Illustration
+            name="writing"
+            alt=""
+            width={560}
+            height={560}
+            className="block overflow-hidden rounded-lg"
+          />
+        </div>
+      </div>
 
       {/* CursorLabel is decoration and says so itself: it renders `aria-hidden`,
           only builds on a real pointer, and stands down under reduced motion.

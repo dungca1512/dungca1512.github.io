@@ -8,7 +8,7 @@ export async function Expertise() {
   const dict = await getDictionary();
 
   return (
-    <Section id="expertise" blueprint className="bg-surface-muted">
+    <Section id="expertise" blueprint className="band-muted">
       <SectionHeading
         titleId="expertise"
         eyebrow={dict.sections.expertise.eyebrow}

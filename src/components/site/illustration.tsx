@@ -14,17 +14,26 @@ type IllustrationProps = {
   className?: string;
   /** Only for art visible without scrolling. Everything else stays lazy. */
   priority?: boolean;
+  /** True for art generated on the dark ground — today only `contact`, which
+   *  sits on the dark band. It tells the dark-theme rule in
+   *  src/styles/site/illustration.css to leave this one alone; see there for
+   *  why inverting is how the other six survive dark mode. */
+  darkGround?: boolean;
 };
 
 /* There is deliberately NO `2x` density candidate here, and adding one would
-   break the art rather than sharpen it. Task 13 generates ONE file per format
-   at 1600px wide — the widest any illustration is ever displayed — and no `@2x`
-   companion. A `srcSet` advertising `<name>@2x.<ext> 2x` would therefore point
-   at a file that does not exist, and a HiDPI browser PREFERS the 2x candidate,
-   so the 404 would land on exactly the devices the candidate was meant to
-   serve. The `width`/`height` props below are a layout hint for aspect-ratio
-   reservation, not the file's pixel width; 1600px already covers a 2x display
-   at every size these are rendered at.
+   break the art rather than sharpen it. The pipeline generates ONE file per
+   format and no `@2x` companion. A `srcSet` advertising `<name>@2x.<ext> 2x`
+   would therefore point at a file that does not exist, and a HiDPI browser
+   PREFERS the 2x candidate, so the 404 would land on exactly the devices the
+   candidate was meant to serve.
+
+   The `width`/`height` props below are a layout hint for aspect-ratio
+   reservation, not the file's pixel width. The encoded widths are chosen per
+   name in scripts/compress-illustrations.sh against measured display sizes —
+   832px for the section art, which is displayed at 320-352 CSS px, and 1280px
+   for hero, which doubles as the full-bleed intro curtain. Both clear a 2x
+   display at the size they are actually rendered.
 
    next/image is off (images.unoptimized), so this is a plain <picture>. It is
    doing three jobs that a bare <img> would not:
@@ -37,11 +46,19 @@ type IllustrationProps = {
    An empty alt is the normal case here. Every illustration on this site sits
    beside text that already says the same thing, and an alt string would make a
    screen reader read the fact twice. */
-export function Illustration({ name, alt, width, height, className, priority }: IllustrationProps) {
+export function Illustration({
+  name,
+  alt,
+  width,
+  height,
+  className,
+  priority,
+  darkGround,
+}: IllustrationProps) {
   const base = `/images/illustrations/${name}`;
 
   return (
-    <picture className={className}>
+    <picture className={className} data-art-dark={darkGround ? 'true' : 'false'}>
       <source srcSet={`${base}.avif`} type="image/avif" />
       <source srcSet={`${base}.webp`} type="image/webp" />
       <img

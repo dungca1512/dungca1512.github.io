@@ -1,5 +1,6 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { ScrollMarquee } from '@/components/motion/scroll-marquee';
+import { Illustration } from '@/components/site/illustration';
 import { SKILL_GROUPS, PLAYBOOK } from '@/content/capabilities';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 
@@ -17,12 +18,27 @@ export async function Capabilities() {
 
   return (
     <Section id="capabilities" blueprint>
-      <SectionHeading
-        titleId="capabilities"
-        eyebrow={dict.sections.capabilities.eyebrow}
-        title={dict.sections.capabilities.title}
-        lead={dict.sections.capabilities.lead}
-      />
+      {/* `stacked` is what makes the heading survive a narrow column: it
+          drops the title/lead side-by-side grid, which at 15rem would set the
+          lead two words to a line. */}
+      <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center grid gap-10">
+        <SectionHeading
+          stacked
+          titleId="capabilities"
+          eyebrow={dict.sections.capabilities.eyebrow}
+          title={dict.sections.capabilities.title}
+          lead={dict.sections.capabilities.lead}
+        />
+        <div className="reveal wide:order-none order-first">
+          <Illustration
+            name="capabilities"
+            alt=""
+            width={560}
+            height={560}
+            className="block overflow-hidden rounded-lg"
+          />
+        </div>
+      </div>
 
       {/* `aria-hidden` on the second copy lives inside ScrollMarquee, so a
           screen reader reads this list once — and the cards below carry the

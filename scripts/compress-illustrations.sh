@@ -2,21 +2,29 @@
 # Three formats per image: avif for browsers that take it, webp for the rest,
 # jpg as the floor. <picture> picks; see src/components/site/illustration.tsx.
 #
-# 1600px wide is the largest any illustration is ever displayed at on a 2x
-# screen. Shipping the generator's native 2048 buys nothing a visitor can see.
+# WIDTH is per name, because the page displays these at wildly different
+# sizes. Measured in Chrome at a 1920px viewport, against the built site:
 #
-# The jpg is encoded at 1200 instead. It is reached only by a browser that
-# supports neither AVIF nor WebP - pre-2020 Safari, IE - and JPEG is the worst
-# of the three formats at exactly what these images are made of: thin dark
-# lines on a near-white field. At 1600 the two densest images do not fit under
-# the 40KB ceiling at any quality worth shipping (hero measured 42.9KB at
-# quality 30). Rather than raise the ceiling, the fallback gets fewer pixels:
-# the <img> carries explicit width/height and the CSS sizes the box, so the
-# only consequence is mild softness, for a share of visitors near zero.
+#   hero       497 CSS px in the hero band - but ALSO full-bleed in the
+#              intro curtain, where it covers the whole viewport
+#   expertise  352 CSS px      work   320 CSS px      contact  320 CSS px
+#
+# So every name except hero needs 704 device px at 2x, and 1024 covers that
+# with room to spare. hero keeps the wide encode for the curtain. The old
+# pipeline shipped everything at 1600 - roughly 2.3x the pixels anything but
+# hero can show - which is what made the denser line art blow the 40KB
+# ceiling. Fewer pixels, not worse art, is the fix: see docs/illustrations.md.
+#
+# The jpg is narrower again. It is reached only by a browser that supports
+# neither AVIF nor WebP - pre-2020 Safari, IE - and JPEG is the worst of the
+# three formats at exactly what these images are made of: thin dark lines on
+# a near-white field. The <img> carries explicit width/height and the CSS
+# sizes the box, so the only consequence is mild softness, for a share of
+# visitors near zero. That is the trade this repo takes over moving a budget.
 #
 # The resize-and-encode-to-jpg step runs through Python + Pillow rather than
-# ImageMagick. The machine that produced these four files has no ImageMagick
-# and Pillow was already there; Pillow is a `pip install pillow` away on any
+# ImageMagick. The machine that produced these files has no ImageMagick and
+# Pillow was already there; Pillow is a `pip install pillow` away on any
 # platform, which is a softer dependency than a system image toolchain. The
 # output is the same: a baseline-progressive JPEG with every metadata chunk
 # dropped.
@@ -24,18 +32,39 @@ set -euo pipefail
 
 SRC="raw"
 OUT="public/images/illustrations"
-WIDTH=1600
-JPG_WIDTH=1200
+WIDTH=832
+JPG_WIDTH=640
 QUALITY=72
 CEILING=40960
 
-# Per-image quality, for anything that will not fit under the ceiling at the
-# default. Lowering a number here is the sanctioned fix; raising CEILING, or
-# the 40KB in tests/budget.test.ts, is not. hero is the one that needs it: it
-# is the densest of the four in fine line work and lands at 41KB at 72.
+# Per-image overrides, for anything the defaults do not suit. Lowering a
+# quality here is the sanctioned fix for an image over the ceiling; raising
+# CEILING, or the 40KB in tests/budget.test.ts, is not.
+width_for() {
+  case "$1" in
+    # hero is also the intro curtain, which covers the viewport. 1280 is
+    # 0.67x of a 1920px screen, so the curtain is mildly soft for the two
+    # seconds it is on screen - and comfortably over the 994 device px the
+    # hero portrait needs on a 2x display, which is the lasting view.
+    hero) echo 1280 ;;
+    *) echo "$WIDTH" ;;
+  esac
+}
+
+jpg_width_for() {
+  case "$1" in
+    hero) echo 832 ;;
+    *) echo "$JPG_WIDTH" ;;
+  esac
+}
+
 quality_for() {
   case "$1" in
+    # The densest two. hero carries a figure, a desk and a floating diagram;
+    # capabilities carries eight separate objects. Both measured over the
+    # ceiling at the default, and this is the sanctioned lever.
     hero) echo 62 ;;
+    capabilities) echo 65 ;;
     *) echo "$QUALITY" ;;
   esac
 }
@@ -50,10 +79,12 @@ status=0
 for file in "$SRC"/*.png; do
   name=$(basename "$file" .png)
   q=$(quality_for "$name")
+  w=$(width_for "$name")
+  jw=$(jpg_width_for "$name")
 
   # Two intermediates: the full-width one the modern formats encode from, and
   # the narrower one that becomes the shipped jpg.
-  python3 - "$file" "$OUT/$name.full.jpg" "$WIDTH" 95 <<'PY'
+  python3 - "$file" "$OUT/$name.full.jpg" "$w" 95 <<'PY'
 import sys
 from PIL import Image
 src, dst, width, quality = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
@@ -64,7 +95,7 @@ if im.width != width:
 im.save(dst, 'JPEG', quality=quality, optimize=True)
 PY
 
-  python3 - "$file" "$OUT/$name.jpg" "$JPG_WIDTH" "$q" <<'PY'
+  python3 - "$file" "$OUT/$name.jpg" "$jw" "$q" <<'PY'
 import sys
 from PIL import Image
 src, dst, width, quality = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])

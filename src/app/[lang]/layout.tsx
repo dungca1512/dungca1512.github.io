@@ -53,6 +53,10 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
             one section, and a fixed element inside a transformed ancestor
             would be clipped to that ancestor instead of the viewport. */}
         <IntroCurtain />
+        {/* The page's ground. Fixed to the viewport and z-index -1, so it
+            must be outside <main> and outside anything that establishes a
+            containing block. aria-hidden and empty: it is texture. */}
+        <div className="tech-backdrop" aria-hidden="true" />
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
         {/* tabIndex=-1: Safari has historically not moved focus to a
