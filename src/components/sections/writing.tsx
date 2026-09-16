@@ -1,6 +1,7 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { Illustration } from '@/components/site/illustration';
 import { WRITING } from '@/content/writing';
+import { SITE } from '@/content/site';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 
 const ROW =
@@ -91,6 +92,27 @@ export async function Writing() {
           </li>
         ))}
       </ul>
+
+      {/* The band's one real destination. Everything above is a note on work
+          with no published write-up — this is where there is actually
+          something to read, so it gets a button rather than a quiet link.
+
+          Absolute and off-site (a separate deployment, not a route in this
+          export), so it is a plain <a>, not next/link: Link would try to
+          prefetch a route that does not exist here. `rel="noreferrer
+          noopener"` for the same reason every other outbound link carries
+          it. No `target="_blank"` — opening a new tab is a decision the
+          reader's own middle-click already makes better. */}
+      <div className="reveal mt-12 flex justify-center">
+        <a
+          href={SITE.blog}
+          rel="noreferrer noopener"
+          className="duration-fast ease-out-soft border-border hover:bg-surface inline-flex items-center gap-2 rounded-full border px-6 py-3 font-medium transition-all hover:-translate-y-0.5"
+        >
+          {dict.common.readBlog}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </Section>
   );
 }

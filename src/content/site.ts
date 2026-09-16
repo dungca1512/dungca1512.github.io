@@ -8,6 +8,10 @@ export const SITE = {
    *  are plain paths, not imports. */
   avatar: '/profile.webp',
   cv: '/CV_CongAnhDung.pdf',
+  /** Absolute and off-site: a separate deployment, not a route in this
+   *  export. Kept here rather than inline in the Writing band because it is
+   *  a property of the person, not of that one section. */
+  blog: 'https://blog-dungca.ai-innovation-homelab.org/',
   location: {
     en: 'Hanoi, Vietnam',
     vi: 'Hà Nội, Việt Nam',

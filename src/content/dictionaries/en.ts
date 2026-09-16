@@ -25,17 +25,17 @@ const en: Dictionary = {
     projects: 'Projects',
     experience: 'Experience',
     analytics: 'Data',
-    writing: 'Writing',
+    writing: 'Notes',
     contact: 'Contact',
     toggleTheme: 'Toggle light and dark theme',
   },
   common: {
     hireMe: 'Hire Me',
     downloadCv: 'Download CV',
+    readBlog: 'Read the blog',
     repository: 'Repository',
     demo: 'Demo',
     present: 'Present',
-    readArticle: 'Read',
   },
   sections: {
     hero: {
@@ -95,9 +95,9 @@ const en: Dictionary = {
       repoUnit: 'repos',
     },
     writing: {
-      eyebrow: 'Writing',
-      title: 'Notes on infrastructure, MLOps, and cost engineering.',
-      lead: 'Six pieces on things I tried, broke and fixed — mostly GPU cost, LLM serving and operations.',
+      eyebrow: 'Technical notes',
+      title: 'Infrastructure, MLOps and what cost engineering taught me.',
+      lead: 'Things I tried, broke and fixed — mostly around GPU cost, LLM serving and operations.',
     },
     contact: {
       eyebrow: 'Contact',

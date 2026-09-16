@@ -95,6 +95,49 @@ describe('the content the page actually needs is present', () => {
     expect(SITE.cv).toBe('/CV_CongAnhDung.pdf');
     expect(SITE.avatar).toBe('/profile.webp');
   });
+
+  it('sends the blog link off-site, not to a route this export does not have', () => {
+    // A relative '/blog/' here would build, render, and 404 — the blog is a
+    // separate deployment, and check:export only knows about pages inside
+    // out/. Absolute + https is the property that makes it work at all.
+    expect(SITE.blog).toMatch(/^https:\/\//);
+    expect(SITE.blog).toContain('blog-dungca.ai-innovation-homelab.org');
+  });
+});
+
+/* The Writing band used to be called "Bài viết" / "Writing" and its lead
+ * opened "Sáu bài viết…" / with a count — while not one of the six entries
+ * was published anywhere, and the rows linked to GitHub repositories under a
+ * pointer label reading "Đọc bài". The band is now "Ghi chép" / "Notes" and
+ * the count is gone.
+ *
+ * This asserts the copy, in both locales, because the failure was a copy
+ * failure: the markup was fine, the words were the lie. A future edit that
+ * reinstates "bài viết" in the lead is exactly the regression worth catching,
+ * and it would not show up in any structural gate. */
+describe('the writing band does not claim articles it has not published', () => {
+  for (const [name, dict] of [
+    ['vi', vi],
+    ['en', en],
+  ] as const) {
+    it(`${name}: the lead counts nothing and the eyebrow says notes`, () => {
+      const { eyebrow, lead } = dict.sections.writing;
+      expect(lead).not.toMatch(/sáu bài viết|six (articles|posts)/i);
+      expect(eyebrow).toMatch(name === 'vi' ? /ghi chép/i : /notes/i);
+    });
+  }
+
+  it('gives a repository link only to entries that have a repository', () => {
+    // `repo` replaced `href`, and the rename is the whole point: the URL is
+    // the code the note is about, never the note itself. Anything on
+    // github.com that is NOT a repo URL (the bare profile, which is where
+    // the legacy data.js sent all five) is the regression this catches.
+    for (const article of WRITING) {
+      if (article.repo === undefined) continue;
+      expect(article.repo).toMatch(/^https:\/\/github\.com\/[^/]+\/[^/]+$/);
+    }
+    expect(WRITING.filter((a) => a.repo).length).toBe(3);
+  });
 });
 
 /* The <h1> used to be `SITE.name`, and the owner's complaint was exactly that:

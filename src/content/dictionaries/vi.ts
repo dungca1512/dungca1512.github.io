@@ -36,17 +36,17 @@ const vi = {
     projects: 'Dự án',
     experience: 'Kinh nghiệm',
     analytics: 'Dữ liệu',
-    writing: 'Bài viết',
+    writing: 'Ghi chép',
     contact: 'Liên hệ',
     toggleTheme: 'Đổi giao diện sáng/tối',
   },
   common: {
     hireMe: 'Liên hệ hợp tác',
     downloadCv: 'Tải CV',
+    readBlog: 'Đọc blog',
     repository: 'Mã nguồn',
     demo: 'Bản chạy thử',
     present: 'Hiện tại',
-    readArticle: 'Đọc bài',
   },
   sections: {
     hero: {
@@ -113,9 +113,9 @@ const vi = {
       repoUnit: 'repo',
     },
     writing: {
-      eyebrow: 'Bài viết',
-      title: 'Ghi chép về hạ tầng, MLOps và tối ưu chi phí.',
-      lead: 'Sáu bài viết về những thứ tôi đã thử, đã hỏng và đã sửa — chủ yếu quanh chi phí GPU, phục vụ LLM và vận hành.',
+      eyebrow: 'Ghi chép kỹ thuật',
+      title: 'Hạ tầng, MLOps và những bài học tối ưu chi phí.',
+      lead: 'Những thứ tôi đã thử, đã hỏng và đã sửa — chủ yếu quanh chi phí GPU, phục vụ LLM và vận hành.',
     },
     contact: {
       eyebrow: 'Liên hệ',
