@@ -8,15 +8,22 @@ import { css, js } from './helpers.mjs';
    assertion against the block's whole text stayed green with the entire
    `.reveal` rule gutted. That rule is the reveal; the other one is a heading
    underline. */
+/* Every matching block, not the first one. The sheet now carries a second
+   view()-guarded block - the blueprint's drift - and it happens to come first.
+   Matching only the first made this helper assert against a block that was
+   never going to contain `.reveal`, and the failure it reported ("nothing
+   drives the scroll reveal") was a lie about a sheet that was fine. */
 const revealRule = () => {
-    const block = css().match(
-        /@supports\s*\(animation-timeline:\s*view\(\)\)\s*\{([\s\S]*?)\n\}/
-    );
-    assert.ok(block, 'no `@supports (animation-timeline: view())` block found');
+    const blocks = [...css().matchAll(
+        /@supports\s*\(animation-timeline:\s*view\(\)\)\s*\{([\s\S]*?)\n\}/g
+    )];
+    assert.ok(blocks.length > 0, 'no `@supports (animation-timeline: view())` block found');
 
-    const rule = block[1].match(/(?:^|\n)\s*\.reveal\s*\{([\s\S]*?)\n\s*\}/);
-    assert.ok(rule, 'the view() block has no `.reveal` rule; nothing drives the scroll reveal');
-    return rule[1];
+    for (const block of blocks) {
+        const rule = block[1].match(/(?:^|\n)\s*\.reveal\s*\{([\s\S]*?)\n\s*\}/);
+        if (rule) return rule[1];
+    }
+    assert.fail('no view() block has a `.reveal` rule; nothing drives the scroll reveal');
 };
 
 test('the reveal is driven by a view() timeline where supported', () => {

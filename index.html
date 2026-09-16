@@ -13,8 +13,8 @@
     <meta property="og:url" content="https://portfolio-dungca.ai-innovation-homelab.org">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260916c">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260916d">
 </head>
 <body>
     <a class="skip-link" href="#experience">Skip to content</a>
@@ -60,7 +60,11 @@
                          replaces it with one clipping block per line. No data-i18n here:
                          the generic pass would flatten it back to a single string. -->
                     <h1 id="heroTitle">AI/MLOps engineer, 3+ years shipping production AI end-to-end.</h1>
-                    <span class="rule-draw" aria-hidden="true"></span>
+                    <svg class="rule-draw" viewBox="0 0 640 24" preserveAspectRatio="none"
+                         fill="none" aria-hidden="true" focusable="false">
+                        <path d="M4 16C88 6 176 4 264 8c88 4 176 12 264 8 36-3 72-8 108-14"
+                              stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                    </svg>
                     <p class="hero-lead" data-i18n="hero.lead">Speech (ASR, pronunciation and tone scoring) and embedding services on GCP and DigitalOcean for users in VN, JP, KR and CN. Cost-conscious by default: GPU right-sizing, CPU-first inference, self-hosted alternatives to paid APIs.</p>
 
                     <pre class="stack-diagram" aria-label="Delivery path from infrastructure as code to production inference"><code><span class="sd-line" style="--i:0"><span class="sd-key">provision</span>   terraform · ansible</span>
@@ -77,16 +81,18 @@
 
                 <aside class="spec-sheet" aria-label="Profile summary">
                     <div class="spec-id">
-                        <img
-                            id="heroAvatar"
-                            class="hero-avatar"
-                            src="profile.webp"
-                            alt="Portrait of Công Anh Dũng"
-                            width="88"
-                            height="88"
-                            decoding="async"
-                            referrerpolicy="no-referrer"
-                        >
+                        <div class="hero-portrait">
+                            <img
+                                id="heroAvatar"
+                                class="hero-avatar"
+                                src="profile.webp"
+                                alt="Portrait of Công Anh Dũng"
+                                width="88"
+                                height="88"
+                                decoding="async"
+                                referrerpolicy="no-referrer"
+                            >
+                        </div>
                         <div class="spec-id-meta">
                             <strong>Công Anh Dũng</strong>
                             <span id="profileLocation">Hanoi, Vietnam</span>
@@ -128,7 +134,7 @@
             </div>
         </section>
 
-        <section class="section" id="projects">
+        <section class="section section--muted" id="projects">
             <div class="container">
                 <div class="section-head reveal">
                     <span class="section-index">02</span>
@@ -166,7 +172,7 @@
             </div>
         </section>
 
-        <section class="section" id="expertise">
+        <section class="section section--muted" id="expertise">
             <div class="container">
                 <div class="section-head reveal">
                     <span class="section-index">04</span>
@@ -195,7 +201,7 @@
             </div>
         </section>
 
-        <section class="section playbook" id="playbook">
+        <section class="section section--dark blueprint playbook" id="playbook">
             <div class="container">
                 <div class="section-head reveal">
                     <span class="section-index">05</span>
@@ -248,7 +254,7 @@
             </div>
         </section>
 
-        <section class="section" id="writing">
+        <section class="section section--muted" id="writing">
             <div class="container">
                 <div class="section-head reveal">
                     <span class="section-index">07</span>
@@ -306,7 +312,7 @@
         </div>
     </footer>
 
-    <script src="data.js?v=20260916c"></script>
-    <script src="main.js?v=20260916c"></script>
+    <script src="data.js?v=20260916d"></script>
+    <script src="main.js?v=20260916d"></script>
 </body>
 </html>

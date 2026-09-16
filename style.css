@@ -25,13 +25,21 @@
        the default and ink is the exception - inverted from where this sheet
        started. #f4f4f2 is a neutral grey warmed by two points so the amber
        accent does not read as a stain on cold paper. */
-    --bg: #f4f4f2;
+    --bg: #f5f5f5;
+    --bg-muted: #ebebeb;
+    --bg-dark: #0b0b0b;
     --bg-raise: #ffffff;
-    --ink: #14161a;        /* 16.4:1 on --bg */
-    --ink-mid: #55595f;    /*  6.4:1 - AA for body copy */
+    --ink: #000000;        /* 20.4:1 on --bg */
+    --ink-mid: #595d62;    /*  6.3:1 - AA for body copy */
     --ink-dim: #767a80;    /*  3.9:1 - large text and UI furniture only */
-    --line: #d9dade;
-    --line-soft: #e7e7e5;
+    --line: #e2e2e2;
+    --line-soft: #ebebeb;
+
+    /* The dark band inverts the page. Its ink cannot be --bg: a surface colour
+       used as ink on near-black lands at 18:1 and glares, so this is pulled
+       down two steps. */
+    --ink-on-dark: #ededed;
+    --ink-mid-on-dark: #9aa0a6;   /* 6.1:1 on --bg-dark */
     /* The amber had to darken to survive the flip: #c8944b scores 2.4:1 on
        paper, which is decoration, not a link colour. #8f6318 reads at 4.8:1
        on --bg AND carries white at 5.3:1, so the same token works as ink and
@@ -39,19 +47,34 @@
        what it is now good for: rules, bars, and other non-text marks. */
     --accent: #8f6318;
     --accent-dim: #c8944b;
+    /* The portrait dot's halo. Amber at 18% - enough to read as a glow around
+       the mark, far too weak to be mistaken for a second mark. */
+    --accent-halo: rgba(143, 99, 24, 0.18);
     --ok: #3f7a3a;
 
     /* Header over content: opaque enough to read against, sheer enough that the
        page is visibly still there behind it. */
-    --bg-header: rgba(244, 244, 242, 0.85);
+    --bg-header: rgba(245, 245, 245, 0.85);
 
-    /* What replaced the technical grid. The grid was two sets of 1px lines at
-       4.5% - legible as graph paper, which is exactly the claim this sheet no
-       longer makes. This is a single warm wash instead: amber at 5%, wide
-       enough that no edge of it is ever visible, so it reads as light falling
-       on the page rather than as a shape drawn on it. */
-    --wash: rgba(143, 99, 24, 0.05);
-    --band: rgba(143, 99, 24, 0.07);
+    /* ---- Blueprint ----
+       Graph paper, back on the page - but SCOPED this time, which is the whole
+       difference. Under the entire page it was a claim about the document
+       ("this is an engineering drawing"). Behind one dark band it is texture
+       in one room, and the rest of the page stays plain paper.
+
+       Two colours because the band inverts and a line that reads at 6% on
+       paper is invisible on near-black. */
+    --blueprint: rgba(0, 0, 0, 0.055);
+    --blueprint-on-dark: rgba(255, 255, 255, 0.07);
+    --blueprint-cell: 3rem;
+    /* Alpha, not colour: this gradient is only ever read through mask-image,
+       where black means opaque and transparent means gone. It lives here
+       because it is spent by two declarations (-webkit- and standard) and
+       because a literal in a rule is a literal wherever it hides. */
+    --blueprint-mask: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    /* Hairlines inside the dark room. --line at #e2e2e2 would draw white rules
+       across near-black - louder than the text they separate. */
+    --line-on-dark: rgba(255, 255, 255, 0.11);
 
     /* ---- Raised surfaces ----
        A card is a sheet lying ON the page, and these three tokens are the whole
@@ -93,8 +116,20 @@
        lists and real numbers, and a monospace label is honest about that. What
        changed is that the mono is now the exception on the page rather than its
        background hum. */
-    --font-ui: 'DM Sans', system-ui, sans-serif;
+    --font-ui: 'Inter', system-ui, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* ---- Display scale ----
+       Measured off the reference, not chosen: h1 89.6px, h2 61.44px, both at
+       weight 600, leading 0.96, tracking -0.05em. The size is the point. Type
+       this large stops being a label on the content and becomes the content -
+       which is why the reference can spend half a screen on six words and not
+       look empty. Anything timid here and the whole page reverts to a CV. */
+    --display-1: clamp(2.5rem, 6.6vw, 5.6rem);
+    --display-2: clamp(1.9rem, 4.4vw, 3.84rem);
+    --display-lh: 0.96;
+    --display-ls: -0.05em;
+    --display-weight: 600;
 
     --step: 8px;
 
@@ -121,10 +156,16 @@
        feeling like a reply. These two answer a different question: how long
        should a figure take to come back round. They are measured in tens of
        seconds precisely so nothing on screen appears to be responding to you.
-       Only the two decorative figures - the contact orbit and the expertise
-       ticker - may spend them. */
+       Only the decorative figures may spend them - the contact orbit, the
+       expertise ticker, and the portrait's three. */
     --loop-orbit: 54s;
     --loop-ticker: 68s;
+    /* The portrait. Three periods rather than one, and mutually prime enough
+       that the shape, the rise and the ring never come back into phase - which
+       is the difference between something alive and something on a cycle. */
+    --loop-morph: 12s;
+    --loop-float: 8s;
+    --loop-ring: 28s;
 
     /* Decelerates hard at the end: the document settles into place rather than
        coasting to a stop. */
@@ -138,6 +179,15 @@
     /* ---- Hero stagger offsets ----
        Not durations - these place a start point and a step on the timeline, so
        they stay out of check-tokens.mjs's duration scale. */
+    /* The drawn underline's dash length in user units. The path itself measures
+       633.58 (getTotalLength in the browser); 640 rounds up to the viewBox
+       width, which is the number a reader can check by eye. The 6.4-unit excess
+       is 1% of the animation spent on an already-hidden stroke - about 7ms.
+       Round UP, never down: a dasharray shorter than the path leaves a
+       permanent gap in the line. It is a LENGTH, not a duration - it sets how
+       far the dash travels, while --dur-hero sets how long it takes. */
+    --draw-length: 640;
+
     --delay-hero-start: 120ms;  /* lets the page paint before anything moves */
     --stagger-hero: 70ms;       /* line to line - close enough to read as one gesture */
 }
@@ -169,58 +219,73 @@ body {
     background-color: var(--bg);
     min-height: 100vh;
     overflow-x: hidden;
-    /* 'ss01'/'cv05' were IBM Plex stylistic sets and do nothing in DM Sans.
-       This is the one that matters here: DM Sans ships proportional figures,
-       which makes every column of numbers on this page ragged. */
-    font-feature-settings: 'tnum';
+    /* 'tnum' keeps every column of numbers on this page from going ragged.
+       'cv11' is Inter's single-storey 'l' with a tail, which is the difference
+       between 'I' and 'l' being distinguishable at 15px and not; 'ss03' is its
+       rounded quotes. Both are Inter feature tags and are inert in the
+       system-ui fallback, which costs nothing. */
+    font-feature-settings: 'tnum', 'cv11', 'ss03';
     -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- The page's ground ----------
-   Two soft washes of amber, top-left and lower-right, on their own fixed layer.
-
-   The layer and its drift are inherited from the technical grid this replaced,
-   and they are kept for the same reason they were built: a layer can be
-   transformed, and a background-image cannot be moved without repainting it.
-   What changed is only what the layer PAINTS. The grid drew 1px lines, which
-   the eye resolves as graph paper no matter how faint they are; these are
-   radial gradients with no edge anywhere, so the eye reads warmth and never
-   finds a shape.
-
-   `inset: -8vh 0` gives the drift somewhere to travel without exposing an
-   uncovered strip at either edge. */
-
+/* A transform, never `background-position`. Moving the position repaints the
+   whole layer on every frame; moving the layer composites it. */
 @keyframes grid-drift {
     to {
         transform: translateY(-6vh);
     }
 }
 
-body::before {
+/* ---------- Blueprint ----------
+   Graph paper, back on the page. What makes it survivable this time is that it
+   is SCOPED. Stretched under the whole document it was a claim - "you are
+   reading an engineering drawing" - and it applied that claim to the writing
+   list and the contact card alike. Applied to one section it is texture in one
+   room, and every other section stays plain paper.
+
+   `inset: -10% 0` gives the drift somewhere to travel without exposing an
+   ungridded strip at the top or bottom of the room. The mask is what stops the
+   grid having a hard edge where the section does: the lines fade in over the
+   first 18% of the block and back out over the last 18%, so the texture has no
+   boundary of its own and the section's own background is the only edge.
+
+   `z-index: -1` with `isolation: isolate` on the parent, not a bare negative
+   z-index: without the isolated stacking context the layer escapes behind the
+   section's own background and is never seen. */
+.blueprint {
+    position: relative;
+    isolation: isolate;
+}
+
+.blueprint::before {
     content: '';
-    position: fixed;
-    inset: -8vh 0;
+    position: absolute;
+    inset: -10% 0;
     z-index: -1;
     pointer-events: none;
     background-image:
-        radial-gradient(70vw 70vh at 12% 4%, var(--wash), transparent 70%),
-        radial-gradient(60vw 60vh at 92% 62%, var(--wash), transparent 70%);
-    background-repeat: no-repeat;
+        linear-gradient(to right, var(--blueprint) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--blueprint) 1px, transparent 1px);
+    background-size: var(--blueprint-cell) var(--blueprint-cell);
+    -webkit-mask-image: var(--blueprint-mask);
+    mask-image: var(--blueprint-mask);
 }
 
-/* Same guard condition as the header and scroll-progress block far below -
-   deliberately a second @supports rather than one shared block, because these
-   rules belong beside the layer they style, not beside an unrelated header.
-   Duplicating a condition costs nothing; letting the two conditions DRIFT
-   APART would, so if you change one, change both.
+/* The grid drifts against the page as the section crosses the viewport - a
+   parallax of about 6vh over the whole pass. `view()`, not `scroll(root)`: this
+   layer belongs to one section, so its timeline is that section's own progress
+   through the viewport, not the document's.
 
-   Reduced motion does not freeze this. Like the other two scroll-driven
-   effects, it is a direct readout of the user's own scroll position, not a
-   self-running animation - the same reasoning recorded at that block. */
-@supports (animation-timeline: scroll(root block)) {
-    body::before {
+   Guarded, because without a timeline `animation: grid-drift linear both`
+   resolves to a 0s animation that snaps the grid to its end state and leaves it
+   there. Reduced motion does not switch this off, for the same reason recorded
+   at the scroll-progress block far below: it is a readout of the visitor's own
+   scroll position, not something running on its own. */
+@supports (animation-timeline: view()) {
+    .blueprint::before {
         animation: grid-drift linear both;
-        animation-timeline: scroll(root block);
+        animation-timeline: view();
+        animation-range: cover;
     }
 }
 
@@ -262,23 +327,34 @@ a {
 
 /* ---------- Shared type ---------- */
 
+/* Uppercase and widely tracked, which is what makes four small words read as
+   a label rather than as the first line of the paragraph. The `// ` prefix is
+   gone: it was a code comment worn as jewellery, and it put a programming
+   language's punctuation in front of sentences that are not code. */
 .kicker,
 .eyebrow {
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--accent);
 }
 
-.eyebrow::before,
-.kicker::before {
-    content: '// ';
-    color: var(--ink-dim);
+/* The display scale, measured off the reference rather than chosen: weight
+   600, leading 0.96, tracking -0.05em. All three numbers are unusual and all
+   three are load-bearing. Leading under 1 only works because the tracking is
+   negative enough to keep the lines from looking sparse beside their own
+   stacking; loosen either and the headline reverts to a large paragraph. h3 and
+   h4 are small enough that 0.96 would collide, so they take their leading back
+   below. */
+h1, h2, h3, h4 {
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-ls);
+    line-height: var(--display-lh);
 }
 
-h1, h2, h3, h4 {
-    font-weight: 500;
+h3, h4 {
     letter-spacing: -0.015em;
     line-height: 1.25;
 }
@@ -478,16 +554,12 @@ h1, h2, h3, h4 {
 }
 
 .hero-copy h1 {
-    /* The headline carries the page. At 3.4rem it sat at conversational weight
-       with the paragraph under it; at 4.6rem it is the first thing read. */
-    font-size: clamp(2.4rem, 5.2vw, 4.6rem);
-    /* DM Sans at 400 is a text weight; at this size it read as a large
-       paragraph rather than as a headline. 700 is what makes it an
-       announcement. */
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.04;
-    margin: 20px 0 18px;
+    /* The headline carries the page. The reference sets its h1 at 89.6px and
+       spends half a screen on six words; --display-1 tops out at 5.6rem for the
+       same reason. Type this large stops being a label on the content and
+       becomes the content. */
+    font-size: var(--display-1);
+    margin: 24px 0 22px;
     /* No `text-wrap: balance` and no `max-width` in ch: the line breaks are
        authored in data.js, so letting the browser rebalance them would fight
        the copy. `hyphens: none` still matters - it stops "end-to-end" breaking
@@ -528,30 +600,45 @@ h1, h2, h3, h4 {
     animation-delay: calc(var(--delay-hero-start) + var(--reveal-i, 0) * var(--stagger-hero));
 }
 
-/* A 1px rule that draws itself left to right - the technical-document
-   equivalent of a signature. Measured, not sketched: no squiggle, no radius. */
+/* A pen finishing a line under the headline.
+
+   This was a rectangle with a border-radius that grew from scaleX(0), and the
+   difference is the whole point of it. A scaling rectangle has a leading edge
+   that is always a full stop wide - it reads as a bar being extended, because
+   that is what it is. A dashed stroke on a curve un-hides itself along its own
+   arc, so the leading edge travels the path the way a nib does, and the line it
+   leaves is not level anywhere.
+
+   `preserveAspectRatio="none"` in the markup is deliberate and is the second
+   half of the effect: the 640-unit viewBox squashes into a 22rem box, so the
+   stroke comes out thicker on the verticals of each curve than on its
+   horizontals. Uniform scaling would give a mechanically even line - correct,
+   and dead. */
 @keyframes rule-draw {
-    from {
-        transform: scaleX(0);
+    to {
+        stroke-dashoffset: 0;
     }
 }
 
-/* A 1px hairline under the headline was a ruled margin. This is a stroke: thick
-   enough to have been drawn, rounded at both ends, and off-level by just over
-   half a degree.
-
-   The tilt uses the independent `rotate` property, NOT a transform. The draw-on
-   animation owns `transform` (it scales X from 0), so a rotate written there
-   would be overwritten the moment the animation starts. */
 .rule-draw {
     display: block;
     width: min(100%, 22rem);
-    height: 4px;
-    margin-bottom: 26px;
-    border-radius: 999px;
-    background: var(--accent);
-    rotate: -0.6deg;
-    transform-origin: left;
+    height: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--accent);
+    /* The stroke is 4 units wide and centred on a path that runs to y=4 at its
+       highest; half of it would otherwise be clipped by the viewBox. */
+    overflow: visible;
+}
+
+.rule-draw path {
+    /* The path's own length, hard-coded rather than measured at runtime: CSS
+       cannot read it, and getTotalLength() would make a decorative line depend
+       on JavaScript. Re-measure it if the `d` attribute ever changes - a
+       dasharray shorter than the path leaves a permanent gap in the line, and
+       one much longer delays the draw past its own duration. */
+    stroke-dasharray: var(--draw-length);
+    stroke-dashoffset: var(--draw-length);
     animation: rule-draw var(--dur-hero) var(--ease-out-soft) both;
     /* Starts as the last headline line lands: index 3 is the last of the four
        authored lines (data.js keeps both locales to that same line count for
@@ -648,11 +735,81 @@ h1, h2, h3, h4 {
     border-bottom: 1px solid var(--line);
 }
 
-.hero-avatar {
-    width: 76px;
-    height: 76px;
-    object-fit: cover;
+/* ---------- The portrait ----------
+   A circle is the default and says nothing. This is a blob: four corner radii
+   that never agree, cycling through four states that never agree either, so the
+   silhouette is always organic and never twice the same. Nothing else on the
+   page is drawn freehand, which is the point - it is the one element that is a
+   person rather than a fact.
+
+   Three loops, three periods, deliberately not multiples of each other: at 12s,
+   8s and 28s they take over four minutes to return to their starting
+   arrangement. Give two of them the same period and the whole thing snaps into
+   a visible cycle.
+
+   None of it is a response to anything the visitor did, which is why the
+   periods sit in the ambient scale and not in the 100-700ms one. */
+@keyframes portrait-morph {
+    0%, 100% { border-radius: 44% 56% 48% 52% / 56% 43% 57% 44%; }
+    25%      { border-radius: 56% 44% 59% 41% / 43% 57% 42% 58%; }
+    50%      { border-radius: 49% 51% 42% 58% / 58% 45% 55% 42%; }
+    75%      { border-radius: 39% 61% 54% 46% / 48% 56% 44% 52%; }
+}
+
+@keyframes portrait-float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-0.4rem) rotate(2deg); }
+}
+
+@keyframes portrait-ring {
+    to { transform: rotate(360deg); }
+}
+
+.hero-portrait {
+    position: relative;
+    flex: none;
+    width: 92px;
+    height: 92px;
+    animation: portrait-float var(--loop-float) ease-in-out infinite;
+}
+
+/* The ring is a second blob, larger, unfilled and turning. It shares the morph
+   so its outline stays parallel to the portrait's rather than sliding around
+   inside it, and it turns slowly enough that you notice the ring has moved
+   without ever catching it moving. */
+.hero-portrait::before {
+    content: '';
+    position: absolute;
+    inset: -0.55rem;
+    border: 1px solid var(--accent-dim);
+    pointer-events: none;
+    animation:
+        portrait-morph var(--loop-morph) ease-in-out infinite,
+        portrait-ring var(--loop-ring) linear infinite;
+}
+
+/* One small solid mark, with a soft halo around it. It is the only saturated
+   thing in the hero's right-hand column and it exists to give the eye somewhere
+   to land after the headline. */
+.hero-portrait::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: -0.3rem;
+    width: 0.6rem;
+    height: 0.6rem;
     border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0.3rem var(--accent-halo);
+    pointer-events: none;
+}
+
+.hero-avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: portrait-morph var(--loop-morph) ease-in-out infinite;
     filter: grayscale(1) contrast(1.05);
     transition: filter 0.25s linear;
 }
@@ -747,12 +904,12 @@ h1, h2, h3, h4 {
 
 /* ---------- Metrics strip ---------- */
 
-/* The one full-bleed block of colour on the page. It sits directly under the
+/* First of the alternating bands, and the tightest. It sits directly under the
    hero and does the job the old 1px rule under it used to do - it says the
-   introduction has ended - but it says it with a field of warm tint instead of
-   a line, which is the whole argument of this redesign in one element. */
+   introduction has ended - but it says it with a change of paper instead of a
+   line. */
 .strip {
-    background: var(--band);
+    background: var(--bg-muted);
     padding: 20px 0;
 }
 
@@ -790,9 +947,40 @@ h1, h2, h3, h4 {
 
 /* Sections are separated by AIR, not by a rule across the page. A hairline
    between every section is how a spec sheet is set; the distance between two
-   ideas is how an article is set. */
+   ideas is how an article is set.
+
+   Where a boundary does need to be visible, it is a change of paper: every
+   other section is a shade darker, full-bleed, so the page reads as a stack of
+   bands rather than one sheet with headings on it. The tone difference is four
+   points of luminance - enough to see the edge, not enough to read as a box. */
 .section {
     padding: var(--room-section) 0;
+}
+
+.section--muted {
+    background: var(--bg-muted);
+}
+
+/* One room on the page is unlit. It exists so the page has a floor: after a
+   dark band the sections that follow read as bright rather than as default,
+   which is something no amount of light-on-light alternation can buy.
+
+   Every token the room spends is redefined here rather than overridden rule by
+   rule. Subtrees below it - the heading, the list, the hairlines - ask for
+   --ink and --line exactly as they do everywhere else and get the dark room's
+   answers. The accent has to move too: #8f6318 was chosen to survive on paper
+   and lands at 2.2:1 on near-black, so the room spends the lighter amber, which
+   reads at 7.2:1 here and would have read at 2.4:1 on the page. */
+.section--dark {
+    background: var(--bg-dark);
+    color: var(--ink-on-dark);
+    --ink: var(--ink-on-dark);
+    --ink-mid: var(--ink-mid-on-dark);
+    --ink-dim: var(--ink-mid-on-dark);
+    --line: var(--line-on-dark);
+    --line-soft: var(--line-on-dark);
+    --blueprint: var(--blueprint-on-dark);
+    --accent: var(--accent-dim);
 }
 
 .section-head {
@@ -841,11 +1029,12 @@ h1, h2, h3, h4 {
 }
 
 .section-head h2 {
-    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    /* 3.84rem at the top end, against the 2.2rem this was. A section heading
+       at 2.2rem is a label sitting above its content; at this size it is the
+       first thing in the room and the content arranges itself under it. */
+    font-size: var(--display-2);
     margin-top: 4px;
-    max-width: 40ch;
+    max-width: 22ch;
 }
 
 /* ---------- Projects: a table, not cards ---------- */
@@ -1832,6 +2021,14 @@ h1, h2, h3, h4 {
         opacity: 1 !important;
         transform: none !important;
         clip-path: none !important;
+    }
+
+    /* The underline does not park on a transform any more, so the reset above
+       cannot reach it. A stroke hidden by its own dashoffset stays invisible
+       unless the offset is cleared - the one state where reduced motion would
+       have deleted content rather than stilled it. */
+    .rule-draw path {
+        stroke-dashoffset: 0 !important;
     }
 
     /* The one loop the global reset below gets WRONG: that reset parks an

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { css, js, html, data } from './helpers.mjs';
+import { css, js, html, data, rootBlock, blankComments } from './helpers.mjs';
 
 // Both title assertions scope themselves to the `hero:` block first. Unanchored,
 // `/title:/` matches the next `title:` anywhere in data.js - `panel.title` is the
@@ -77,13 +77,20 @@ test('the h1 is addressable by id and keeps its no-JS text', () => {
     );
 });
 
+/* Two assertions, because the size now arrives through a token and either half
+   can fail on its own: the headline can stop spending --display-1, or
+   --display-1 can be quietly shrunk and take every display on the page with it.
+   The floor is 5rem rather than 4: the reference sets its h1 at 89.6px, and a
+   headline that tops out below that is the exact failure this branch exists to
+   correct. */
 test('the headline is scaled up to carry the page', () => {
     const rule = css().match(/\.hero-copy h1\s*\{([\s\S]*?)\n\}/);
     assert.ok(rule, 'style.css has no .hero-copy h1 rule');
+    assert.match(rule[1], /font-size:\s*var\(--display-1\)/, 'the headline must spend the display scale, not its own size');
 
-    const max = rule[1].match(/font-size:\s*clamp\([^,]+,[^,]+,\s*([\d.]+)rem\s*\)/);
-    assert.ok(max, '.hero-copy h1 must set a clamp() font-size');
-    assert.ok(Number(max[1]) >= 4, `headline maxes out at ${max[1]}rem, expected at least 4rem`);
+    const max = rootBlock().match(/--display-1:\s*clamp\([^,]+,[^,]+,\s*([\d.]+)rem\s*\)/);
+    assert.ok(max, '--display-1 must be a clamp() so the headline scales with the viewport');
+    assert.ok(Number(max[1]) >= 5, `the display scale maxes out at ${max[1]}rem, expected at least 5rem`);
 });
 
 test('each line clips to its own baseline', () => {
@@ -130,23 +137,62 @@ test('the headline keyframes move a line up out of its own clip', () => {
     );
 });
 
-test('the accent rule draws itself from the left', () => {
-    const sheet = css();
-    const rule = sheet.match(/\.rule-draw\s*\{([\s\S]*?)\n\}/);
-    assert.ok(rule, 'style.css has no .rule-draw rule');
-    assert.match(rule[1], /transform-origin:\s*left/);
+/* The underline is drawn, not extended: a dashed stroke un-hiding along its own
+   curve, not a rectangle scaling from 0. The distinction is the whole reason it
+   is an SVG at all, and it is entirely recoverable from the sheet - a
+   `transform: scaleX()` keyframe here would mean someone put the bar back and
+   left the markup behind. */
+test('the accent rule draws itself along a curve', () => {
+    const sheet = blankComments(css());
+
+    const frames = sheet.match(/@keyframes rule-draw\s*\{([\s\S]*?)\n\}/);
+    assert.ok(frames, 'style.css has no @keyframes rule-draw');
+    assert.match(frames[1], /stroke-dashoffset:\s*0/, 'the rule must be drawn by retracting a dash, not by scaling a bar');
+    assert.doesNotMatch(frames[1], /transform:/, 'a transform here means the stroke went back to being a scaling rectangle');
+
+    const stroke = sheet.match(/\.rule-draw path\s*\{([\s\S]*?)\n\}/);
+    assert.ok(stroke, 'style.css has no .rule-draw path rule');
+    assert.match(stroke[1], /stroke-dasharray:\s*var\(--draw-length\)/);
+    assert.match(stroke[1], /stroke-dashoffset:\s*var\(--draw-length\)/, 'without a starting offset the whole stroke is visible before it draws');
     assert.match(
-        rule[1],
+        stroke[1],
         /animation:\s*rule-draw\b/,
-        'nothing applies the rule-draw animation, so the accent rule is just a static 1px line'
+        'nothing applies the rule-draw animation, so the accent rule is just a static line'
     );
     // Timed off the LAST headline line (index 3) plus a beat, so it reads as a
     // follow-through. Without the delay it draws under a headline still moving.
     assert.match(
-        rule[1],
+        stroke[1],
         /animation-delay:\s*calc\([^;]*var\(--stagger-hero\)[^;]*\);/,
         'the accent rule must wait for the last headline line'
     );
-    assert.match(sheet, /@keyframes rule-draw\b/);
-    assert.match(html(), /class="rule-draw"/);
+    assert.match(rootBlock(), /--draw-length\s*:/, '--draw-length must be a token; the dash length is the path length');
+});
+
+/* Two attributes carry the hand-drawn quality and both look like boilerplate.
+   `preserveAspectRatio="none"` is what varies the stroke weight around each
+   curve; without it the line comes out mechanically even. And a curve command
+   is what makes it a curve - a `d` of straight line segments would satisfy
+   every assertion above and draw a bar. */
+test('the underline is a squashed curve, not a straight segment', () => {
+    const svg = html().match(/<svg class="rule-draw"[\s\S]*?<\/svg>/);
+    assert.ok(svg, 'index.html has no .rule-draw svg');
+    assert.match(svg[0], /preserveAspectRatio="none"/, 'uniform scaling gives an evenly weighted, mechanical line');
+    assert.match(svg[0], /aria-hidden="true"/, 'the underline is decoration and must not be announced');
+    const d = svg[0].match(/\sd="([^"]+)"/);
+    assert.ok(d, 'the underline svg has no path data');
+    assert.match(d[1], /[Cc]/, 'the path must curve; a line of straight segments is the bar this replaced');
+});
+
+/* The one place reduced motion could delete content instead of stilling it: the
+   stroke's resting state is invisible, so the blanket `transform: none` reset -
+   which is what used to restore this element - now reaches nothing. */
+test('reduced motion leaves the underline drawn, not erased', () => {
+    const block = blankComments(css()).match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*)/);
+    assert.ok(block, 'style.css has no reduced-motion block');
+    assert.match(
+        block[1],
+        /\.rule-draw path\s*\{[^}]*stroke-dashoffset:\s*0\s*!important/,
+        'under reduced motion the stroke must be shown drawn, not left hidden by its own dashoffset'
+    );
 });
