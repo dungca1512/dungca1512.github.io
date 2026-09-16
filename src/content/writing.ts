@@ -9,7 +9,14 @@ import type { Localized } from './locales';
 export type Article = {
   title: Localized<string>;
   blurb: Localized<string>;
-  href: string;
+  /** Optional on purpose. Four of the six entries are notes on work that has
+   *  no published article and no repository of its own in this project's data
+   *  — `public/github-data.json` and `src/content/projects.ts` are the only
+   *  sources of real URLs here, and neither holds one for them. An entry with
+   *  no `href` renders as text rather than as a link to somewhere it is not.
+   *  The old `data.js` pointed all five at `github.com/dungca1512`, the bare
+   *  profile: a link that looks like an article and is not one. */
+  href?: string;
   date: string;
   tags: string[];
 };
@@ -27,7 +34,7 @@ export const WRITING: Article[] = [
       vi: 'Mẫu kiến trúc lai cho agentic RAG: framework sở hữu runtime, code sở hữu điều phối và mọi con số, LLM chỉ được diễn đạt câu chữ — với kiểm chứng grounding làm lớp cưỡng chế.',
     },
     tags: ['Agentic RAG', 'Google ADK', 'Anti-hallucination'],
-    href: 'https://github.com/dungca1512',
+    href: 'https://github.com/dungca1512/research-agent',
   },
   {
     date: '2026',
@@ -40,7 +47,6 @@ export const WRITING: Article[] = [
       vi: 'Thiết kế tầng LLM như một interface để máy chủ CPU-only hôm nay chạy bằng cloud API và sau này chuyển sang vLLM on-premise mà không sửa code ứng dụng.',
     },
     tags: ['LLM Infra', 'vLLM', 'Portability'],
-    href: 'https://github.com/dungca1512',
   },
   {
     date: '2026',
@@ -53,7 +59,6 @@ export const WRITING: Article[] = [
       vi: 'Đo trước khi mua: p95 1.86s với 20 người dùng đồng thời chỉ dùng ~8% một GPU phổ thông, vì sao khoản H100 (~$2,475/tháng) không bao giờ hợp lý, và vì sao CPU-only chết ở trần throughput ~1 req/s.',
     },
     tags: ['Cost Engineering', 'GPU', 'Benchmarking'],
-    href: 'https://github.com/dungca1512',
   },
   {
     date: '2026',
@@ -66,7 +71,6 @@ export const WRITING: Article[] = [
       vi: 'Viết lại chiếc Raspberry Pi cấu hình tay thành một playbook Ansible idempotent: độ trễ DNS 199ms -> 27ms, Slack ChatOps để xem trạng thái và cảnh báo sự cố, CI lint/quét secret và backup mã hóa GPG kèm runbook phục hồi.',
     },
     tags: ['Ansible', 'IaC', 'ChatOps'],
-    href: 'https://github.com/dungca1512',
   },
   {
     date: '2025',
@@ -79,7 +83,7 @@ export const WRITING: Article[] = [
       vi: 'Ghi chú về việc đưa workload ML đang chạy lên Kubernetes với Helm, ArgoCD App-of-Apps và homelab kubeadm bare-metal để thử nghiệm.',
     },
     tags: ['Kubernetes', 'GKE', 'GitOps'],
-    href: 'https://github.com/dungca1512',
+    href: 'https://github.com/dungca1512/homelab',
   },
   {
     date: '2025',
