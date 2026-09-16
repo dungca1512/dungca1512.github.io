@@ -1,6 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { Illustration } from '@/components/site/illustration';
+import { CountUp } from '@/components/motion/count-up';
+import { MockIntersectionObserver } from './setup';
 
 describe('Illustration', () => {
   it('serves avif first, then webp, then the jpg', () => {
@@ -39,5 +42,70 @@ describe('Illustration', () => {
     );
     expect(container.querySelector('picture')).toHaveClass('hero-portrait');
     expect(container.querySelector('img')).not.toHaveClass('hero-portrait');
+  });
+});
+
+describe('CountUp', () => {
+  it('puts the FINAL number in the exported HTML, not zero', () => {
+    // `renderToStaticMarkup` is the same path `next build` takes to produce the
+    // static export, and the export is what a search engine, a visitor with JS
+    // off, and a reduced-motion visitor all read. If the figure lived in React
+    // state this would say 0, and 0 is the number that gets indexed.
+    //
+    // A client-side `render()` CANNOT make this claim. Testing Library flushes
+    // effects before it returns, so by the time an assertion runs the odometer
+    // has already emptied the span and rebuilt it as digit columns — the
+    // assertion would be looking at the machinery, not at the exported output.
+    expect(renderToStaticMarkup(<CountUp value={1400} locale="vi" suffix="+" />)).toBe(
+      '<span>1.400+</span>',
+    );
+  });
+
+  it('formats per locale — 1.400 and 1,400 are different numbers', () => {
+    expect(renderToStaticMarkup(<CountUp value={1400} locale="vi" />)).toContain('1.400');
+    expect(renderToStaticMarkup(<CountUp value={1400} locale="en" />)).toContain('1,400');
+  });
+
+  it('leaves the plain figure alone for a reduced-motion visitor', () => {
+    // jsdom's matchMedia answers `false` to every query, so the reduced-motion
+    // branch is unreachable without this stub — and that branch is the entire
+    // reason the odometer is built in an effect instead of in JSX.
+    const mql = { matches: true } as MediaQueryList;
+    vi.spyOn(window, 'matchMedia').mockReturnValue(mql);
+
+    const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    expect(container.querySelector('span')?.textContent).toBe('1.400+');
+    expect(container.querySelector('span')).not.toHaveAttribute('role', 'img');
+
+    vi.restoreAllMocks();
+  });
+
+  it('keeps the figure as the accessible name once the digits are built', () => {
+    // The 0-9 columns are machinery. A screen reader that walked them would
+    // read all ten digits of every wheel, so the host is labelled with the
+    // figure and the strip is hidden.
+    const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    const host = container.querySelector('span');
+    expect(host).toHaveAttribute('role', 'img');
+    expect(host).toHaveAttribute('aria-label', '1.400+');
+    expect(host?.querySelector('span')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('does not roll until the figure is actually on screen', () => {
+    // `MockIntersectionObserver` (tests/setup.ts) records what it was asked to
+    // observe and lets a test fire an entry by hand. Without driving it, no
+    // transform should have been written — a roll that fires on mount happens
+    // above the fold where nobody sees it.
+    const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    const columns = () =>
+      [...container.querySelectorAll('span[style*="will-change"]')].map(
+        (c) => (c as HTMLElement).style.transform,
+      );
+    expect(columns().length).toBeGreaterThan(0);
+    expect(columns().every((t) => t === '')).toBe(true);
+
+    const io = MockIntersectionObserver.instances.at(-1);
+    io?.trigger(container.querySelector('span')!);
+    expect(columns().some((t) => t.startsWith('translateY('))).toBe(true);
   });
 });

@@ -89,6 +89,32 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
     MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
 
+/**
+ * jsdom has never implemented `window.matchMedia` — not in this version, not
+ * in any version; there is no flag that turns it on. `CountUp`
+ * (src/components/motion/count-up.tsx) reads
+ * `matchMedia('(prefers-reduced-motion: reduce)').matches` to decide whether
+ * to build the rolling digits at all, so without a stub every render throws
+ * `TypeError: window.matchMedia is not a function` the moment its effect
+ * runs. The stub answers `false` — "no preference for reduced motion" — to
+ * every query, which is what lets the odometer-building branch run by
+ * default; a test that needs the reduced-motion branch instead overrides it
+ * with `vi.spyOn(window, 'matchMedia')`.
+ */
+if (typeof window.matchMedia !== 'function') {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+}
+
 // Reset here, globally, rather than leaving it to each test file's own
 // `afterEach`. Task 7 renders a `Section` (which wraps every band in
 // `RevealScope`) in a test file per section; each render pushes a new
