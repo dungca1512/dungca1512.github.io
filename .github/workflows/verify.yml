@@ -13,10 +13,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
+          cache: npm
 
-      # No `npm ci`: this project has no dependencies, and `node --test` is
-      # built into Node. Adding an install step here would be the first step
-      # toward needing one.
-      - name: Verify
-        run: npm run verify
+      - run: npm ci
+      - run: npm run verify
