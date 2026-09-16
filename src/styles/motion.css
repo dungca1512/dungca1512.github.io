@@ -1,1 +1,166 @@
-/* Task 8: shared motion tokens/utilities land here. */
+/* Reveal runs on `animation-timeline: view()` — the browser drives it from
+   scroll position with no JS at all. Where that is missing, ONE
+   IntersectionObserver sets data-inview and a transition takes over. The
+   feature-query guard below (see the first `@supports` block) makes the two
+   mutually exclusive by construction, so they can never both be running on
+   the same element. */
+
+@keyframes site-reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes site-reveal-clip {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(0.75rem);
+  }
+}
+
+@keyframes site-drift {
+  to {
+    transform: translateY(-6%);
+  }
+}
+
+@utility reveal {
+  animation: site-reveal-up var(--duration-slow) var(--ease-spring) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 26%;
+}
+
+@utility reveal-clip {
+  animation: site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+
+/* For content that is ALREADY in the viewport at load — the hero. A
+   scroll-driven animation on it would never play, because it never enters. */
+@utility reveal-load {
+  animation: site-reveal-up var(--duration-slow) var(--ease-spring) both;
+}
+
+@utility reveal-clip-load {
+  animation: site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
+}
+
+@supports not (animation-timeline: view()) {
+  /* `.js` matters: without JS nothing sets data-inview, and this rule would
+     leave every revealing element at opacity 0 forever. */
+  .js .reveal,
+  .js .reveal-clip {
+    animation: none;
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity var(--duration-slow) var(--ease-out-soft),
+      transform var(--duration-slow) var(--ease-out-soft);
+  }
+
+  .js .reveal[data-inview='true'],
+  .js .reveal-clip[data-inview='true'] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The headline underline draws itself on: `stroke-dashoffset` runs from the
+   full path length down to 0 as the element scrolls through view.
+   `stroke-dasharray` is set to the SAME value and stays static — the
+   keyframe only ever touches the offset — so at the animation's start the
+   single dash sits shifted entirely behind the path's origin (0% visible),
+   and at its end (offset 0) that same dash covers the whole path (100%
+   visible). The path (`M4 16C88 6 176 4 264 8c88 4 176 12 264 8 36-3 72-8
+   108-14`, in the `0 0 640 24` viewBox drawn-underline.tsx uses) measures
+   633.58 user units via `getTotalLength()`; 660 comfortably exceeds that so
+   a sub-pixel measurement difference across browsers, or the stretch from
+   `preserveAspectRatio="none"`, can never leave a sliver of the tail
+   undrawn. (That stretch does mean the drawing does not progress at a
+   constant rate across the headline's on-screen width — the path's curviest
+   third draws at a different apparent speed than its straighter ends once
+   it is stretched non-uniformly to the headline's box. Purely cosmetic: the
+   dash math that makes the animation start empty and end whole is
+   unaffected, because it operates in the path's own, unstretched,
+   coordinate space.) */
+@keyframes site-draw-underline {
+  from {
+    stroke-dashoffset: 660;
+  }
+}
+
+.drawn-line path {
+  stroke-dasharray: 660;
+  animation: site-draw-underline var(--duration-slow) var(--ease-out-soft) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+
+@supports not (animation-timeline: view()) {
+  .js .drawn-line path {
+    animation: none;
+    stroke-dashoffset: 660;
+    transition: stroke-dashoffset var(--duration-slow) var(--ease-out-soft);
+  }
+
+  .js .drawn-line[data-inview='true'] path {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Child n arrives after child n-1. Capped at eight steps: past that the last
+   item is still waiting when the reader has moved on. */
+@utility stagger {
+  & > * {
+    animation-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
+    transition-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
+  }
+}
+
+/* A very slow drifting grid behind a band. The colour is the border token
+   thinned out, so it follows the theme. */
+@utility blueprint {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -10% 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in srgb, var(--base-border) 55%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--base-border) 55%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 3rem 3rem;
+    mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+    animation: site-drift linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+}
+
+/* 2px of lift on a chip. Enough to read as a response, not enough to shift
+   the line of text next to it. */
+@utility pop-on-hover {
+  transition:
+    transform var(--duration-fast) var(--ease-spring),
+    box-shadow var(--duration-fast) var(--ease-out-soft);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+  }
+}

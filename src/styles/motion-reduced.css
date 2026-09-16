@@ -1,1 +1,30 @@
-/* Task 8: prefers-reduced-motion overrides land here. */
+/* NOT `animation: none` on its own. These animations are filled `both`, so
+   removing the animation parks the element on its FIRST frame — opacity 0 —
+   and the content disappears for exactly the people who asked for less motion.
+   Every reset below has to land on the LAST frame instead. */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-clip,
+  .reveal-load,
+  .reveal-clip-load,
+  .blueprint::before {
+    animation: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* The drawn underline is an exception: the stroke IS the graphic. Drop the
+     animation but hand back the dash values, or the line vanishes. */
+  .drawn-line path {
+    animation: none !important;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+
+  .pop-on-hover {
+    transition: none !important;
+  }
+}
