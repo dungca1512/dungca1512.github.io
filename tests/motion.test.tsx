@@ -39,6 +39,11 @@ function ruleFor(css: string, selector: string): Rule | undefined {
   const root = postcss.parse(css);
   let found: Rule | undefined;
   root.walkAtRules('media', (atRule) => {
+    // `not all and (prefers-reduced-motion: reduce)` CONTAINS the query while
+    // meaning its exact opposite — the reset would apply to everyone except
+    // the people who asked for less motion. A substring test alone cannot
+    // tell the two apart, so a negated query is rejected outright.
+    if (/^\s*not\b/.test(atRule.params)) return;
     if (!REDUCED_MOTION_MEDIA.test(atRule.params)) return;
     atRule.walkRules((rule) => {
       if (rule.selectors.includes(selector)) found = rule;
@@ -112,6 +117,18 @@ const SUPPORTED_PATH_COMMANDS = 'MmLlCcZz';
  *  command and must not trip the guard below. */
 const ALL_PATH_COMMANDS = /[MmLlHhVvCcSsQqTtAaZz]/g;
 
+/* One SVG number. The exponent must accept `E` as well as `e`, and an
+   explicit `+`, because the guard above deliberately lets BOTH letters
+   through (they are numbers, not commands) — so anything the guard waves
+   past has to be something this can actually read. An earlier version
+   matched only `e` with no `+`, which meant `1E-2` parsed as the two
+   numbers 1 and -2 and `1e+1` as 1 and 1: the coordinate list silently
+   mis-paired and the measured length came back confidently wrong. That is
+   the same silent-wrong-answer the command guard exists to prevent, just
+   moved from command letters into number syntax, and both spellings are
+   emitted by real SVG tooling. */
+const NUMBER = /-?\d*\.?\d+(?:[eE][-+]?\d+)?/g;
+
 /**
  * A small, deliberately partial SVG path-length approximator: it handles
  * exactly the commands a hand-drawn decorative underline is plausibly built
@@ -152,7 +169,7 @@ function svgPathLength(d: string, curveSteps = 1000): number {
 
   for (const command of commands) {
     const type = command[0];
-    const nums = (command.slice(1).match(/-?\d*\.?\d+(?:e-?\d+)?/g) ?? []).map(Number);
+    const nums = (command.slice(1).match(NUMBER) ?? []).map(Number);
 
     if (type === 'M' || type === 'm') {
       const point: Point =
@@ -297,8 +314,24 @@ describe('the SVG path-length approximator', () => {
   });
 
   it('does not mistake scientific-notation numbers (containing the letter e) for a command', () => {
-    expect(() => svgPathLength('M0 0L1e1 0')).not.toThrow();
-    expect(svgPathLength('M0 0L1e1 0')).toBeCloseTo(10, 5);
+    // The guard lets both `e` and `E` through because they are numbers, not
+    // commands. That makes it this parser's job to read every spelling the
+    // guard waves past — uppercase exponent and explicit `+` included.
+    // Reading only lowercase-`e`-without-`+` split the exponent off as a
+    // separate coordinate, mis-paired the number list and returned a
+    // confidently wrong length: `1E-2` measured 2.236 instead of 0.01, and
+    // `1e+1` measured 1.414 instead of 10.
+    for (const [d, expected] of [
+      ['M0 0L1e1 0', 10],
+      ['M0 0L1E1 0', 10],
+      ['M0 0L1e+1 0', 10],
+      ['M0 0L1E+1 0', 10],
+      ['M0 0L1e-2 0', 0.01],
+      ['M0 0L1E-2 0', 0.01],
+    ] as [string, number][]) {
+      expect(() => svgPathLength(d), d).not.toThrow();
+      expect(svgPathLength(d), d).toBeCloseTo(expected, 5);
+    }
   });
 });
 
@@ -345,6 +378,19 @@ describe('the drawn underline in the DOM', () => {
 });
 
 describe('prefers-reduced-motion', () => {
+  it('ignores a reduced-motion query that has been negated', () => {
+    // `not all and (prefers-reduced-motion: reduce)` CONTAINS the query while
+    // meaning its exact opposite: the reset would reach everyone EXCEPT the
+    // people who asked for less motion. A substring test cannot tell the two
+    // apart, so ruleFor has to reject the negated form outright — otherwise
+    // the inversion lands with every test still green.
+    const body = '{ .reveal { opacity: 1 !important } }';
+    expect(ruleFor(`@media (prefers-reduced-motion: reduce) ${body}`, '.reveal')).toBeDefined();
+    expect(
+      ruleFor(`@media not all and (prefers-reduced-motion: reduce) ${body}`, '.reveal'),
+    ).toBeUndefined();
+  });
+
   const REVEALING_SELECTORS = [
     '.reveal',
     '.reveal-clip',
