@@ -1,1 +1,16 @@
-/* Task 9: hero section styles land here. */
+/* The portrait sits in a circle with a soft tinted ground behind it, so a
+   rectangular illustration reads as part of the page rather than as a photo
+   dropped on it. */
+.hero-portrait {
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--base-primary) 8%, var(--base-surface));
+  aspect-ratio: 1;
+}
+
+.hero-portrait img {
+  height: 100%;
+  object-fit: cover;
+}
