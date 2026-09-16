@@ -1,0 +1,37 @@
+/* ─── Illustrations in dark mode ──────────────────────────────────────────
+   The art is generated on the light page ground — the prompts in
+   scripts/illustration-prompts.mjs lock every illustration to the same
+   background colour the light theme uses. On the dark theme that ground is a
+   bright panel on a near-black page: six of them down the page, each one
+   glaring, which is the opposite of what the art is for.
+
+   Generating a second dark set is the alternative, and it is the wrong trade:
+   seven more files against a 40KB-per-file budget, seven more prompts to keep
+   in step, and a second set that would drift from the first the moment either
+   was redrawn.
+
+   `invert(1)` alone flips the ground to near-black but also takes the blue to
+   orange and the amber to blue. `hue-rotate(180deg)` puts the hues back:
+   invert moves every hue by 180 degrees on the wheel and the rotate moves it
+   back, leaving only the lightness flipped. Measured on the shipped files, the
+   inverted ground lands within one point of the dark theme's own background,
+   so the art reads as part of the page rather than as a plate on it.
+
+   No colour literals here, and none in the prose either: scripts/
+   check-no-hardcoded-colors.mjs matches anywhere on a line, comments
+   included, and that is the right call — a hex in a comment is how a hex in a
+   declaration gets talked into existing. docs/illustrations.md carries the
+   palette table.
+
+   The selector is the theme attribute rather than a media query on purpose.
+   It is set on <html> by the theme toggle AND on the Contact <section>, which
+   is a dark band in both themes — so light-ground art placed in that band is
+   inverted at all times, which is what it needs.
+
+   `contact`'s own art is excluded: it is generated on the dark ground already
+   (see SHARED_DARK in the prompts module), so inverting it would put the
+   dark-band art on white. It carries `data-art-dark="true"`, and that
+   attribute is what tests/illustrations.test.ts asserts. */
+[data-theme='dark'] picture[data-art-dark='false'] img {
+  filter: invert(1) hue-rotate(180deg);
+}

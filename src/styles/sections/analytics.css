@@ -1,0 +1,171 @@
+/* The GitHub band's four charts. No charting library: every shape here is a
+   div with a percentage on it, which is why this band costs zero kilobytes of
+   JavaScript and survives with styles disabled — the numbers are printed next
+   to every bar, so the text alone still reads as a table.
+
+   The bars animate by TRANSFORM, never by width or height. Animating the
+   dimension re-lays-out the whole card on every frame; a scale runs on the
+   compositor. The measured size stays in `width`/`height` so the layout is
+   correct before a single frame plays, and the scale only replays it. */
+
+@keyframes site-bar-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes site-bar-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ── Language mix: a label, a bar, a count ───────────────────────────────── */
+
+.gh-bar-track {
+  position: relative;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.gh-bar-fill {
+  display: block;
+  height: 100%;
+  width: var(--w);
+  border-radius: 999px;
+  background: var(--gh-series, var(--color-primary));
+  transform-origin: left center;
+  animation: site-bar-x 0.9s var(--base-ease) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 34%;
+}
+
+.gh-swatch {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 3px;
+  background: var(--gh-series, var(--color-primary));
+}
+
+/* Series colour is chosen by attribute rather than by an inline style so that
+   no colour value is ever written in a .tsx file — src/app/globals.css stays
+   the one place colour is decided, which is the rule scripts/
+   check-no-hardcoded-colors.mjs enforces. */
+[data-series='1'] {
+  --gh-series: var(--site-chart-1);
+}
+[data-series='2'] {
+  --gh-series: var(--site-chart-2);
+}
+[data-series='3'] {
+  --gh-series: var(--site-chart-3);
+}
+[data-series='4'] {
+  --gh-series: var(--site-chart-4);
+}
+[data-series='5'] {
+  --gh-series: var(--site-chart-5);
+}
+[data-series='6'] {
+  --gh-series: var(--site-chart-6);
+}
+
+/* ── Update rhythm: twelve columns ───────────────────────────────────────── */
+
+.gh-cols {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.25rem;
+  height: 7.5rem;
+}
+
+.gh-col-bar {
+  width: 100%;
+  /* The floor is the point. Eight of these twelve months are zero, and a
+     zero-height bar is indistinguishable from a month the chart forgot to
+     draw. A 3px stub reads as "measured, and it was nothing", which is what
+     the data says. The count printed under every column is the real value
+     either way. */
+  height: max(3px, var(--h));
+  border-radius: 3px 3px 0 0;
+  background: var(--color-primary);
+  transform-origin: bottom center;
+  animation: site-bar-y 0.7s var(--base-ease) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 36%;
+}
+
+.gh-col-bar[data-empty='true'] {
+  background: var(--color-border);
+}
+
+/* ── Freshness: one stacked bar plus a legend ────────────────────────────── */
+
+.gh-fresh {
+  display: flex;
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-surface-muted);
+}
+
+.gh-fresh-seg {
+  width: var(--w);
+  transform-origin: left center;
+  animation: site-bar-x 0.9s var(--base-ease) both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 34%;
+}
+
+[data-fresh='d30'] {
+  background: var(--site-fresh-30);
+}
+[data-fresh='d90'] {
+  background: var(--site-fresh-90);
+}
+[data-fresh='d180'] {
+  background: var(--site-fresh-180);
+}
+[data-fresh='older'] {
+  background: var(--site-fresh-older);
+}
+
+.gh-dot {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 999px;
+}
+
+/* ── Fallbacks ───────────────────────────────────────────────────────────── */
+
+/* Without scroll-driven timelines the animation would run once on load, far
+   above the fold, and every bar would already be finished by the time it was
+   scrolled to. Parking them at full size is the honest fallback. */
+@supports not (animation-timeline: view()) {
+  .gh-bar-fill,
+  .gh-col-bar,
+  .gh-fresh-seg {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-bar-fill,
+  .gh-col-bar,
+  .gh-fresh-seg {
+    animation: none !important;
+    transform: none !important;
+  }
+}

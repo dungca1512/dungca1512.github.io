@@ -1,92 +1,139 @@
-/* This site's advantage over a framework build is its weight. That is only true
-   until someone stops watching. The ceilings below are set above where the site
-   sits today - enough room to work, not enough to drift into a different class
-   of page.
+/* Measures what a visitor downloads, from the HTML they would be served.
+   Two ceilings, and they are different kinds of number:
 
-   The code ceiling moved from 40KB to 48KB when the sheet was redesigned from
-   hairlines to raised surfaces (radii, shadows, washes, and the prose that
-   argues for them). It moved because the page changed on purpose, not because a
-   gate was inconvenient - and it moved by less than the old "25% above today"
-   rule would give (that would be 53KB), for a measured reason:
+   - JS, 200 KB gzip per page. Transfer size, because that is what crosses the
+     wire. The reference sets 120 KB as a target and 330 KB as a ceiling, and
+     says the gap exists only because the design system's barrel does not
+     tree-shake. This site is smaller than the reference and takes the tighter
+     number. If something makes it unreachable, raise it ONCE, in a commit whose
+     message carries the measurement - do not nudge it.
 
-     style.css  63.3KB raw / 17.1KB gzip
-     the same sheet with comments stripped  39.4KB raw / 7.1KB gzip
-
-   Roughly 10KB gzip - about a quarter of everything a visitor downloads - is
-   commentary, and Pages serves the sheet exactly as it is written. That is a
-   deliberate trade (the comments are why the next person can edit this safely)
-   but it is also the single largest line item here, and it is bigger than the
-   entire redesign that pushed this ceiling up. The headroom left above is
-   therefore small on purpose: the next increase should have to confront that
-   10KB - by minifying on deploy, which this repo does not do today - rather
-   than quietly absorb it. */
-import { readFileSync, existsSync, statSync } from 'node:fs';
-import { dirname, join, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+   - Images, 40 KB RAW per file. Not gzip: images are already compressed and
+     gzip does nothing for them, and next.config has images.unoptimized, so the
+     bytes on disk are the bytes served. */
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
-import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-
-const CODE = ['index.html', 'style.css', 'main.js', 'data.js'];
-const CODE_CEILING_KB = 48;
+const OUT = 'out';
+const PAGES = ['vi/index.html', 'en/index.html'];
+const JS_CEILING_KB = 200;
 const IMAGE_CEILING_KB = 40;
-const IMAGE_TYPES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.ico']);
+const IMAGE_RE = /\.(png|jpe?g|webp|avif|gif)$/i;
 
 let failed = false;
+const fail = (...lines) => {
+  for (const line of lines) console.error(line);
+  failed = true;
+};
 
-// Gzip the files together: they ship together, and separate gzip streams
-// overstate the total by repeating each file's dictionary.
-const combined = Buffer.concat(
-    CODE.filter((name) => existsSync(join(root, name))).map((name) => readFileSync(join(root, name)))
-);
-const codeKb = gzipSync(combined, { level: 9 }).length / 1024;
+for (const page of PAGES) {
+  const html = readFileSync(join(OUT, page), 'utf8');
+  // Only the scripts THIS page loads. A flat sum over _next/static would count
+  // chunks that no page references.
+  const srcs = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]);
+  const unique = [...new Set(srcs)];
 
-console.log(`  code   ${codeKb.toFixed(1)} KB gzip  (ceiling ${CODE_CEILING_KB} KB)  ${CODE.join(' + ')}`);
+  // A page that loads no script at all is not a page that passed the budget;
+  // it is a regex that stopped matching. Next always emits at least its own
+  // runtime chunk, so zero here means this loop measured nothing.
+  if (unique.length === 0) {
+    fail(
+      `FAIL  ${page} lists no <script src>, so this gate measured nothing.`,
+      `      Either the export is broken or the script regex no longer matches.`,
+    );
+    continue;
+  }
 
-if (codeKb > CODE_CEILING_KB) {
-    console.error(`FAIL  code is ${codeKb.toFixed(1)}KB gzip, over the ${CODE_CEILING_KB}KB ceiling`);
-    failed = true;
-}
-
-// Ask git what ships, rather than reading the root directory. A flat
-// `readdirSync(root)` only measured images sitting beside index.html, so the
-// first `assets/` or `img/` folder anyone added would carry an unbudgeted 2MB
-// hero straight past this gate. A recursive walk overcorrects the other way:
-// it would weigh .playwright-mcp screenshots and this branch's scratch
-// workspace, neither of which any visitor downloads. Tracked files are
-// exactly the set Pages publishes, and the ignore rules that define it live
-// in .gitignore where they are already maintained.
-function trackedImages() {
-    let listing;
+  let total = 0;
+  // A page that lost a chunk has already failed. Without this flag it would
+  // still print its `OK <size>` line below, because the bytes it could read
+  // do fit - an OK next to a FAIL for the same page reads as noise.
+  let missing = false;
+  for (const src of unique) {
+    const path = join(OUT, src.replace(/^\//, ''));
     try {
-        listing = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' });
-    } catch (error) {
-        // Fail rather than fall back to a partial scan: a budget gate that
-        // silently stops measuring is worse than one that stops running.
-        console.error(`FAIL  cannot list tracked files (${error.message.split('\n')[0]}).`);
-        console.error('      This gate measures what git publishes, so it needs to run inside the repo.');
-        process.exit(1);
+      total += gzipSync(readFileSync(path)).length;
+    } catch {
+      fail(`FAIL  ${page} loads ${src}, which is not in the export.`);
+      missing = true;
     }
+  }
 
-    return listing
-        .split('\0')
-        .filter((name) => name && IMAGE_TYPES.has(extname(name).toLowerCase()));
-}
+  /* Every local asset the page points at, resolved against the export. The
+     script loop above already does this for chunks; nothing did it for images
+     or stylesheets, so renaming an <Illustration name> left a page full of
+     404s with all four gates green - the files were still on disk, so the
+     count passed, and no gate compared the names on disk to the names in the
+     HTML. Verified: it does now. */
+  const assets = [
+    ...html.matchAll(/<img[^>]+src="([^"]+)"/gi),
+    ...html.matchAll(/<source[^>]+srcset="([^"]+)"/gi),
+    ...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/gi),
+  ]
+    // A srcSet entry may carry a `1x` / `640w` descriptor after the URL.
+    .map((m) => m[1].split(/\s+/)[0])
+    .filter((src) => src.startsWith('/'));
+  const uniqueAssets = [...new Set(assets)];
 
-// Images are served as-is, so raw bytes are what the visitor pays.
-for (const name of trackedImages()) {
-    const kb = statSync(join(root, name)).size / 1024;
-    console.log(`  image  ${kb.toFixed(1)} KB       (ceiling ${IMAGE_CEILING_KB} KB)  ${name}`);
+  const pictures = uniqueAssets.filter((src) => IMAGE_RE.test(src));
+  if (pictures.length === 0) {
+    fail(
+      `FAIL  ${page} points at no local image, so this check measured nothing.`,
+      `      Every locale page renders four illustrations in three formats.`,
+    );
+  }
 
-    if (kb > IMAGE_CEILING_KB) {
-        console.error(`FAIL  ${name} is ${kb.toFixed(1)}KB, over the ${IMAGE_CEILING_KB}KB ceiling`);
-        failed = true;
+  for (const src of uniqueAssets) {
+    try {
+      statSync(join(OUT, src.replace(/^\//, '')));
+    } catch {
+      fail(`FAIL  ${page} points at ${src}, which is not in the export.`);
+      missing = true;
     }
+  }
+  if (!missing) {
+    console.log(`OK    ${page}  ${uniqueAssets.length} local asset(s), all present`);
+  }
+
+  const kb = (total / 1024).toFixed(1);
+  if (missing) {
+    // already reported
+  } else if (total > JS_CEILING_KB * 1024) {
+    fail(
+      `FAIL  ${page}  ${kb} KB gzip of JS across ${unique.length} scripts`,
+      `      Ceiling is ${JS_CEILING_KB} KB. Find what grew before raising it.`,
+    );
+  } else {
+    console.log(`OK    ${page}  ${kb} KB gzip / ${JS_CEILING_KB} KB  (${unique.length} scripts)`);
+  }
 }
 
-if (failed) {
-    process.exit(1);
+/* `readdirSync(.., { recursive: true })` rather than `fs.globSync`: globSync is
+   still flagged experimental, CI runs the Node 22 pinned in .nvmrc, and a brace
+   pattern a runtime does not expand matches nothing. A loop over nothing passes
+   while measuring nothing - the exact shape of gate this repo keeps shipping.
+   The floor below is the second half of that guard. */
+const images = readdirSync(OUT, { recursive: true })
+  .map((entry) => join(OUT, entry.toString()))
+  .filter((file) => IMAGE_RE.test(file));
+
+if (images.length < 12) {
+  fail(
+    `FAIL  found ${images.length} image(s) under ${OUT}/, expected at least 12.`,
+    `      The four illustrations ship in three formats each; fewer means the`,
+    `      export dropped them or this walk stopped finding them.`,
+  );
+} else {
+  console.log(`OK    ${images.length} image(s) found under ${OUT}/`);
 }
 
-console.log('OK    within budget');
+for (const file of images) {
+  const size = statSync(file).size;
+  if (size > IMAGE_CEILING_KB * 1024) {
+    fail(`FAIL  ${file}  ${(size / 1024).toFixed(1)} KB raw, ceiling ${IMAGE_CEILING_KB} KB`);
+  }
+}
+
+if (failed) process.exit(1);
+console.log('OK    every page and image is inside budget');

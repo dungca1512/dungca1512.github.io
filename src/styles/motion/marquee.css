@@ -1,0 +1,90 @@
+/* Dải chữ chạy ngang, đi kèm components/motion/scroll-marquee.tsx.
+   Ported from the hands portfolio's `.capability-marquee`, renamed: nothing here
+   is specific to a capabilities band, and the ScrollMarquee component it styles
+   is generic. The animation lives in CSS, not JS, so the strip keeps moving
+   while the visitor sits still without a page-wide requestAnimationFrame. */
+
+@keyframes site-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 12% 50%,
+      color-mix(in srgb, var(--base-primary) 18%, transparent),
+      transparent 28%
+    ),
+    var(--base-background);
+}
+
+/* The two edge fades. Without them the strip appears to be cut off mid-word at
+   both ends, which reads as a layout bug rather than as motion. */
+.marquee::before,
+.marquee::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 7rem;
+  content: '';
+  pointer-events: none;
+}
+
+.marquee::before {
+  left: 0;
+  background: linear-gradient(to right, var(--base-background), transparent);
+}
+
+.marquee::after {
+  right: 0;
+  background: linear-gradient(to left, var(--base-background), transparent);
+}
+
+.marquee > div {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  min-height: 4.5rem;
+  align-items: center;
+}
+
+.marquee .marquee-track {
+  animation: site-marquee var(--marquee-duration, 28s) linear infinite;
+  will-change: transform;
+}
+
+/* Pausing on `focus-within` as well as `hover` is the part that matters for
+   keyboard users: a link inside a strip that never stops moving cannot be read
+   before it leaves the screen. */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
+.marquee li {
+  color: var(--base-foreground);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee .marquee-track {
+    animation: none;
+    justify-content: flex-start;
+    will-change: auto;
+  }
+
+  /* Reduced motion is a change of mechanism, not a removal: the strip stops
+     moving itself and becomes something the visitor scrolls by hand. */
+  .marquee {
+    overflow-x: auto;
+    scroll-behavior: auto;
+  }
+}

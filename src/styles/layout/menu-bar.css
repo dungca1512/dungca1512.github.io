@@ -1,0 +1,43 @@
+/* A floating pill rather than a full-width bar. `backdrop-filter` on a
+   translucent surface, so the page shows through as it scrolls underneath. */
+.menu-bar {
+  position: fixed;
+  inset: 0.75rem 0 auto;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-inline: 1rem;
+  pointer-events: none;
+}
+
+/* `max-width` and horizontal padding both read the same values `Container`
+   uses (`--container-content` from globals.css; 1.25rem / 2rem mirror its
+   `px-5 sm:px-8`, at the same 40rem breakpoint Tailwind's `sm:` compiles to)
+   — Task 8 review, V2. Before this, the pill carried its own `64rem` and the
+   container carried `100rem`: two independent numbers with no reason to
+   agree, so nothing on the page ever lined up with the nav. Sharing one
+   token is what stops them drifting apart again; the matching padding is
+   what puts the brand name directly above the headline below it rather than
+   merely inside the same rough column. */
+.menu-bar-pill {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: var(--container-content);
+  padding-block: 0.5rem;
+  padding-inline: 1.25rem;
+  border: 1px solid var(--base-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--base-surface) 82%, transparent);
+  box-shadow: var(--base-shadow-raised);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  justify-content: space-between;
+}
+
+@media (min-width: 40rem) {
+  .menu-bar-pill {
+    padding-inline: 2rem;
+  }
+}

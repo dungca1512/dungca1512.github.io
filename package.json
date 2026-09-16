@@ -1,15 +1,48 @@
 {
   "name": "portfolio-dungca",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "type": "module",
-  "description": "Static portfolio. No build step - npm is used only for tests and quality gates.",
+  "description": "Bilingual portfolio for Công Anh Dũng. Next.js static export on GitHub Pages.",
   "scripts": {
-    "test": "node scripts/run-tests.mjs",
-    "check:tokens": "node scripts/check-tokens.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "sync:github": "node scripts/sync-github.mjs",
+    "check:export": "node scripts/check-export.mjs",
+    "check:content": "node scripts/check-content.mjs",
+    "check:colors": "node scripts/check-no-hardcoded-colors.mjs",
     "check:budget": "node scripts/check-budget.mjs",
-    "verify": "npm test && npm run check:tokens && npm run check:budget",
-    "serve": "python3 -m http.server 8011"
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run check:colors && npm run build && npm run check:export && npm run check:content && npm run check:budget"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "jsdom": "^25.0.1",
+    "postcss": "^8",
+    "prettier": "3.9.6",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^3.0.5"
   },
   "engines": {
     "node": ">=22"

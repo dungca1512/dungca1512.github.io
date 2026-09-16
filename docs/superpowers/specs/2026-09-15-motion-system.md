@@ -16,16 +16,16 @@ The Next.js stack around it is not, and does not need to be.
 
 Measured comparison (2026-09-15, both built locally):
 
-| | This site | Team site |
-| --- | --- | --- |
-| HTML + CSS + JS, gzip | **31 KB** | 330 KB JS alone |
-| Build step | none | Next static export |
-| Runtime dependencies | none | React 19 + private design system |
-| Heaviest image | `profile.jpeg` 203 KB | `hero-teamwork.jpg` 5.9 MB |
-| Motion system | ad hoc, one `--ease` token | 5 duration + 2 easing tokens, documented |
-| Reduced motion | `* { animation: none !important }` | change the treatment, keep feedback |
-| Scroll-driven CSS | none | `animation-timeline` throughout |
-| Automated quality gates | none | 6-step `npm run verify` |
+|                         | This site                          | Team site                                |
+| ----------------------- | ---------------------------------- | ---------------------------------------- |
+| HTML + CSS + JS, gzip   | **31 KB**                          | 330 KB JS alone                          |
+| Build step              | none                               | Next static export                       |
+| Runtime dependencies    | none                               | React 19 + private design system         |
+| Heaviest image          | `profile.jpeg` 203 KB              | `hero-teamwork.jpg` 5.9 MB               |
+| Motion system           | ad hoc, one `--ease` token         | 5 duration + 2 easing tokens, documented |
+| Reduced motion          | `* { animation: none !important }` | change the treatment, keep feedback      |
+| Scroll-driven CSS       | none                               | `animation-timeline` throughout          |
+| Automated quality gates | none                               | 6-step `npm run verify`                  |
 
 So this site already wins on weight by 10×, and loses on motion discipline and on having
 anything that stops a regression. **This spec closes the second gap without giving up the
@@ -47,14 +47,14 @@ it.
 
 Explicitly rejected, with reasons:
 
-| Team-site effect | Verdict |
-| --- | --- |
-| Magnetic cursor on buttons | **No.** Playful; wrong register for this page. |
-| Organic blob morph on portrait | **No.** Breaks the "no radius above 2px" rule. |
-| Aurora gradient behind hero | **No.** Breaks the "no gradients" rule. |
+| Team-site effect                  | Verdict                                            |
+| --------------------------------- | -------------------------------------------------- |
+| Magnetic cursor on buttons        | **No.** Playful; wrong register for this page.     |
+| Organic blob morph on portrait    | **No.** Breaks the "no radius above 2px" rule.     |
+| Aurora gradient behind hero       | **No.** Breaks the "no gradients" rule.            |
 | Hand-drawn SVG squiggle underline | **Adapted.** Becomes a 1px rule that draws itself. |
-| Intro curtain wipe over hero | **No.** It is a preloader with better manners. |
-| Lottie illustrations | **No.** Nothing here needs a character animation. |
+| Intro curtain wipe over hero      | **No.** It is a preloader with better manners.     |
+| Lottie illustrations              | **No.** Nothing here needs a character animation.  |
 
 ## 3. Requirements
 
@@ -98,16 +98,16 @@ time-based `.reveal-load` variant. This is not a workaround, it is how the API w
 
 ### 3.4 Effects to build
 
-| # | Where | What | Technique | JS |
-| --- | --- | --- | --- | --- |
-| 1 | All sections | Reveal on scroll, 16px rise | `animation-timeline: view()` | 0 (fallback only) |
-| 2 | Hero `h1` | Headline rises **line by line**, 70ms apart | `overflow:hidden` + `translateY(100%)` | ~18 lines to split lines |
-| 3 | Hero | Headline scaled up to carry the page | `clamp(2.4rem, 5.2vw, 4.6rem)` | 0 |
-| 4 | Hero | A 1px accent rule draws itself left→right | `scaleX` + `transform-origin: left` | 0 |
-| 5 | Header | Background settles in over the first 8rem of scroll | `animation-timeline: scroll(root block)` | **−17 lines** |
-| 6 | Header | Scroll progress bar | `animation-timeline: scroll(root block)` | **−8 lines** |
-| 7 | Projects | Hovering one row dims its siblings to 0.45 | `:has()` | 0 |
-| 8 | Page ground | Background grid drifts slower than content | `animation-timeline: scroll(root block)` | 0 |
+| #   | Where        | What                                                | Technique                                | JS                       |
+| --- | ------------ | --------------------------------------------------- | ---------------------------------------- | ------------------------ |
+| 1   | All sections | Reveal on scroll, 16px rise                         | `animation-timeline: view()`             | 0 (fallback only)        |
+| 2   | Hero `h1`    | Headline rises **line by line**, 70ms apart         | `overflow:hidden` + `translateY(100%)`   | ~18 lines to split lines |
+| 3   | Hero         | Headline scaled up to carry the page                | `clamp(2.4rem, 5.2vw, 4.6rem)`           | 0                        |
+| 4   | Hero         | A 1px accent rule draws itself left→right           | `scaleX` + `transform-origin: left`      | 0                        |
+| 5   | Header       | Background settles in over the first 8rem of scroll | `animation-timeline: scroll(root block)` | **−17 lines**            |
+| 6   | Header       | Scroll progress bar                                 | `animation-timeline: scroll(root block)` | **−8 lines**             |
+| 7   | Projects     | Hovering one row dims its siblings to 0.45          | `:has()`                                 | 0                        |
+| 8   | Page ground  | Background grid drifts slower than content          | `animation-timeline: scroll(root block)` | 0                        |
 
 Net JS change is expected to be **negative** — the scroll listener and part of the reveal
 observer are deleted, and only the headline splitter is added.
@@ -135,7 +135,7 @@ observer are deleted, and only the headline splitter is added.
 - **`check:budget`** — HTML + CSS + JS ≤ 40 KB gzip combined; no single image over 40 KB.
 
 These are static-source assertions, not behavioural browser tests. They catch regressions
-in the system's *presence*; they cannot tell you an animation looks right. Visual
+in the system's _presence_; they cannot tell you an animation looks right. Visual
 confirmation stays manual, and §5 lists exactly what to look at.
 
 ## 4. Constraints

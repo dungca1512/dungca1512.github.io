@@ -1,0 +1,6 @@
+/* A card on the dark band. `--base-surface` is already the dark surface here,
+   because the section sets data-theme and the tokens follow. */
+.contact-card:hover {
+  background: color-mix(in srgb, var(--base-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--base-primary) 40%, var(--base-border));
+}

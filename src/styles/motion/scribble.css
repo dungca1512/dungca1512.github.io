@@ -1,0 +1,19 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+ * NÉT VẼ TAY vòng quanh nút chính khi rê chuột. Đi kèm components/motion/scribble.tsx.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* 3k. NÉT VẼ TAY vòng quanh nút chính khi rê chuột (§3.8). Chỉ hiện với chuột thật —
+ * trên cảm ứng không có trạng thái hover, vẽ ra rồi kẹt lại đó trông như lỗi. */
+@utility scribble {
+  & path {
+    stroke-dasharray: 480;
+    stroke-dashoffset: 480;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .group\/cta:hover & path {
+      transition: stroke-dashoffset 520ms var(--ease-out-soft);
+      stroke-dashoffset: 0;
+    }
+  }
+}
