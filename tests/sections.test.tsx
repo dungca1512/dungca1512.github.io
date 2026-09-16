@@ -6,6 +6,7 @@ import { CountUp } from '@/components/motion/count-up';
 import { MockIntersectionObserver } from './setup';
 import { PROJECTS, CASE_STUDY } from '@/content/projects';
 import { EXPERTISE } from '@/content/expertise';
+import { EXPERIENCE } from '@/content/experience';
 
 describe('Illustration', () => {
   it('serves avif first, then webp, then the jpg', () => {
@@ -165,5 +166,25 @@ describe('expertise data', () => {
     const keys = EXPERTISE.map((e) => e.key);
     expect(keys).toHaveLength(4);
     expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+describe('experience data', () => {
+  it('has exactly one current role', () => {
+    expect(EXPERIENCE.filter((r) => r.current)).toHaveLength(1);
+  });
+
+  it('puts the current role first, because the timeline reads top-down', () => {
+    expect(EXPERIENCE[0].current).toBe(true);
+  });
+
+  it('gives every role at least one highlight in both languages', () => {
+    // The count is pinned first for the same reason the project-link test pins
+    // one: a `for` over an emptied EXPERIENCE passes having asserted nothing.
+    expect(EXPERIENCE).toHaveLength(3);
+    for (const role of EXPERIENCE) {
+      expect(role.highlights.vi.length, `${role.company} vi`).toBeGreaterThan(0);
+      expect(role.highlights.en.length, `${role.company} en`).toBeGreaterThan(0);
+    }
   });
 });

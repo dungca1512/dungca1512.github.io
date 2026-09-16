@@ -144,7 +144,6 @@ check(
    because the entry should have been deleted the moment its section landed.
    When a task below lands its section, delete its line. */
 const PENDING_ANCHORS = new Map([
-  ['experience', 'Task 11'],
   ['writing', 'Task 12'],
   ['contact', 'Task 12'],
 ]);
@@ -188,8 +187,11 @@ check(
    study = 14. Counted rather than named because the headings themselves are
    localized, so there is no single literal to search for. `>=`, not `===`:
    Tasks 11 and 12 add sections with their own h3s, and this number is a floor
-   they raise. Lowering it is how a lost section would be hidden. */
-const MIN_SECTION_HEADINGS = 14;
+   they raise. Lowering it is how a lost section would be hidden.
+
+   Raised from 14 to 30 by Task 11: 3 roles + education + certification = 5, and
+   6 skill groups + 5 playbook steps = 11. */
+const MIN_SECTION_HEADINGS = 30;
 
 /* The case study's five blocks and the proof bar's four metrics are <dt>/<dd>
    pairs, not headings, so the <h3> floor above does not see them — dropping one
