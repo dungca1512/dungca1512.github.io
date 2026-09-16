@@ -35,7 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: dict.meta.title,
       description: dict.meta.description,
     },
-    icons: { icon: '/favicon.svg' },
+    // A raster, not the drawn SVG this replaces. The mark is a generated
+    // illustration in the same hand-drawn line style as the rest of the
+    // site's art, and there is no vector of it - see scripts/build-favicon.sh
+    // for how the .ico is cut. One file carries 16, 32, 48 and 64; the
+    // browser takes the size it wants, and anything that never reads this
+    // HTML still finds /favicon.ico by convention.
+    icons: { icon: '/favicon.ico', apple: '/apple-touch-icon.png' },
   };
 }
 
