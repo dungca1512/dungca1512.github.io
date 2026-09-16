@@ -1,1 +1,28 @@
-/* Task 10: work section styles land here. */
+/* An underline that grows from the left on hover. A `transform` on a
+   pseudo-element, not a width change: width animates on the layout thread and
+   makes the whole card repaint. */
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -2px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-fast) var(--ease-out-soft);
+}
+
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* The case study gets a tinted ground so it separates from the plain cards
+   below without needing a heavier border. */
+.case-band {
+  background: color-mix(in srgb, var(--base-primary) 4%, var(--base-surface));
+}

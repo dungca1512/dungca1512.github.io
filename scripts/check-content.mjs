@@ -144,8 +144,6 @@ check(
    because the entry should have been deleted the moment its section landed.
    When a task below lands its section, delete its line. */
 const PENDING_ANCHORS = new Map([
-  ['expertise', 'Task 10'],
-  ['projects', 'Task 10'],
   ['experience', 'Task 11'],
   ['writing', 'Task 12'],
   ['contact', 'Task 12'],

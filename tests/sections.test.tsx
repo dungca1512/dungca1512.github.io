@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { Illustration } from '@/components/site/illustration';
 import { CountUp } from '@/components/motion/count-up';
 import { MockIntersectionObserver } from './setup';
+import { PROJECTS, CASE_STUDY } from '@/content/projects';
+import { EXPERTISE } from '@/content/expertise';
 
 describe('Illustration', () => {
   it('serves avif first, then webp, then the jpg', () => {
@@ -121,5 +123,47 @@ describe('CountUp', () => {
     // feature's entire job, failing silently while the exported text stays
     // right. One cell per em, cell 0 at the top, so digit d is at -d em.
     expect(columns()).toEqual([...'1400'].map((d) => `translateY(-${d}em)`));
+  });
+});
+
+describe('project data', () => {
+  it('gives every project a unique slug, since they key React lists', () => {
+    const slugs = PROJECTS.map((p) => p.slug);
+    expect(slugs).toHaveLength(9);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it('only ever links out over https', () => {
+    const urls = PROJECTS.flatMap((p) => p.links.map((l) => l.url));
+    // Five of the nine projects have no links at all. Asserting over an empty
+    // list would pass while proving nothing, so pin the count first.
+    expect(urls.length).toBeGreaterThan(0);
+    for (const url of urls) expect(url).toMatch(/^https:\/\//);
+  });
+
+  it('gives every project at least one stack entry, or its card has a blank row', () => {
+    for (const p of PROJECTS) {
+      expect(p.stack.length, `${p.slug} has an empty stack`).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('case study data', () => {
+  it('carries all five blocks in both locales', () => {
+    expect(CASE_STUDY.blocks).toHaveLength(5);
+    for (const block of CASE_STUDY.blocks) {
+      expect(block.title.vi).toBeTruthy();
+      expect(block.title.en).toBeTruthy();
+      expect(block.text.vi).toBeTruthy();
+      expect(block.text.en).toBeTruthy();
+    }
+  });
+});
+
+describe('expertise data', () => {
+  it('gives every area a unique key', () => {
+    const keys = EXPERTISE.map((e) => e.key);
+    expect(keys).toHaveLength(4);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 });

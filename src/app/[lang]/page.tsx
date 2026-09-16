@@ -3,12 +3,16 @@
 // #main target becomes a duplicate id.
 import { Hero } from '@/components/sections/hero';
 import { ProofBar } from '@/components/sections/proof-bar';
+import { Expertise } from '@/components/sections/expertise';
+import { Work } from '@/components/sections/work';
 
 export default function Page() {
   return (
     <>
       <Hero />
       <ProofBar />
+      <Expertise />
+      <Work />
     </>
   );
 }
