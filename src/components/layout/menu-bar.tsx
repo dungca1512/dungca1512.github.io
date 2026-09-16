@@ -7,7 +7,7 @@ import { ThemeToggle } from '@/components/site/theme-toggle';
 import { LocaleSwitch } from './locale-switch';
 import { NavLinks } from './nav-links';
 
-const ANCHORS = ['expertise', 'projects', 'experience', 'writing', 'contact'] as const;
+const ANCHORS = ['expertise', 'projects', 'experience', 'analytics', 'writing', 'contact'] as const;
 
 export function MenuBar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   return (

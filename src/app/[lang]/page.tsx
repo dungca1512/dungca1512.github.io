@@ -4,6 +4,7 @@ import { Expertise } from '@/components/sections/expertise';
 import { Work } from '@/components/sections/work';
 import { Experience } from '@/components/sections/experience';
 import { Capabilities } from '@/components/sections/capabilities';
+import { Analytics } from '@/components/sections/analytics';
 import { Writing } from '@/components/sections/writing';
 import { Contact } from '@/components/sections/contact';
 
@@ -19,6 +20,7 @@ export default function Page() {
       <Work />
       <Experience />
       <Capabilities />
+      <Analytics />
       <Writing />
       <Contact />
     </>

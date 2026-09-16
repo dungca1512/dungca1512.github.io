@@ -147,6 +147,34 @@
   --site-ink-accent: color-mix(in srgb, var(--base-accent) 68%, var(--base-foreground));
   --site-ink-info: color-mix(in srgb, var(--base-info) 68%, var(--base-foreground));
   --site-ink-success: color-mix(in srgb, var(--base-success) 68%, var(--base-foreground));
+
+  /* The chart ramp. Six steps walked along the two brand hues — blue through
+   * teal into green — rather than six arbitrary colours, because the site's
+   * palette has exactly two accents and a rainbow legend would look imported
+   * from a different product. Built with color-mix on the SEMANTIC tokens, so
+   * the whole ramp follows a palette change and neither end of it needs a
+   * dark-mode variant: these are fills behind their own labels, never text,
+   * so the AA problem the ink block above solves does not arise here.
+   *
+   * Position in this ramp carries no meaning. The language chart assigns it
+   * by rank, so the reader tells rows apart by the name printed on each one
+   * — the colour only has to be DISTINCT from its neighbours, which is why
+   * the steps are uneven: an even walk put steps 2 and 3 close enough to
+   * argue about. */
+  --site-chart-1: var(--base-info);
+  --site-chart-2: color-mix(in srgb, var(--base-info) 55%, var(--base-accent));
+  --site-chart-3: var(--base-accent);
+  --site-chart-4: color-mix(in srgb, var(--base-accent) 45%, var(--base-success));
+  --site-chart-5: var(--base-success);
+  --site-chart-6: color-mix(in srgb, var(--base-info) 45%, var(--base-foreground));
+
+  /* Freshness, unlike the ramp above, IS ordinal: recent to stale. It reuses
+   * the semantic tokens in their own meaning rather than the ramp's, so the
+   * green-to-grey reading is the one the palette already carries elsewhere. */
+  --site-fresh-30: var(--base-success);
+  --site-fresh-90: var(--base-accent);
+  --site-fresh-180: var(--base-warning);
+  --site-fresh-older: var(--base-border);
 }
 
 /* Step F — `@theme inline`: THE FULL TOKEN SURFACE.
@@ -333,6 +361,7 @@
 @import '../styles/sections/hero.css';
 @import '../styles/sections/work.css';
 @import '../styles/sections/contact.css';
+@import '../styles/sections/analytics.css';
 @import '../styles/site/illustration.css';
 @import '../styles/motion/art.css';
 @import '../styles/site/tech-art.css';

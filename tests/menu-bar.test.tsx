@@ -39,7 +39,20 @@ describe('MenuBar', () => {
   // since `dict.nav` has no `capabilities` key). Nothing else in the suite
   // checks that the nav's anchors land on ids that actually exist, so this
   // list is the contract Tasks 8–12 must keep true.
-  const EXPECTED_SECTION_IDS = ['expertise', 'projects', 'experience', 'writing', 'contact'];
+  //
+  // `analytics` was added later, and this list is what found out: adding the
+  // band to ANCHORS turned this test red until the id was pinned here too,
+  // which is the whole point of writing the ids down instead of reading them
+  // back off the component being tested. Order matters — it is the reading
+  // order of the page, and the scroll-spy highlights by it.
+  const EXPECTED_SECTION_IDS = [
+    'expertise',
+    'projects',
+    'experience',
+    'analytics',
+    'writing',
+    'contact',
+  ];
 
   it('emits nav anchors that resolve to the section ids the later sections give each band', () => {
     const { container } = render(<MenuBar locale="vi" dict={viDict} />);

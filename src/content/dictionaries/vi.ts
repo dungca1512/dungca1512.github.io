@@ -35,6 +35,7 @@ const vi = {
     expertise: 'Năng lực',
     projects: 'Dự án',
     experience: 'Kinh nghiệm',
+    analytics: 'Dữ liệu',
     writing: 'Bài viết',
     contact: 'Liên hệ',
     toggleTheme: 'Đổi giao diện sáng/tối',
@@ -80,6 +81,36 @@ const vi = {
       eyebrow: 'Nguyên tắc triển khai',
       title: 'Các nguyên tắc vận hành hạ tầng AI thực chiến.',
       lead: 'Công cụ tôi dùng hằng ngày, và năm nguyên tắc quyết định cách tôi dùng chúng.',
+    },
+    /* The labels for a band whose numbers are all computed — see
+       src/lib/github-analytics.ts. Nothing here states a figure; a number
+       written into this file would be a number nobody recomputes when the
+       snapshot is refreshed, and it would disagree with the chart beside it
+       the first time it went stale. */
+    analytics: {
+      eyebrow: 'Dữ liệu tổng quan',
+      title: 'Tổng quan hoạt động và tín hiệu kỹ thuật từ GitHub.',
+      lead: 'Toàn bộ số liệu dưới đây đọc thẳng từ GitHub API và được đóng băng tại thời điểm chụp, nên trang luôn hiện đúng thứ mà bản build nhìn thấy — không có biểu đồ nào ở đây được vẽ tay.',
+      scope:
+        'Phạm vi: các repo công khai có commit từ 2025 trở lại đây. Repo bài tập thời đại học được loại trừ, và phần lớn công việc production tại eUp, AMELA và FPT nằm trong repo nội bộ nên không xuất hiện ở đây.',
+      snapshot: 'Ảnh chụp GitHub',
+      kpiPublic: 'Repo công khai',
+      kpiOwn: 'Repo tự viết, không fork',
+      kpiScope: 'Trong phạm vi từ 2025',
+      kpiLanguages: 'Ngôn ngữ dùng trong phạm vi',
+      languageMix: 'Cơ cấu ngôn ngữ',
+      velocity: 'Nhịp cập nhật theo tháng',
+      freshness: 'Mức độ cập nhật gần đây',
+      topRepos: 'Repo hoạt động gần đây nhất',
+      days30: 'Cập nhật ≤ 30 ngày',
+      days90: 'Cập nhật 31–90 ngày',
+      days180: 'Cập nhật 91–180 ngày',
+      older: 'Cập nhật > 180 ngày',
+      tableRepo: 'Repo',
+      tableLanguage: 'Ngôn ngữ',
+      tableUpdated: 'Cập nhật gần nhất',
+      unknown: 'Không xác định',
+      repoUnit: 'repo',
     },
     writing: {
       eyebrow: 'Bài viết',

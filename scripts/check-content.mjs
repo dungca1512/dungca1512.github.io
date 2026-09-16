@@ -122,7 +122,15 @@ const MIN_MAIN_TEXT_LENGTH = 200;
    six names is present in `fragments`, independent of what the loop below
    finds, is what makes losing a nav link (or the skip link, or all of them)
    a hard failure instead of an empty, passing loop. */
-const REQUIRED_ANCHORS = ['main', 'expertise', 'projects', 'experience', 'writing', 'contact'];
+const REQUIRED_ANCHORS = [
+  'main',
+  'expertise',
+  'projects',
+  'experience',
+  'analytics',
+  'writing',
+  'contact',
+];
 
 /* Same guard `PAGES` carries, for the same reason and against a sharper
    temptation: `requiredMissing.length === 0` is vacuously true on an empty
