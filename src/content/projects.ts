@@ -20,6 +20,16 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     slug: 'speech-scoring-platform',
+    /* The benchmark figure (p95 1.86s at 20 concurrent) is a load test; the
+       production figure beside it is an observed window, and the two measure
+       different things on purpose. The observed one comes from the nginx
+       access log for the scoring domain, filtered to the heyjapan project over
+       a 30-minute range: 740 requests, 740 of them 2XX, which is where the
+       "~25 a minute" arithmetic comes from. It is deliberately NOT restated as
+       a concurrency number — an access log records arrival rate, and turning
+       that into concurrent users needs session or service-time data this
+       screen does not carry. It is also one market of four, so it understates
+       the platform rather than flattering it. */
     name: 'Multi-Market Speech Scoring Platform',
     period: 'eUp · 2025-2026',
     summary: {
@@ -27,8 +37,8 @@ export const PROJECTS: Project[] = [
       vi: 'Bốn dịch vụ FastAPI/Gunicorn chấm phát âm cho JLPT (tiếng Nhật), TOPIK (tiếng Hàn), HSKK (tiếng Trung) và tiếng Anh, mỗi dịch vụ có lớp STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — với cơ chế fallback tự động.',
     },
     outcome: {
-      en: 'Scoring is linguistic, not generic: Needleman-Wunsch alignment between reference and hypothesis, wav2vec2 CTC goodness-of-pronunciation with espeak-ng G2P, Japanese pitch accent via SudachiPy/MeCab/pykakasi, Mandarin tone classification, and Praat/parselmouth prosody behind a concurrency semaphore. Benchmarked at p95 1.86s for 20 concurrent users on ~8% of one commodity CUDA GPU.',
-      vi: 'Việc chấm điểm mang tính ngôn ngữ học chứ không chung chung: căn chỉnh Needleman-Wunsch giữa câu mẫu và câu đọc, goodness-of-pronunciation bằng wav2vec2 CTC với G2P espeak-ng, trọng âm cao độ tiếng Nhật qua SudachiPy/MeCab/pykakasi, phân loại thanh điệu tiếng Trung và phân tích ngôn điệu Praat/parselmouth chạy sau semaphore giới hạn đồng thời. Benchmark đạt p95 1.86s với 20 người dùng đồng thời trên ~8% một GPU CUDA phổ thông.',
+      en: 'Scoring is linguistic, not generic: Needleman-Wunsch alignment between reference and hypothesis, wav2vec2 CTC goodness-of-pronunciation with espeak-ng G2P, Japanese pitch accent via SudachiPy/MeCab/pykakasi, Mandarin tone classification, and Praat/parselmouth prosody behind a concurrency semaphore. Benchmarked at p95 1.86s for 20 concurrent users on ~8% of one commodity CUDA GPU, and in production the Japanese market alone answers ~740 scoring requests in a 30-minute window — about 25 a minute — with every response 2XX.',
+      vi: 'Việc chấm điểm mang tính ngôn ngữ học chứ không chung chung: căn chỉnh Needleman-Wunsch giữa câu mẫu và câu đọc, goodness-of-pronunciation bằng wav2vec2 CTC với G2P espeak-ng, trọng âm cao độ tiếng Nhật qua SudachiPy/MeCab/pykakasi, phân loại thanh điệu tiếng Trung và phân tích ngôn điệu Praat/parselmouth chạy sau semaphore giới hạn đồng thời. Benchmark đạt p95 1.86s với 20 người dùng đồng thời trên ~8% một GPU CUDA phổ thông, và trên production riêng thị trường tiếng Nhật xử lý ~740 request chấm điểm trong cửa sổ 30 phút — khoảng 25 request/phút — với toàn bộ phản hồi đều là 2XX.',
     },
     stack: ['FastAPI', 'Gunicorn', 'CTranslate2', 'wav2vec2 CTC', 'ONNX Runtime', 'parselmouth'],
     links: [],
