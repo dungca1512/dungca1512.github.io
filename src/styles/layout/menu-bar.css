@@ -1,1 +1,27 @@
-/* Task 7: sticky menu-bar styles land here. */
+/* A floating pill rather than a full-width bar. `backdrop-filter` on a
+   translucent surface, so the page shows through as it scrolls underneath. */
+.menu-bar {
+  position: fixed;
+  inset: 0.75rem 0 auto;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-inline: 1rem;
+  pointer-events: none;
+}
+
+.menu-bar-pill {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 64rem;
+  padding: 0.5rem 0.75rem 0.5rem 1.25rem;
+  border: 1px solid var(--base-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--base-surface) 82%, transparent);
+  box-shadow: var(--base-shadow-raised);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  justify-content: space-between;
+}
