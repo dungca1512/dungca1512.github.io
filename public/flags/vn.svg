@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Tieng Viet">
+  <!-- Cropped to a circle rather than drawn as a 3:2 rectangle. The two flags
+       in the switcher have different official proportions (3:2 here, 2:1 for
+       the union flag), so side by side as rectangles they would be different
+       widths and the control would look ragged. A circle gives both marks the
+       same footprint and matches the round theme button beside them.
+
+       Literal hex is correct here and only here: an SVG fetched on its own,
+       outside any document, cannot read a CSS custom property, and a national
+       flag must not flip with the theme anyway. check:colors scans src only.
+
+       Star: five points, outer radius 9 on a 32 circle. Slightly larger than
+       the 1:5-of-height the official rectangular flag uses, because cropping
+       the sides to a circle shrinks the field the star sits in. -->
+  <circle cx="16" cy="16" r="16" fill="#da251d"/>
+  <path fill="#ff0" d="M16.00 7.00 18.02 13.22 24.56 13.22 19.27 17.06 21.29 23.28 16.00 19.44 10.71 23.28 12.73 17.06 7.44 13.22 13.98 13.22z"/>
+</svg>
