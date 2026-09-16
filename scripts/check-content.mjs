@@ -143,10 +143,7 @@ check(
    gained a matching id is a hard failure (see the stale-entry check below),
    because the entry should have been deleted the moment its section landed.
    When a task below lands its section, delete its line. */
-const PENDING_ANCHORS = new Map([
-  ['writing', 'Task 12'],
-  ['contact', 'Task 12'],
-]);
+const PENDING_ANCHORS = new Map([]);
 
 /* Task 10 review, L1. Everything above this line measures the SHAPE of a page —
    it has a <main>, its anchors resolve, nothing stringified to [object Object].
@@ -190,8 +187,9 @@ check(
    they raise. Lowering it is how a lost section would be hidden.
 
    Raised from 14 to 30 by Task 11: 3 roles + education + certification = 5, and
-   6 skill groups + 5 playbook steps = 11. */
-const MIN_SECTION_HEADINGS = 30;
+   6 skill groups + 5 playbook steps = 11. Raised again to 36 by Task 12's six
+   article rows; the contact band's only heading is the section's own h2. */
+const MIN_SECTION_HEADINGS = 36;
 
 /* The case study's five blocks and the proof bar's four metrics are <dt>/<dd>
    pairs, not headings, so the <h3> floor above does not see them — dropping one

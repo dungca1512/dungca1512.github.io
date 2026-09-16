@@ -45,6 +45,7 @@ const vi = {
     repository: 'Mã nguồn',
     demo: 'Bản chạy thử',
     present: 'Hiện tại',
+    readArticle: 'Đọc bài',
   },
   sections: {
     hero: {

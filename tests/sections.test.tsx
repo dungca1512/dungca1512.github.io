@@ -7,6 +7,7 @@ import { MockIntersectionObserver } from './setup';
 import { PROJECTS, CASE_STUDY } from '@/content/projects';
 import { EXPERTISE } from '@/content/expertise';
 import { EXPERIENCE } from '@/content/experience';
+import { CONTACTS } from '@/content/contacts';
 
 describe('Illustration', () => {
   it('serves avif first, then webp, then the jpg', () => {
@@ -186,5 +187,26 @@ describe('experience data', () => {
       expect(role.highlights.vi.length, `${role.company} vi`).toBeGreaterThan(0);
       expect(role.highlights.en.length, `${role.company} en`).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('contact data', () => {
+  it('gives every channel a usable target', () => {
+    expect(CONTACTS).toHaveLength(5);
+    for (const c of CONTACTS) {
+      // The CV is a relative path served from public/; everything else is an
+      // absolute link. Both are usable — a bare word is not.
+      expect(c.url, `${c.key} has no usable url`).toMatch(/^(https:\/\/|mailto:|tel:|\/)/);
+    }
+  });
+
+  it('includes an email channel, since that is the one the CTA points at', () => {
+    expect(CONTACTS.some((c) => c.url.startsWith('mailto:'))).toBe(true);
+  });
+
+  it('marks the CV as a download, or the browser navigates away to the PDF', () => {
+    const cv = CONTACTS.find((c) => c.url.endsWith('.pdf'));
+    expect(cv).toBeDefined();
+    expect(cv?.download).toBe(true);
   });
 });

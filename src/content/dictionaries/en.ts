@@ -34,6 +34,7 @@ const en: Dictionary = {
     repository: 'Repository',
     demo: 'Demo',
     present: 'Present',
+    readArticle: 'Read',
   },
   sections: {
     hero: {
