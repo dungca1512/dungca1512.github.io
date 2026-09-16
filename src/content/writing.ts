@@ -9,14 +9,21 @@ import type { Localized } from './locales';
 export type Article = {
   title: Localized<string>;
   blurb: Localized<string>;
-  /** Optional on purpose. Four of the six entries are notes on work that has
-   *  no published article and no repository of its own in this project's data
-   *  — `public/github-data.json` and `src/content/projects.ts` are the only
-   *  sources of real URLs here, and neither holds one for them. An entry with
-   *  no `href` renders as text rather than as a link to somewhere it is not.
-   *  The old `data.js` pointed all five at `github.com/dungca1512`, the bare
-   *  profile: a link that looks like an article and is not one. */
-  href?: string;
+  /** The repository this note is *about* — NOT a link to the note itself.
+   *  None of these six is a published article: there is nowhere to read
+   *  them. The old `data.js` pointed all five at `github.com/dungca1512`,
+   *  the bare profile, and the first port of this file narrowed that to the
+   *  specific repo where one existed. Both were still a link that looked
+   *  like an article and was not one — a row titled "Vì sao tôi không để
+   *  agent tự điều phối nữa" that opened a README.
+   *
+   *  So the field is named `repo`, the row is never itself a link, and the
+   *  component renders an explicit, separately-labelled "Mã nguồn" link
+   *  underneath for the three entries that have one. Whoever clicks now
+   *  knows they are going to code before they click. Give an entry a real
+   *  published URL and it wants a new `href` field beside this one, not a
+   *  reuse of it. */
+  repo?: string;
   date: string;
   tags: string[];
 };
@@ -34,7 +41,7 @@ export const WRITING: Article[] = [
       vi: 'Mẫu kiến trúc lai cho agentic RAG: framework sở hữu runtime, code sở hữu điều phối và mọi con số, LLM chỉ được diễn đạt câu chữ — với kiểm chứng grounding làm lớp cưỡng chế.',
     },
     tags: ['Agentic RAG', 'Google ADK', 'Anti-hallucination'],
-    href: 'https://github.com/dungca1512/research-agent',
+    repo: 'https://github.com/dungca1512/research-agent',
   },
   {
     date: '2026',
@@ -83,7 +90,7 @@ export const WRITING: Article[] = [
       vi: 'Ghi chú về việc đưa workload ML đang chạy lên Kubernetes với Helm, ArgoCD App-of-Apps và homelab kubeadm bare-metal để thử nghiệm.',
     },
     tags: ['Kubernetes', 'GKE', 'GitOps'],
-    href: 'https://github.com/dungca1512/homelab',
+    repo: 'https://github.com/dungca1512/homelab',
   },
   {
     date: '2025',
@@ -96,6 +103,6 @@ export const WRITING: Article[] = [
       vi: 'Phân tích thực tế về định tuyến provider, các cơ chế Resilience4j và chuẩn API thống nhất cho sản phẩm LLM đa nhà cung cấp.',
     },
     tags: ['WebFlux', 'Resilience4j', 'LLM Infra'],
-    href: 'https://github.com/dungca1512/ai-gateway',
+    repo: 'https://github.com/dungca1512/ai-gateway',
   },
 ];

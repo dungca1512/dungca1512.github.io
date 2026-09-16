@@ -75,8 +75,10 @@ export const FOCUS: Localized<string>[] = [
     en: 'Designing agentic RAG systems where code owns orchestration and retrieval, and the LLM only phrases the answer',
     vi: 'Thiết kế hệ thống agentic RAG với code sở hữu điều phối và truy xuất, LLM chỉ diễn đạt câu trả lời.',
   },
-  {
-    en: 'Earning AWS Solutions Architect Associate (SAA-C03) to round out multi-cloud depth',
-    vi: 'Hoàn thành chứng chỉ AWS Solutions Architect Associate (SAA-C03) để củng cố chiều sâu đa cloud.',
-  },
 ];
+
+/* The SAA-C03 line was the fifth entry here ("Earning AWS Solutions
+   Architect Associate…" / "Hoàn thành chứng chỉ AWS…"). It is gone because
+   the certification is held, not pending, and FOCUS is the list of work
+   still ahead — a finished thing sitting in it contradicted the
+   certification card two bands down, which now carries no status line. */

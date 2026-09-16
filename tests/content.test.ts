@@ -83,7 +83,10 @@ describe('the content the page actually needs is present', () => {
     expect(CONTACTS.length).toBe(5);
     expect(METRICS.length).toBe(4);
     expect(EXPERTISE.length).toBe(4);
-    expect(FOCUS.length).toBe(5);
+    // 4, down from 5: the SAA-C03 line left this list when the
+    // certification stopped being pending. This assertion is what noticed —
+    // which is the point of pinning counts rather than reading them back.
+    expect(FOCUS.length).toBe(4);
     expect(PLAYBOOK.length).toBe(5);
     expect(HERO_TRUST.length).toBe(6);
   });

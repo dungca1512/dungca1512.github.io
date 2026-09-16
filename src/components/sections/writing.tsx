@@ -1,5 +1,4 @@
 import { Section, SectionHeading } from '@/components/site/section';
-import { CursorLabel } from '@/components/motion/cursor-label';
 import { Illustration } from '@/components/site/illustration';
 import { WRITING } from '@/content/writing';
 import { getDictionary, getLocale } from '@/content/dictionaries';
@@ -33,62 +32,65 @@ export async function Writing() {
         </div>
       </div>
 
-      {/* CursorLabel is decoration and says so itself: it renders `aria-hidden`,
-          only builds on a real pointer, and stands down under reduced motion.
-          A row that links is a plain <a> underneath, so nothing here is the
-          only way to learn a link is a link. The label overstates the rows that
-          carry no href — it is pointer-only decoration and those rows do not
-          respond to a click, which is the honest signal. */}
-      <CursorLabel label={dict.common.readArticle}>
-        <ul className="stagger divide-border border-border mt-16 divide-y border-y">
-          {WRITING.map((article, i) => (
-            <li
-              key={article.title.en}
-              className="reveal"
-              style={{ '--i': i } as React.CSSProperties}
-            >
-              {/* Keyed on the title: two entries can share a destination, and
+      {/* The pointer-following "Đọc bài" / "Read" label is gone. It promised
+          an article over rows whose links went to a GitHub repository, so the
+          page said "read" and delivered a README. The rows are no longer
+          links at all; the only link is the explicit "Mã nguồn" one below,
+          which says where it goes. */}
+      <ul className="stagger divide-border border-border mt-16 divide-y border-y">
+        {WRITING.map((article, i) => (
+          <li key={article.title.en} className="reveal" style={{ '--i': i } as React.CSSProperties}>
+            {/* Keyed on the title: two entries can share a destination, and
                   four carry none at all, so href is not a key. */}
-              {(() => {
-                const body = (
-                  <>
-                    <time
-                      dateTime={article.date}
-                      className="text-muted-foreground text-sm tabular-nums"
-                    >
-                      {article.date}
-                    </time>
-                    <div>
-                      <h3 className="text-xl font-semibold tracking-tight">
-                        {article.title[locale]}
-                      </h3>
-                      <p className="text-muted-foreground mt-1 text-pretty">
-                        {article.blurb[locale]}
-                      </p>
-                    </div>
-                  </>
-                );
-                // An entry with no href is a note on work that has no published
-                // article and no repo of its own. It renders as a row, not as a
-                // link: an <a> without href is not focusable and announces as
-                // plain text anyway, so building one would only look clickable
-                // to a sighted mouse user. See src/content/writing.ts.
-                return article.href ? (
-                  <a
-                    href={article.href}
-                    rel="noreferrer noopener"
-                    className={`${ROW} duration-fast group hover:bg-surface transition-colors`}
+            {(() => {
+              const body = (
+                <>
+                  <time
+                    dateTime={article.date}
+                    className="text-muted-foreground text-sm tabular-nums"
                   >
-                    {body}
-                  </a>
-                ) : (
-                  <div className={ROW}>{body}</div>
-                );
-              })()}
-            </li>
-          ))}
-        </ul>
-      </CursorLabel>
+                    {article.date}
+                  </time>
+                  <div>
+                    <h3 className="text-xl font-semibold tracking-tight">
+                      {article.title[locale]}
+                    </h3>
+                    <p className="text-muted-foreground mt-1 text-pretty">
+                      {article.blurb[locale]}
+                    </p>
+                    {/* The row itself is never a link — see writing.ts:
+                          none of these is a published article, so a clickable
+                          title would promise a read that does not exist. Where
+                          a repository exists it gets its own link, labelled as
+                          code and carrying the repo's own name, so the
+                          destination is legible before the click.
+
+                          `aria-label` because "Mã nguồn" repeated three times
+                          down the page is three identically-named links in a
+                          screen reader's link list; the title disambiguates
+                          them. */}
+                    {article.repo && (
+                      <a
+                        href={article.repo}
+                        rel="noreferrer noopener"
+                        aria-label={`${dict.common.repository} — ${article.title[locale]}`}
+                        className="text-ink-primary duration-fast mt-3 inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors hover:underline"
+                      >
+                        {dict.common.repository}
+                        <span aria-hidden="true">↗</span>
+                        <span className="text-muted-foreground font-normal">
+                          {article.repo.replace('https://github.com/', '')}
+                        </span>
+                      </a>
+                    )}
+                  </div>
+                </>
+              );
+              return <div className={ROW}>{body}</div>;
+            })()}
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
