@@ -1,5 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="cong anh dung">
-  <rect width="32" height="32" fill="#0a0b0c"/>
-  <rect x="5" y="6" width="3" height="20" fill="#c8944b"/>
-  <text x="12" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="600" fill="#e7e5e1">d</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Công Anh Dũng">
+  <!-- Drawn as a path, not as <text>. The previous mark set a lowercase "d"
+       in "ui-monospace, Menlo, monospace" and let the OS pick the face, so
+       the glyph was a different shape on every machine and nobody could see
+       which one a visitor got. A path renders identically everywhere.
+
+       It also sat a decorative 3px bar to the LEFT of the letter. At the
+       16px a browser tab actually draws, that bar read as a capital I, so
+       the icon said "Id". The bar is gone; the counter inside the D carries
+       the same vertical rhythm without being mistakable for a letter.
+
+       #2b7fd4 is the brand blue, the value behind the base palette blue-500
+       token in globals.css. The old mark was #c8944b, gold, left over from
+       the legacy palette. A literal hex is correct here and only here: this
+       file is fetched on its own, outside any document, so it cannot read a
+       CSS custom property. check:colors scans src only and does not reach
+       public, by design.
+
+       One ground colour in both themes on purpose. A mid-blue holds its own
+       against a light and a dark tab strip, and a favicon that changes with
+       the OS theme is a mark people stop recognising. -->
+  <rect width="32" height="32" rx="7" fill="#2b7fd4"/>
+  <path fill="#ffffff" fill-rule="evenodd" d="M7 7h9a9 9 0 0 1 0 18H7zm5.5 4.5h3.5a4.5 4.5 0 0 1 0 9H12.5z"/>
 </svg>
