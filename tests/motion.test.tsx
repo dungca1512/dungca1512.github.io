@@ -257,7 +257,7 @@ describe('reveal', () => {
   // down the screen, below anything being read. On its own linear track the
   // same range reaches full at 58%.
   it('does not animate opacity from the keyframes that carry the overshooting spring', () => {
-    expect(keyframeProps('site-reveal-up')).not.toContain('opacity');
+    expect(keyframeProps('site-reveal-in')).not.toContain('opacity');
     expect(keyframeProps('site-reveal-clip')).not.toContain('opacity');
     expect(keyframeProps('site-reveal-fade')).toEqual(['opacity']);
   });
@@ -284,6 +284,87 @@ describe('reveal', () => {
       expect(range).toMatch(/^cover \d+vh cover \d+vh$/);
     },
   );
+
+  /* The reveal travels sideways now, and that is a different failure mode than
+     the vertical version had. A page whose content starts 2rem past the right
+     edge grows to fit it: the document gets a horizontal scrollbar and a
+     margin of nothing to drag into, on every band at once. The two assertions
+     below are one invariant in two halves — the direction, and the clip it
+     obliges — and the second is written as a consequence of the first, so
+     turning the travel back to vertical retires the requirement rather than
+     leaving a rule nobody can explain. */
+  it('travels across the reading direction, not along the scroll', () => {
+    for (const name of ['site-reveal-in', 'site-reveal-clip']) {
+      const block =
+        motion.match(new RegExp(`@keyframes ${name}\\s*\\{[\\s\\S]*?\\n\\}`))?.[0] ?? '';
+      expect(block, `${name} has no @keyframes block`).not.toBe('');
+      expect(block, `${name} still moves on Y`).not.toMatch(/translateY\(/);
+      expect(block, `${name} does not move on X`).toMatch(/translateX\(/);
+    }
+  });
+
+  it('clips the document, because the first frame sits outside it', async () => {
+    const travelsSideways = /@keyframes site-reveal-in\s*\{[\s\S]*?translateX\(/.test(motion);
+    if (!travelsSideways) return; // vertical reveal needs no clip — nothing to check
+
+    // Compiled, not read from source: this has to hold in the stylesheet the
+    // browser actually gets, and `overflow-x` on body is one declaration in a
+    // base layer that a refactor can drop without touching motion.css at all.
+    const css = await compileGlobals();
+    /* `ruleFor` is not the tool here — it only looks inside a
+       `prefers-reduced-motion` at-rule, and this declaration is in the base
+       layer where it applies to everyone. Collected across every `body` rule
+       in the sheet, last one winning, which is what the cascade does too. */
+    let overflow: string | undefined;
+    postcss.parse(css).walkRules((rule) => {
+      if (!rule.selectors.includes('body')) return;
+      rule.walkDecls('overflow-x', (decl) => {
+        overflow = decl.value;
+      });
+    });
+    expect(overflow, 'a sideways reveal with no overflow-x clip scrolls the page sideways').toBe(
+      'clip',
+    );
+    /* Not `hidden`, and the difference is behavioural: `hidden` makes <body> a
+       scroll container, which takes the sticky header out of the viewport's
+       scroll context and disables `scroll-behavior: smooth` set on <html>. */
+    expect(overflow).not.toBe('hidden');
+  });
+
+  /* The one failure this animation has actually had, written down so it cannot
+     happen twice. A `@keyframes` block that declares only `from` gets an
+     implicit `to` of the element's own computed value — here `clip-path: none`.
+     `none` is not a basic shape, so there is nothing to interpolate towards and
+     CSS falls back to DISCRETE interpolation: the mask does not sweep across
+     the heading, it flips to fully-revealed in a single frame at the halfway
+     point of the eased curve. Nothing catches that. The stylesheet parses, the
+     animation "runs", the element ends up in the right place, and the fade
+     underneath hides the snap — the wipe simply never happened, for as long as
+     the block was written that way. Both ends have to name a shape. */
+  it('names a shape at both ends of the wipe, or it snaps instead of sweeping', () => {
+    const frames: Record<string, string[]> = {};
+    postcss.parse(motion).walkAtRules('keyframes', (at) => {
+      if (at.params !== 'site-reveal-clip') return;
+      at.walkRules((rule) => {
+        rule.walkDecls('clip-path', (decl) => {
+          frames[rule.selector] = [...(frames[rule.selector] ?? []), decl.value];
+        });
+      });
+    });
+
+    for (const stop of ['from', 'to']) {
+      const values = frames[stop] ?? [];
+      expect(
+        values,
+        `site-reveal-clip has no \`${stop}\` clip-path — CSS fills that end in with \`none\`, which interpolates discretely: the wipe becomes a one-frame flip`,
+      ).not.toEqual([]);
+      for (const value of values) {
+        expect(value, `site-reveal-clip's \`${stop}\` clip-path is not a shape`).toMatch(
+          /^inset\(/,
+        );
+      }
+    }
+  });
 
   it('keeps the JS fallback behind `@supports not`, so it never double-runs', () => {
     expect(motion).toMatch(/@supports not \(animation-timeline: view\(\)\)/);

@@ -22,7 +22,7 @@ describe('Footer', () => {
     for (const contact of CONTACTS.filter((c) => !c.download)) {
       const link = screen.getByRole('link', { name: contact.label.en });
       expect(link).toHaveAttribute('target', '_blank');
-      expect(link).toHaveAttribute('rel', 'noreferrer');
+      expect(link).toHaveAttribute('rel', 'noreferrer noopener');
     }
   });
 

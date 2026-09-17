@@ -301,6 +301,20 @@
   }
 
   body {
+    /* The reveal animations start 2rem to the RIGHT of where they rest (see
+       styles/motion.css). Every revealing element on the page therefore spends
+       its first frame past the right edge of the document, and without this the
+       document grows to fit them: a horizontal scrollbar, and a page a reader
+       can drag sideways into empty margin.
+
+       `clip`, not `hidden`. They clip the same, but `overflow: hidden` makes
+       the element a SCROLL CONTAINER, and that would be a real bug here rather
+       than a stylistic difference — a scroll container on <body> takes the
+       sticky header out of the viewport's scroll context and breaks
+       `scroll-behavior: smooth` on <html> above. `clip` creates no scroll
+       container at all, which is exactly the "cut this off and change nothing
+       else" this needs. */
+    overflow-x: clip;
     font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
     background-color: var(--base-background);
     color: var(--base-foreground);
@@ -365,5 +379,4 @@
 @import '../styles/site/illustration.css';
 @import '../styles/motion/art.css';
 @import '../styles/site/tech-art.css';
-@import '../styles/motion/scribble.css';
 @import '../styles/motion/marquee.css';

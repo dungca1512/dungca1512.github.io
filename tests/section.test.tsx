@@ -29,6 +29,20 @@ describe('SectionHeading', () => {
     expect(screen.getByText('Những thứ đã chạy thật.')).toBeInTheDocument();
   });
 
+  /* The name is the word the menu uses, so it is the word a reader looks for on
+     landing. It shipped once at 14px under a 72px sentence, and the complaint
+     that came back was exactly that — "đầu mục chính để chữ bé tí". These two
+     assertions pin the shape of the fix rather than a pixel value: the name is
+     not the small-caps label it was, and it carries the accent rule that marks
+     a new band. Both fail if someone restores the old styling. */
+  it('gives the section name the weight, not the small-caps treatment', () => {
+    const { container } = render(<SectionHeading eyebrow="Kinh nghiệm" title="Dự án" />);
+    const name = container.querySelector('p')!;
+    expect(name.className).not.toMatch(/\btext-sm\b/);
+    expect(name.className).not.toMatch(/\buppercase\b/);
+    expect(name.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it('omits the lead paragraph entirely when there is none', () => {
     const { container } = render(<SectionHeading eyebrow="01" title="Dự án" />);
     expect(container.querySelectorAll('p')).toHaveLength(1); // the eyebrow only

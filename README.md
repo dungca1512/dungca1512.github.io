@@ -83,32 +83,25 @@ redrawn rather than a ceiling that was moved.
 Pushing to `main` builds, runs the full gate, and publishes `out/` to Pages.
 Nothing else publishes; there is no manual step and no committed build output.
 
-### The switch comes before the merge, and the order is not optional
+### Pages is served from Actions, and that is a setting, not a file
 
-Today `main`'s **repository root** is the published site: it holds `index.html`
-and `CNAME`, and Pages serves them from the branch. This rebuild deletes both
-from the root — `CNAME` moved into `public/`, and the site it produces is `out/`,
-which is gitignored.
+**Settings → Pages → Source** is set to **"GitHub Actions"**. No workflow can set
+it — the API for it is not something an Actions token may touch — so it is the
+one piece of this deploy that lives outside the repository.
 
-So merging this work into `main` while Pages is still on "Deploy from a branch"
-publishes a repository root that has **no `index.html` and no `CNAME`**: the
-custom domain 404s and can detach itself, and `deploy-pages@v4` cannot deploy
-into a site still configured for a legacy branch build either. Both halves of
-the site are down, and the workflow's green tick does not say so.
+It matters because the repository root holds no site. There is no `index.html`
+and no `CNAME` at the top level; `CNAME` lives in `public/` and the site is
+`out/`, which is gitignored. Put Pages back on "Deploy from a branch" and it
+would publish that root: the custom domain 404s and can detach itself, and
+`deploy-pages@v4` cannot deploy into a site configured for a legacy branch build
+either. Both halves go down, and a workflow's green tick does not say so —
+`deploy` succeeds at building and uploading an artifact nothing serves.
 
-**Do this first, then merge:**
+Two settings go with it, and both are already in place:
 
-1. **Settings → Pages → Source → "GitHub Actions".** No workflow can set this;
-   the API for it is not something an Actions token may touch.
-2. **Settings → Environments → `github-pages`** must allow deployments from
-   `main` (the default).
-3. Confirm the Pages settings page shows the custom domain
-   `portfolio-dungca.ai-innovation-homelab.org` and its DNS check still passes.
-4. Then merge to `main`. The first deploy takes a few minutes; watch the
-   `deploy` workflow rather than reloading the domain.
-
-If the switch is made and the merge never happens, nothing breaks — Pages simply
-has no Actions deployment yet and keeps serving the last branch build.
+1. **Settings → Environments → `github-pages`** allows deployments from `main`.
+2. The Pages settings page shows `portfolio-dungca.ai-innovation-homelab.org`
+   and its DNS check passes.
 
 ### Three files in `public/` are load-bearing
 

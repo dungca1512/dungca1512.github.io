@@ -110,7 +110,10 @@ describe('CountUp', () => {
     // above the fold where nobody sees it.
     const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
     const columns = () =>
-      [...container.querySelectorAll('span[style*="will-change"]')].map(
+      // `data-target` rather than the `will-change` the columns also carry:
+      // that hint is dropped once each wheel stops, so a selector keyed on it
+      // would find the columns before the roll and nothing after it.
+      [...container.querySelectorAll('span[data-target]')].map(
         (c) => (c as HTMLElement).style.transform,
       );
     expect(columns().length).toBeGreaterThan(0);
@@ -125,6 +128,29 @@ describe('CountUp', () => {
     // feature's entire job, failing silently while the exported text stays
     // right. One cell per em, cell 0 at the top, so digit d is at -d em.
     expect(columns()).toEqual([...'1400'].map((d) => `translateY(-${d}em)`));
+  });
+
+  it('stops promoting the wheels once they have stopped turning', () => {
+    // `will-change` is a standing instruction to the compositor, not a
+    // decoration: a wheel left promoted keeps its own layer for the rest of
+    // the page's life, for an animation that runs once. jsdom does not run
+    // transitions, so the end of one is dispatched by hand.
+    const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    const wheels = () => [...container.querySelectorAll<HTMLElement>('span[data-target]')];
+
+    MockIntersectionObserver.instances.at(-1)?.trigger(container.querySelector('span')!);
+    expect(wheels().map((w) => w.style.willChange)).toEqual(Array(4).fill('transform'));
+
+    for (const wheel of wheels()) {
+      wheel.dispatchEvent(new Event('transitionend'));
+    }
+    expect(wheels().map((w) => w.style.willChange)).toEqual(Array(4).fill('auto'));
+
+    // And the transform survives the release — dropping the hint must not
+    // reset the wheel to zero.
+    expect(wheels().map((w) => w.style.transform)).toEqual(
+      [...'1400'].map((d) => `translateY(-${d}em)`),
+    );
   });
 });
 
@@ -177,6 +203,47 @@ describe('experience data', () => {
 
   it('puts the current role first, because the timeline reads top-down', () => {
     expect(EXPERIENCE[0].current).toBe(true);
+  });
+
+  /* The glyphs are a parallel array, which is the one shape that can silently
+     fall out of step: add a bullet, forget the icon, and the render falls back
+     to a default that looks deliberate. Pinning all three lengths equal is what
+     turns that into a failure here instead of a wrong picture on the page. */
+  it('gives every highlight its own glyph, in both languages', () => {
+    expect(EXPERIENCE).toHaveLength(3);
+    for (const role of EXPERIENCE) {
+      expect(role.glyphs.length, `${role.company} vi`).toBe(role.highlights.vi.length);
+      expect(role.glyphs.length, `${role.company} en`).toBe(role.highlights.en.length);
+    }
+  });
+
+  /* The data stays newest-first; the page reads forwards in time. The section
+     builds that order by splitting the head off and reversing the tail — the
+     past goes into the collapsed panel, the current role stays open below it —
+     so the order below is composed the same way the component composes it.
+
+     Reading the months out of `period` is what makes this a test rather than a
+     restatement of `toReversed`. It fails if someone reorders the module, or
+     inserts a role in the wrong place, which no amount of reversing would
+     catch. `vi` is parsed because it is the numeric one: `03/2023` needs no
+     month table, and the pair is proven identical in meaning by the bilingual
+     walker elsewhere in this suite. */
+  it('renders the roles oldest first, so the timeline runs forwards', () => {
+    const [now, ...before] = EXPERIENCE;
+    const rendered = [...before.toReversed(), now];
+
+    expect(rendered.at(-1)!.current).toBe(true);
+    expect(rendered.slice(0, -1).some((r) => r.current)).toBe(false);
+
+    const starts = rendered.map((role) => {
+      const match = /^(\d{2})\/(\d{4})/.exec(role.period.vi);
+      expect(match, `${role.company}: vi period does not start with MM/YYYY`).not.toBeNull();
+      return Number(match![2]) * 12 + Number(match![1]);
+    });
+    expect(
+      starts,
+      `roles render out of order: ${rendered.map((r) => r.company).join(' -> ')}`,
+    ).toEqual([...starts].toSorted((a, b) => a - b));
   });
 
   it('gives every role at least one highlight in both languages', () => {

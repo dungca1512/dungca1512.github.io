@@ -36,6 +36,13 @@ const en: Dictionary = {
     repository: 'Repository',
     demo: 'Demo',
     present: 'Present',
+    /* See vi.ts — these are the summary lines of the collapsed panels, and
+       `{count}` is substituted at the call site from the list's own length. */
+    moreProjects: 'Show {count} more projects',
+    caseStudyDetail: 'Read the detail: problem, architecture, trade-offs, result',
+    measuredOutcome: 'The measured outcome',
+    /* See vi.ts — `{names}` keeps the companies visible while the prose folds. */
+    earlierRoles: 'Show {count} earlier roles: {names}',
   },
   sections: {
     hero: {
@@ -52,7 +59,10 @@ const en: Dictionary = {
     expertise: {
       eyebrow: 'Core Expertise',
       title: 'How I build and operate AI infrastructure.',
-      lead: 'Four areas I work in depth: architecture and cost control, Kubernetes operations, model serving, and LLM application design.',
+      /* See vi.ts — this band absorbed the capabilities band, so its lead has
+         to introduce the toolbox and the playbook too. */
+      lead: 'Four areas I work in depth, the toolbox I use daily, and the five principles that decide how I use it.',
+      toolbox: 'The everyday toolbox',
     },
     work: {
       eyebrow: 'Selected Work',
@@ -62,12 +72,18 @@ const en: Dictionary = {
     experience: {
       eyebrow: 'Experience',
       title: 'Three years shipping and operating AI systems in production.',
-      lead: 'Three years across three places: conversation analytics at FPT Smart Cloud, AI engineering at AMELA, now owning AI/ML infrastructure at eUp Group.',
+      lead: 'Three years across three places, oldest first: conversation analytics at FPT Smart Cloud, AI engineering at AMELA, now owning AI/ML infrastructure at eUp Group.',
+      /* The two ends of the time axis. `axisStart` is the year the first role
+         began, kept as copy rather than derived from EXPERIENCE: the axis is
+         the reader's orientation, and pinning it here means a role added at
+         either end is a deliberate edit to the label too. */
+      axisStart: '2023',
+      axisNow: 'Now',
     },
+    /* See vi.ts — the band merged into `expertise`; this line survives as the
+       label on the panel holding the five principles. */
     capabilities: {
-      eyebrow: 'Engineering Playbook',
       title: 'Operating principles for production AI infrastructure.',
-      lead: 'The tools I use daily, and the five principles that decide how I use them.',
     },
     analytics: {
       eyebrow: 'Data Snapshot',

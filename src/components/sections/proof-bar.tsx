@@ -10,7 +10,7 @@ export async function ProofBar() {
   const locale = await getLocale();
 
   return (
-    <section className="border-border band-muted border-y py-12">
+    <section className="band-muted py-12">
       <RevealScope>
         <Container>
           <dl className="stagger grid grid-cols-2 gap-8 md:grid-cols-4">

@@ -23,16 +23,62 @@
   }
 }
 
-@keyframes site-reveal-up {
+/* The travel is horizontal: content arrives from the right and settles
+   leftward into place. It used to rise from below, and the reason to change it
+   is not only taste — a page that is one tall column of stacked bands already
+   moves the reader downward, and a reveal that also moves downward adds no
+   information to the one axis the reader is already on. Coming in across that
+   axis marks the arrival as its own event.
+
+   2rem, not the 1.25rem the vertical version used. Horizontal travel reads as
+   smaller than the same distance vertically here, because it is measured
+   against a line of text that is itself hundreds of pixels wide, where the
+   vertical version was measured against a line-height.
+
+   Everything that translates on X needs the `overflow-x: clip` on `body` (see
+   globals.css). Without it, the first frame of every reveal on the page sits
+   2rem past the right edge and the document grows a horizontal scrollbar. */
+@keyframes site-reveal-in {
   from {
-    transform: translateY(1.25rem);
+    transform: translateX(2rem);
   }
 }
 
+/* The headline's wipe turns with it, from bottom-up to left-to-right — the
+   direction the words are read in.
+
+   The mask lives in the element's own coordinate space, so it travels with the
+   translate rather than against it. The two are not fighting: the mask edge
+   crosses the element's full width (hundreds of px) over the same range the
+   element moves 1.25rem, so the wipe dominates by more than an order of
+   magnitude and the leftward drift reads as the block settling underneath it.
+
+   Keeping this one shorter than the plain reveal's 2rem is deliberate. It runs
+   on the largest type on the page, where the same distance covers a smaller
+   fraction of the glyphs and so reads as a bigger move.
+
+   BOTH ends are written out, and that is load-bearing rather than tidiness.
+   This block used to declare `from` alone, which makes the `to` frame the
+   element's own computed `clip-path` — `none`. `none` is not a basic shape, so
+   there is nothing to interpolate towards and CSS falls back to DISCRETE
+   interpolation: the mask does not sweep, it flips, in one frame, at the
+   halfway point of the eased curve. Measured on the built page before this
+   change: at 22.5% of the scroll range the heading's computed clip-path was
+   already `none`. The wipe this file has described since it was written was
+   never running; the fade underneath it was hiding the snap.
+
+   The final frame bleeds 0.4em outside the box instead of resting at
+   `inset(0 0 0 0)`, because the animation is filled `both` and therefore
+   leaves that frame in place for good. The headings are Vietnamese, set at
+   `leading-[1.05]` — stacked diacritics (ề, ữ, ạ) reach past the border box,
+   and an exact-fit final mask would shave them permanently. */
 @keyframes site-reveal-clip {
   from {
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(0.75rem);
+    clip-path: inset(-0.4em 100% -0.4em -0.4em);
+    transform: translateX(1.25rem);
+  }
+  to {
+    clip-path: inset(-0.4em -0.4em -0.4em -0.4em);
   }
 }
 
@@ -63,7 +109,7 @@
 @utility reveal {
   animation:
     site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-up var(--duration-slow) var(--ease-spring) both;
+    site-reveal-in var(--duration-slow) var(--ease-spring) both;
   animation-timeline: view();
   animation-range: cover 4vh cover 42vh;
 }
@@ -84,7 +130,7 @@
 @utility reveal-load {
   animation:
     site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-up var(--duration-slow) var(--ease-spring) both;
+    site-reveal-in var(--duration-slow) var(--ease-spring) both;
 }
 
 @utility reveal-clip-load {
@@ -100,7 +146,7 @@
   .js .reveal-clip {
     animation: none;
     opacity: 0;
-    transform: translateY(1.25rem);
+    transform: translateX(2rem);
     transition:
       opacity var(--duration-slow) var(--ease-out-soft),
       transform var(--duration-slow) var(--ease-out-soft);

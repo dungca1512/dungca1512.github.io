@@ -21,23 +21,31 @@ import { cn } from '@/lib/cn';
  * ────────────────────────────────────────────────────────────────────────── */
 
 export type ArtAccent = 'primary' | 'accent' | 'info' | 'success';
-export type ArtVariant = 1 | 2 | 3 | 4 | 5 | 6;
+export type ArtVariant = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
-/* Four accents against six layouts. The two cycles are coprime, so a list has
-   to reach twenty-four items before a (layout, colour) pair repeats — the nine
-   project cards never show the same combination twice. Picking at random would
-   also avoid repeats most of the time, but a static export renders once and
-   keeps whatever it rolled, so "most of the time" would be a permanent
-   property of the built page rather than a per-visit one. */
-const ACCENTS: ArtAccent[] = ['info', 'accent', 'primary', 'success'];
-const VARIANTS: ArtVariant[] = [1, 2, 3, 4, 5, 6];
+/* There used to be an `artFor(index)` here, and it is worth saying what was
+   wrong with it, because it looked reasonable:
 
-export function artFor(index: number): { variant: ArtVariant; accent: ArtAccent } {
-  return {
-    variant: VARIANTS[index % VARIANTS.length]!,
-    accent: ACCENTS[index % ACCENTS.length]!,
-  };
-}
+     return { variant: VARIANTS[index % 6], accent: ACCENTS[index % 4] };
+
+   Four accents against six layouts are coprime, so no two of nine cards ever
+   showed the same pair — which is what the function was designed to guarantee,
+   and it did. But the thing it guaranteed was variety, and variety is not what
+   a picture on a project card is for. The art was a function of the card's
+   POSITION IN AN ARRAY. Reorder the projects and every picture moves to a
+   different project; the speech platform got a rack of servers because it
+   happened to be third. The feedback was "mấy cái dự án của em cho ảnh xem nó
+   hoạt động thế nào", and the honest answer was that these pictures could not
+   show that, because nothing connected them to the work.
+
+   So each project now NAMES its own art, in the content module, and the four
+   layouts that had no project to belong to were replaced by ones that do: a
+   fallback chain, a fan-out to a judge, a training loop, a partitioned stream.
+   The accent is named there too. Losing the coprime trick means two projects
+   could now be given the same pair by hand, so tests/art.test.ts asserts
+   the pairs are distinct — a property that used to be arithmetic and is now a
+   decision someone has to keep. */
+export type Art = { variant: ArtVariant; accent: ArtAccent };
 
 type TechArtProps = {
   variant: ArtVariant;
@@ -90,6 +98,10 @@ export function TechArt({ variant, accent, className, still, banner }: TechArtPr
           {variant === 4 ? <ArtRack still={still} /> : null}
           {variant === 5 ? <ArtChip still={still} /> : null}
           {variant === 6 ? <ArtStack still={still} /> : null}
+          {variant === 7 ? <ArtFallback still={still} /> : null}
+          {variant === 8 ? <ArtJudge still={still} /> : null}
+          {variant === 9 ? <ArtLoop still={still} /> : null}
+          {variant === 10 ? <ArtStream still={still} /> : null}
         </g>
       </svg>
     </div>
@@ -98,7 +110,7 @@ export function TechArt({ variant, accent, className, still, banner }: TechArtPr
 
 type PartProps = { still?: boolean };
 
-/* Six layouts so a grid of cards does not read as one shape repeated. They are
+/* Ten layouts, one per thing the projects actually do. They are
    drawn from the same vocabulary as the generated illustrations — service
    boxes, a terminal, a chip, discs for a database, a small graph — so the two
    kinds of art on the page look like they came from one hand. */
@@ -278,6 +290,149 @@ function ArtStack({ still }: PartProps) {
         />
       ))}
       <path d="M84 72v22M160 72v22M236 72v22" strokeWidth="1.5" opacity="0.3" />
+    </g>
+  );
+}
+
+/** A router in front of a stack of engines: the first one answers, the two
+ *  behind it are the fallback. For a service whose point is that a provider
+ *  going down degrades the result instead of ending it — the solid line is the
+ *  path taken, the dashed ones are the paths held ready. */
+function ArtFallback({ still }: PartProps) {
+  const engines = [40, 86, 132];
+  return (
+    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <g strokeWidth="6" opacity="0.6">
+        <path d="M24 88v24M36 76v48M48 86v28" />
+      </g>
+      <path d="M60 100h22" strokeWidth="2" opacity="0.5" />
+      <rect x="86" y="80" width="46" height="40" rx="9" strokeWidth="2.5" opacity="0.9" />
+      <path d="M132 100c26 0 26-43 52-43" strokeWidth="2.5" opacity="0.85" />
+      <path d="M132 100c26 0 26 3 52 3" strokeWidth="2" strokeDasharray="5 6" opacity="0.4" />
+      <path d="M132 100c26 0 26 49 52 49" strokeWidth="2" strokeDasharray="5 6" opacity="0.4" />
+      {engines.map((y, i) => (
+        <rect
+          key={y}
+          x="184"
+          y={y}
+          width="96"
+          height="34"
+          rx="8"
+          strokeWidth="2"
+          opacity={i === 0 ? 1 : 0.35}
+          fill={i === 0 ? 'currentColor' : 'none'}
+          className={i === 0 && !still ? 'art-pulse' : undefined}
+          style={i === 0 ? { transformOrigin: '232px 57px' } : undefined}
+        />
+      ))}
+    </g>
+  );
+}
+
+/** One input answered by four providers at once, then a judge that keeps one.
+ *  The fan-out and the fan-in are the whole idea, so both are drawn. */
+function ArtJudge({ still }: PartProps) {
+  const rows = [26, 66, 106, 146];
+  return (
+    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="14" y="82" width="40" height="36" rx="8" strokeWidth="2.5" opacity="0.9" />
+      {rows.map((y) => (
+        <g key={y}>
+          <path
+            d={`M54 100c22 0 22 ${y + 14 - 100} 44 ${y + 14 - 100}`}
+            strokeWidth="1.5"
+            opacity="0.32"
+          />
+          <rect x="98" y={y} width="56" height="28" rx="7" strokeWidth="2" opacity="0.55" />
+          <path
+            d={`M154 ${y + 14}c22 0 22 ${100 - y - 14} 38 ${100 - y - 14}`}
+            strokeWidth="1.5"
+            opacity="0.32"
+          />
+        </g>
+      ))}
+      <path
+        d="M212 100 226 82 240 100 226 118Z"
+        strokeWidth="2.5"
+        opacity="0.95"
+        className={still ? undefined : 'art-pulse'}
+        style={{ transformOrigin: '226px 100px' }}
+      />
+      <path d="M240 100h20" strokeWidth="2" opacity="0.5" />
+      <rect x="260" y="84" width="42" height="32" rx="8" strokeWidth="2.5" opacity="0.85" />
+    </g>
+  );
+}
+
+/** A closed loop with a gate on it: train, evaluate, promote, train again.
+ *  The arc carries an arrowhead because a cycle with no direction is a ring. */
+function ArtLoop({ still }: PartProps) {
+  const stations: [number, number][] = [
+    [160, 42],
+    [218, 100],
+    [160, 158],
+    [102, 100],
+  ];
+  return (
+    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      {/* Arc centre (160, 100), r=58, drawn clockwise from the top and stopping
+          just short of it at (119, 59). The head is placed on that endpoint and
+          its barbs swept back along the tangent there — eyeballed coordinates
+          left it floating a few units off the line, which on screen reads as a
+          stray mark rather than as an arrow. */}
+      <path d="M160 42a58 58 0 1 1-41 17" strokeWidth="2.5" opacity="0.8" />
+      <path d="M108 63 119 59 115 70" strokeWidth="2.5" opacity="0.8" />
+      {stations.map(([cx, cy], i) => (
+        <circle
+          key={cx + '-' + cy}
+          cx={cx}
+          cy={cy}
+          r="9"
+          strokeWidth="2.5"
+          opacity={i === 1 ? 1 : 0.45}
+          fill={i === 1 ? 'currentColor' : 'none'}
+          className={i === 1 && !still ? 'art-pulse' : undefined}
+          style={i === 1 ? { transformOrigin: `${cx}px ${cy}px` } : undefined}
+        />
+      ))}
+    </g>
+  );
+}
+
+/** A partitioned log feeding its consumers. Three lanes of segments, because
+ *  the ordering inside a partition is the part of a stream that matters. */
+function ArtStream({ still }: PartProps) {
+  const lanes = [56, 100, 144];
+  const slots = [0, 1, 2, 3, 4];
+  return (
+    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      {lanes.map((y, lane) =>
+        slots.map((j) => {
+          const lit = lane === 1 && j === 4;
+          return (
+            <rect
+              key={`${y}-${j}`}
+              x={20 + j * 32}
+              y={y - 10}
+              width="26"
+              height="20"
+              rx="5"
+              strokeWidth="2"
+              opacity={lit ? 1 : 0.3 + j * 0.04}
+              fill={lit ? 'currentColor' : 'none'}
+              className={lit && !still ? 'art-pulse' : undefined}
+              style={lit ? { transformOrigin: `${20 + 4 * 32 + 13}px ${y}px` } : undefined}
+            />
+          );
+        }),
+      )}
+      <path
+        d="M178 56c30 0 24 22 52 22M178 100h52M178 144c30 0 24-22 52-22"
+        strokeWidth="1.5"
+        opacity="0.32"
+      />
+      <rect x="230" y="62" width="70" height="32" rx="8" strokeWidth="2.5" opacity="0.85" />
+      <rect x="230" y="106" width="70" height="32" rx="8" strokeWidth="2.5" opacity="0.55" />
     </g>
   );
 }

@@ -62,6 +62,11 @@ export function CountUp({
 
       const column = document.createElement('span');
       column.style.display = 'block';
+      // Promoted ahead of the roll, because a hint given at the same moment as
+      // the transform is a hint that arrives too late to be one. Dropped again
+      // on `transitionend` below: a wheel that has stopped is static text, and
+      // ten of these left permanently promoted is ten layers the compositor
+      // keeps alive for a one-second animation that runs once per page.
       column.style.willChange = 'transform';
       for (let d = 0; d <= 9; d += 1) {
         const cell = document.createElement('span');
@@ -91,6 +96,16 @@ export function CountUp({
           // lockstep looks like one sliding block, not like wheels stopping.
           column.style.transition = `transform ${duration + index * 120}ms cubic-bezier(0.2, 0, 0, 1) ${index * 70}ms`;
           column.style.transform = `translateY(-${Number(column.dataset.target)}em)`;
+          // Each wheel has its own duration and delay, so each one releases
+          // itself. `once` retires the listener; nothing to clean up if the
+          // component unmounts first, because the node goes with it.
+          column.addEventListener(
+            'transitionend',
+            () => {
+              column.style.willChange = 'auto';
+            },
+            { once: true },
+          );
         });
       },
       { rootMargin: '0px 0px -20% 0px' },
