@@ -1,8 +1,35 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { Illustration } from '@/components/site/illustration';
+import { Disclosure } from '@/components/site/disclosure';
+import { ScrollMarquee } from '@/components/motion/scroll-marquee';
 import { EXPERTISE, FOCUS } from '@/content/expertise';
+import { SKILL_GROUPS, PLAYBOOK } from '@/content/capabilities';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 
+/* The strip above the tool cards. Three per group rather than all 53 items: the
+   full set makes one track about 8000px wide, which at the marquee's own
+   duration reads as a blur rather than as a list, and every item is already
+   legible in the cards below — the strip is there to give the band motion, not
+   to be the place anyone reads the stack from. Taking the head of each group
+   keeps all six areas represented instead of over-showing whichever one is
+   longest. */
+const MARQUEE_ITEMS = SKILL_GROUPS.flatMap((group) => group.items.slice(0, 3));
+
+/** One band answering "what can he do", where there used to be two.
+ *
+ *  `Capabilities` was its own section four bands further down, and a reader who
+ *  got there had already been told once, in `Expertise`, what this person works
+ *  on. Two bands, 715 words between them, the same question. They are one band
+ *  now, ordered from claim to evidence to method: four areas of depth, the
+ *  toolbox those areas are built with, and — folded away until asked for — the
+ *  five principles that decide how the toolbox gets used.
+ *
+ *  Which parts are visible by default is a reading-cost decision, not a
+ *  hierarchy one. The playbook is 150 words of prose, and prose is what a
+ *  scanning reader pays for; the 53 tool chips are barely more characters and
+ *  cost almost nothing to skim, besides being the thing someone scanning for
+ *  "Kubernetes" or "Terraform" actually came for. So the chips stay out and the
+ *  prose folds. */
 export async function Expertise() {
   const locale = await getLocale();
   const dict = await getDictionary();
@@ -58,6 +85,67 @@ export async function Expertise() {
           </ul>
         </div>
       </div>
+
+      {/* The toolbox. The illustration that used to head the capabilities band
+          comes with it — the band is gone, the picture is not, and this half of
+          the section is the one it was drawn for. */}
+      <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center mt-24 grid gap-10">
+        <div>
+          <h3 className="reveal text-2xl font-semibold tracking-tight sm:text-3xl">
+            {dict.sections.expertise.toolbox}
+          </h3>
+          {/* `aria-hidden` on the second copy lives inside ScrollMarquee, so a
+              screen reader reads this list once — and the cards below carry the
+              same names as real content anyway. */}
+          <ScrollMarquee items={MARQUEE_ITEMS} className="border-border mt-6 rounded-lg border" />
+        </div>
+        <div className="reveal wide:order-none order-first">
+          <Illustration
+            name="capabilities"
+            parallax
+            alt=""
+            width={560}
+            height={560}
+            className="block overflow-hidden rounded-lg"
+          />
+        </div>
+      </div>
+
+      <ul className="stagger wide:grid-cols-3 mt-12 grid gap-6 sm:grid-cols-2">
+        {SKILL_GROUPS.map((group, i) => (
+          <li
+            key={group.key}
+            className="reveal border-border bg-surface rounded-lg border p-6"
+            style={{ '--i': Math.min(i, 7) } as React.CSSProperties}
+          >
+            <h3 className="text-lg font-semibold tracking-tight">{group.title[locale]}</h3>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {group.items.map((item) => (
+                <li
+                  key={item}
+                  className="pop-on-hover bg-surface-muted text-muted-foreground rounded-full px-3 py-1 text-sm"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+
+      <Disclosure label={dict.sections.capabilities.title} className="mt-16">
+        <ol className="stagger wide:grid-cols-5 mt-10 grid gap-8 sm:grid-cols-2">
+          {PLAYBOOK.map((step, i) => (
+            <li key={step.step} className="reveal" style={{ '--i': i } as React.CSSProperties}>
+              <p className="text-ink-primary text-sm font-semibold tracking-[0.14em] uppercase">
+                {step.step}
+              </p>
+              <h3 className="mt-2 font-semibold tracking-tight">{step.title[locale]}</h3>
+              <p className="text-muted-foreground mt-1 text-sm">{step.body[locale]}</p>
+            </li>
+          ))}
+        </ol>
+      </Disclosure>
     </Section>
   );
 }

@@ -36,6 +36,11 @@ const en: Dictionary = {
     repository: 'Repository',
     demo: 'Demo',
     present: 'Present',
+    /* See vi.ts — these are the summary lines of the collapsed panels, and
+       `{count}` is substituted at the call site from the list's own length. */
+    moreProjects: 'Show {count} more projects',
+    caseStudyDetail: 'Read the detail: problem, architecture, trade-offs, result',
+    measuredOutcome: 'The measured outcome',
   },
   sections: {
     hero: {
@@ -52,7 +57,10 @@ const en: Dictionary = {
     expertise: {
       eyebrow: 'Core Expertise',
       title: 'How I build and operate AI infrastructure.',
-      lead: 'Four areas I work in depth: architecture and cost control, Kubernetes operations, model serving, and LLM application design.',
+      /* See vi.ts — this band absorbed the capabilities band, so its lead has
+         to introduce the toolbox and the playbook too. */
+      lead: 'Four areas I work in depth, the toolbox I use daily, and the five principles that decide how I use it.',
+      toolbox: 'The everyday toolbox',
     },
     work: {
       eyebrow: 'Selected Work',
@@ -70,10 +78,10 @@ const en: Dictionary = {
       axisStart: '2023',
       axisNow: 'Now',
     },
+    /* See vi.ts — the band merged into `expertise`; this line survives as the
+       label on the panel holding the five principles. */
     capabilities: {
-      eyebrow: 'Engineering Playbook',
       title: 'Operating principles for production AI infrastructure.',
-      lead: 'The tools I use daily, and the five principles that decide how I use them.',
     },
     analytics: {
       eyebrow: 'Data Snapshot',

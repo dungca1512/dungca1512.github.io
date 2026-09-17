@@ -82,9 +82,16 @@ describe('every band on the page carries art', () => {
 
   it('gives every project card its own drawn art', () => {
     const source = read(WORK);
-    // Inside the PROJECTS map, not merely somewhere in the file — art placed
-    // outside the loop would be one picture for nine cards.
-    const loop = source.slice(source.indexOf('PROJECTS.map'));
+    /* Inside the card component, not merely somewhere in the file — art placed
+       outside it would be one picture for nine cards. This used to slice from
+       `PROJECTS.map`, because the card WAS the body of that map; it was lifted
+       into `ProjectCard` so the five open cards and the four folded ones could
+       be the same card rather than the same JSX typed twice. Anchoring on the
+       component instead of the loop is the stronger of the two: there is now
+       exactly one place a card's picture can come from. */
+    const card = /function ProjectCard\([\s\S]*?\n\}\n/.exec(source)?.[0] ?? '';
+    expect(card, 'no ProjectCard component in work.tsx to check').not.toBe('');
+    const loop = card;
     expect(loop).toContain('<TechArt');
     /* From the project, not from the loop counter. `artFor(i)` used to be
        here, and it was wrong in a way no gate could see: the card's picture
@@ -227,13 +234,23 @@ describe('parallax and the class it must not share an element with', () => {
 
   it('is switched on at every illustration on the page', () => {
     /* The intro curtain is the deliberate exception: it is a full-bleed panel
-       that slides sideways on its own timeline, and it never scrolls. */
-    const callers = sourceFiles().filter(
-      (file) => read(file).includes('<Illustration') && !file.includes('intro-curtain'),
-    );
-    expect(callers.length, 'found no <Illustration> callers to check').toBeGreaterThanOrEqual(7);
-    for (const file of callers) {
-      const call = /<Illustration[\s\S]*?\/>/.exec(stripComments(read(file)))![0];
+       that slides sideways on its own timeline, and it never scrolls.
+
+       Every CALL, not the first call in every file. Those were the same number
+       until the capabilities band merged into expertise and one file came to
+       hold two illustrations — at which point a file-at-a-time check silently
+       stopped looking at the second one, and the floor, which counted files,
+       read as a regression when nothing had been removed from the page. */
+    const calls = sourceFiles()
+      .filter((file) => !file.includes('intro-curtain'))
+      .flatMap((file) =>
+        [...stripComments(read(file)).matchAll(/<Illustration[\s\S]*?\/>/g)].map((m) => ({
+          file,
+          call: m[0],
+        })),
+      );
+    expect(calls.length, 'found no <Illustration> callers to check').toBeGreaterThanOrEqual(7);
+    for (const { file, call } of calls) {
       expect(call, `${file} renders art with no parallax`).toContain('parallax');
     }
   });

@@ -12,7 +12,7 @@ export async function Writing() {
   const dict = await getDictionary();
 
   return (
-    <Section id="writing" className="band-muted">
+    <Section id="writing">
       <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center grid gap-10">
         <SectionHeading
           stacked

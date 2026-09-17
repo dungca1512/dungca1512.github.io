@@ -167,7 +167,13 @@ describe('the page backdrop', () => {
     expect(band).toMatch(/color-mix\(/);
     expect(band).toMatch(/var\(--base-surface-muted\)/);
     expect(band).toMatch(/transparent/);
-    for (const file of ['writing', 'capabilities', 'work', 'proof-bar']) {
+    /* `writing` and `capabilities` used to be on this list. Neither was
+       removed from the page: capabilities merged into expertise, and losing a
+       band flipped the parity of every band after it, so writing became plain
+       and analytics became muted. The list names whichever bands are muted
+       today — it is not allowed to shrink to nothing, which is what the
+       alternation test below is for. */
+    for (const file of ['analytics', 'work', 'proof-bar']) {
       const src = readFileSync(`src/components/sections/${file}.tsx`, 'utf8');
       expect(src, file).toContain('band-muted');
       expect(src, file).not.toMatch(/<[Ss]ection[^>]*bg-surface-muted/);
@@ -192,7 +198,9 @@ describe('the page backdrop', () => {
     const order = [...page.matchAll(/<(\w+) \/>/g)]
       .map((m) => m[1]!)
       .filter((name) => fileFor.has(name));
-    expect(order.length).toBeGreaterThanOrEqual(9);
+    // Eight since the capabilities band merged into expertise. A floor, not a
+    // count: it is here so an emptied page cannot pass this test vacuously.
+    expect(order.length).toBeGreaterThanOrEqual(8);
 
     const tone = order.map((name) => {
       const src = readFileSync(`src/components/sections/${fileFor.get(name)}.tsx`, 'utf8');

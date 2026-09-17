@@ -47,6 +47,14 @@ const vi = {
     repository: 'Mã nguồn',
     demo: 'Bản chạy thử',
     present: 'Hiện tại',
+    /* The labels on the page's collapsed panels. They are written as a promise
+       of what is inside, not as a bare "Xem thêm": a summary line that does not
+       say what it hides is a line nobody opens. `{count}` is filled in at the
+       call site from the list's own length — a hardcoded "4" here goes stale
+       the moment a project is added or dropped, and nothing would say so. */
+    moreProjects: 'Xem thêm {count} dự án',
+    caseStudyDetail: 'Xem chi tiết: bài toán, kiến trúc, đánh đổi và kết quả',
+    measuredOutcome: 'Kết quả đo được',
   },
   sections: {
     hero: {
@@ -65,7 +73,11 @@ const vi = {
     expertise: {
       eyebrow: 'Năng lực cốt lõi',
       title: 'Cách tôi xây dựng và vận hành hạ tầng AI.',
-      lead: 'Bốn mảng tôi làm sâu, từ chọn kiến trúc và kiểm soát chi phí đến vận hành Kubernetes, phục vụ mô hình và dựng ứng dụng LLM.',
+      /* This lead now has to cover the toolbox and the playbook as well: the
+         band it used to introduce was one of TWO answering "what can he do",
+         and they have been merged into this one. */
+      lead: 'Bốn mảng tôi làm sâu, bộ công cụ dùng hằng ngày, và năm nguyên tắc quyết định cách tôi dùng chúng.',
+      toolbox: 'Bộ công cụ dùng hằng ngày',
     },
     work: {
       eyebrow: 'Dự án tiêu biểu',
@@ -83,10 +95,14 @@ const vi = {
       axisStart: '2023',
       axisNow: 'Hiện tại',
     },
+    /* No longer a band of its own — its contents moved into `expertise`,
+       which was answering the same question one band earlier. `title` stays
+       because it is the line the owner asked for by name, and it now labels
+       the collapsed panel the five principles live in. `eyebrow` and `lead`
+       went with the band: the eyebrow named a section that no longer exists,
+       and the lead's job was taken over by `expertise.lead`. */
     capabilities: {
-      eyebrow: 'Nguyên tắc triển khai',
       title: 'Các nguyên tắc vận hành hạ tầng AI thực chiến.',
-      lead: 'Công cụ tôi dùng hằng ngày, và năm nguyên tắc quyết định cách tôi dùng chúng.',
     },
     /* The labels for a band whose numbers are all computed — see
        src/lib/github-analytics.ts. Nothing here states a figure; a number
