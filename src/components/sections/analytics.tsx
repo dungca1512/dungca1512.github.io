@@ -62,7 +62,7 @@ export async function Analytics() {
   ];
 
   return (
-    <Section id="analytics" className="band-muted">
+    <Section id="analytics">
       {/* NOT `stacked`, and not beside a portrait-shaped illustration, which is
           how this band was first built. `stacked` caps the <h2> at 24rem so
           that a title can sit next to a square picture — and this title is the

@@ -10,7 +10,7 @@ export async function Work() {
   const dict = await getDictionary();
 
   return (
-    <Section id="projects">
+    <Section id="projects" className="band-muted">
       <SectionHeading
         titleId="projects"
         eyebrow={dict.sections.work.eyebrow}

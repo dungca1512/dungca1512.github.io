@@ -139,10 +139,29 @@
 }
 
 /* A band that alternates the page colour without hiding the board.
-   `bg-surface-muted` is opaque, and four of the eight bands carry it — laid
-   over `.tech-backdrop` they blanked half the page back to the flat fill the
-   backdrop exists to break up. 88% keeps the tonal step that makes the bands
-   read as separate, and lets the traces through underneath. */
+   `bg-surface-muted` is opaque, and half the bands carry it — laid over
+   `.tech-backdrop` they blanked half the page back to the flat fill the
+   backdrop exists to break up. Staying translucent lets the traces through
+   underneath.
+
+   The step used to be surface-muted alone at 88%, which against the light page
+   ground comes to about seven levels of grey. Measured on the built page, that
+   boundary was invisible while scrolling — a reader could cross from one
+   section into the next without anything changing. So the mix now
+   carries a little of the brand hue as well as the lightness drop: a step of
+   roughly eighteen levels AND a shift off neutral, which the eye catches
+   where a pure-grey step of the same size does not.
+
+   The hairline is the other half of the answer, and the more reliable half —
+   tone alone is a soft edge, a rule is a fact. Every muted band draws one at
+   both ends, so a boundary exists even for a reader who cannot see the tonal
+   step at all. It lives here rather than as a `border-y` at each call site
+   because a band that forgets it is a band with no edge. */
 @utility band-muted {
-  background-color: color-mix(in srgb, var(--base-surface-muted) 88%, transparent);
+  background-color: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--base-primary) 6%, var(--base-surface-muted)) 92%,
+    transparent
+  );
+  border-block: 1px solid var(--base-border);
 }

@@ -157,14 +157,55 @@ describe('the page backdrop', () => {
   });
 
   it('lets the muted bands show it through', () => {
-    // An opaque band over a fixed backdrop blanks it. Four of the eight bands
-    // carry this class; if it goes back to a flat colour the backdrop is gone
-    // from half the page and nothing else would say so.
-    expect(css).toMatch(/@utility band-muted[\s\S]*color-mix\([^)]*var\(--base-surface-muted\)/);
-    for (const file of ['experience', 'writing', 'expertise', 'proof-bar']) {
+    // An opaque band over a fixed backdrop blanks it. Half the bands carry this
+    // class; if it goes back to a flat colour the backdrop is gone from half
+    // the page and nothing else would say so. The band's own ground is a mix
+    // of surface-muted, so both halves of that mix have to survive — the outer
+    // one is what keeps it translucent, the inner one is what makes it grey
+    // rather than brand-coloured.
+    const band = css.match(/@utility band-muted \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(band).toMatch(/color-mix\(/);
+    expect(band).toMatch(/var\(--base-surface-muted\)/);
+    expect(band).toMatch(/transparent/);
+    for (const file of ['writing', 'capabilities', 'work', 'proof-bar']) {
       const src = readFileSync(`src/components/sections/${file}.tsx`, 'utf8');
       expect(src, file).toContain('band-muted');
       expect(src, file).not.toMatch(/<[Ss]ection[^>]*bg-surface-muted/);
     }
+  });
+
+  /* The bands have to ALTERNATE, not merely exist. They shipped once running
+     plain-muted-muted-plain-muted-plain-muted-muted-dark, and each of those
+     doubles was a place where a reader crossed from one section into the next
+     with nothing on screen changing — three and a half screens of one
+     uninterrupted grey between "Dữ liệu" and "Ghi chép". Nothing caught it,
+     because every individual band was correct. This reads the running order
+     out of the page itself rather than taking a hardcoded list, so inserting
+     a section in the wrong place fails here instead of on the live site. */
+  it('never puts two bands of the same colour next to each other', () => {
+    const page = readFileSync('src/app/[lang]/page.tsx', 'utf8');
+    const fileFor = new Map(
+      [...page.matchAll(/import \{ (\w+) \} from '@\/components\/sections\/([\w-]+)'/g)].map(
+        (m) => [m[1]!, m[2]!] as const,
+      ),
+    );
+    const order = [...page.matchAll(/<(\w+) \/>/g)]
+      .map((m) => m[1]!)
+      .filter((name) => fileFor.has(name));
+    expect(order.length).toBeGreaterThanOrEqual(9);
+
+    const tone = order.map((name) => {
+      const src = readFileSync(`src/components/sections/${fileFor.get(name)}.tsx`, 'utf8');
+      if (/<Section[^>]*\sdark[\s>]/.test(src)) return 'dark';
+      return src.includes('band-muted') ? 'muted' : 'plain';
+    });
+
+    const seams = order
+      .slice(1)
+      .map((name, i) => (tone[i] === tone[i + 1] ? `${order[i]}->${name} (both ${tone[i]})` : null))
+      .filter(Boolean);
+    expect(seams, `sections sharing a ground with their neighbour: ${seams.join(', ')}`).toEqual(
+      [],
+    );
   });
 });

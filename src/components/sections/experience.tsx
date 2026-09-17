@@ -8,7 +8,7 @@ export async function Experience() {
   const dict = await getDictionary();
 
   return (
-    <Section id="experience" className="band-muted">
+    <Section id="experience">
       <SectionHeading
         titleId="experience"
         eyebrow={dict.sections.experience.eyebrow}

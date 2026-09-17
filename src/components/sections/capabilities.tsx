@@ -17,7 +17,7 @@ export async function Capabilities() {
   const dict = await getDictionary();
 
   return (
-    <Section id="capabilities" blueprint>
+    <Section id="capabilities" blueprint className="band-muted">
       {/* `stacked` is what makes the heading survive a narrow column: it
           drops the title/lead side-by-side grid, which at 15rem would set the
           lead two words to a line. */}
