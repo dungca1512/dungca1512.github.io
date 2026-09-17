@@ -9,6 +9,7 @@ import { Footer } from '@/components/site/footer';
 import { SkipLink } from '@/components/site/skip-link';
 import { ThemeScript } from '@/components/site/theme-script';
 import { IntroCurtain } from '@/components/site/intro-curtain';
+import { BackdropMotifs } from '@/components/site/backdrop-motifs';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ lang: locale }));
@@ -61,8 +62,13 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
         <IntroCurtain />
         {/* The page's ground. Fixed to the viewport and z-index -1, so it
             must be outside <main> and outside anything that establishes a
-            containing block. aria-hidden and empty: it is texture. */}
-        <div className="tech-backdrop" aria-hidden="true" />
+            containing block. aria-hidden: it is texture. The element itself
+            paints the circuit board out of gradients; its one child draws the
+            motifs on top of it, and inherits the mask and the fixed position
+            by being inside rather than beside it. */}
+        <div className="tech-backdrop" aria-hidden="true">
+          <BackdropMotifs />
+        </div>
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
         {/* tabIndex=-1: Safari has historically not moved focus to a
