@@ -1,4 +1,5 @@
 import type { Localized } from './locales';
+import type { Art } from '@/components/site/tech-art';
 
 /** `PORTFOLIO_DATA.projects[i].repo` is a slug ("speech-scoring-platform"), not
  *  a URL — the real link(s), when a project has one, live in `links[]`
@@ -14,12 +15,26 @@ export type Project = {
   outcome: Localized<string>;
   stack: string[]; // tool names — not translated
   links: { label: Localized<string>; url: string }[];
+  /** The diagram on this project's card, and the tint it is drawn in.
+   *
+   *  It lives here, on the project, because it is about the project. The card
+   *  used to derive it from the array index — see the note on `Art` in
+   *  tech-art.tsx — which meant reordering this list reshuffled every picture,
+   *  and no picture had anything to do with the system it sat above. Naming it
+   *  per project is what lets the drawing be the shape of the thing: a fallback
+   *  chain over the speech platform, a fan-out to a judge over the translation
+   *  comparator, a training loop over the fine-tune.
+   *
+   *  The pairs have to stay distinct by hand now — the index version got that
+   *  for free from two coprime cycles. tests/art.test.ts asserts it. */
+  art: Art;
 };
 
 /** `PORTFOLIO_DATA.projects`, all nine, verbatim. */
 export const PROJECTS: Project[] = [
   {
     slug: 'speech-scoring-platform',
+    art: { variant: 7, accent: 'info' },
     /* Two measurements, deliberately kept apart.
 
        The latency figure is a load test. It used to read "p95 1.86s for 20
@@ -63,6 +78,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'hey-translate',
+    art: { variant: 8, accent: 'accent' },
     name: 'Hey Translate',
     period: 'eUp · 2025-2026',
     summary: {
@@ -78,6 +94,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'ultimate-lesson',
+    art: { variant: 3, accent: 'primary' },
     name: 'Ultimate Lesson',
     period: 'eUp · 2025-2026',
     summary: {
@@ -93,6 +110,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'internal-embedding-service',
+    art: { variant: 6, accent: 'success' },
     name: 'Internal Embedding Service',
     period: 'eUp · 2025',
     summary: {
@@ -108,6 +126,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'ai-gateway',
+    art: { variant: 1, accent: 'info' },
     name: 'AI Gateway',
     period: '2025-2026',
     summary: {
@@ -128,6 +147,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'homelab',
+    art: { variant: 4, accent: 'accent' },
     name: 'Homelab Kubernetes & GitOps Platform',
     period: '2025-2026',
     summary: {
@@ -148,6 +168,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'whisper-finetune-ja',
+    art: { variant: 9, accent: 'primary' },
     name: 'Whisper Finetune JA',
     period: '2026',
     summary: {
@@ -172,6 +193,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'homelab-iac',
+    art: { variant: 5, accent: 'success' },
     name: 'Raspberry Pi Homelab — Ansible IaC & Slack ChatOps',
     period: '2026',
     summary: {
@@ -194,6 +216,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'newspulse-reco-engine',
+    art: { variant: 10, accent: 'info' },
     name: 'NewsPulse Reco Engine',
     period: '2025',
     summary: {

@@ -1,6 +1,6 @@
 import { Section, SectionHeading } from '@/components/site/section';
 import { Illustration } from '@/components/site/illustration';
-import { TechArt, artFor } from '@/components/site/tech-art';
+import { TechArt } from '@/components/site/tech-art';
 import { PROJECTS, CASE_STUDY } from '@/content/projects';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { cn } from '@/lib/cn';
@@ -103,11 +103,14 @@ export async function Work() {
             >
               {/* Every card carries a picture, and none of them is a file.
                   Nine generated illustrations would be twenty-seven encoded
-                  images against a 40KB-per-file budget, for art that is a
-                  texture rather than a subject — see site/tech-art.tsx. The
-                  padding moved off the <li> and onto the wrapper below so the
-                  art can reach the card's own edge. */}
-              <TechArt {...artFor(i)} banner={lead} />
+                  images against a 40KB-per-file budget — see site/tech-art.tsx.
+
+                  The drawing comes from `project.art`, not from `i`. That is
+                  the whole point of the change: what a card shows is a fact
+                  about the project, so it is stored on the project. Sorting
+                  this list differently now moves the cards and leaves each
+                  diagram on the system it describes. */}
+              <TechArt {...project.art} banner={lead} />
               <div className="flex flex-1 flex-col p-6">
                 <p className="text-muted-foreground text-sm">{project.period}</p>
                 <h3 className="mt-1 text-lg font-semibold tracking-tight">{project.name}</h3>

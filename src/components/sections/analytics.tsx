@@ -1,5 +1,5 @@
 import { Section, SectionHeading } from '@/components/site/section';
-import { TechArt, artFor } from '@/components/site/tech-art';
+import { TechArt } from '@/components/site/tech-art';
 import { analyse } from '@/lib/github-analytics';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { BCP47 } from '@/content/locales';
@@ -80,7 +80,11 @@ export async function Analytics() {
           art. At 48rem the drawing fills its frame and the strip works as a
           rule under the heading. */}
       <div className="reveal mt-10 max-w-3xl">
-        <TechArt {...artFor(4)} banner className="rounded-lg" />
+        {/* Not a project, so it has no `art` field to read: the variant is
+            named here, at the only place that uses it. The waveform is the
+            one that fits — what this section reports is activity over time,
+            and that is what a trace of varying amplitude draws. */}
+        <TechArt variant={2} accent="success" banner className="rounded-lg" />
       </div>
 
       {/* The snapshot's timestamp is part of the claim, not a footnote: these

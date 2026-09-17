@@ -13,7 +13,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { artFor } from '../src/components/site/tech-art';
+import { PROJECTS } from '../src/content/projects';
 
 const read = (path: string) => readFileSync(path, 'utf8');
 
@@ -86,29 +86,39 @@ describe('every band on the page carries art', () => {
     // outside the loop would be one picture for nine cards.
     const loop = source.slice(source.indexOf('PROJECTS.map'));
     expect(loop).toContain('<TechArt');
-    expect(loop).toContain('artFor(i)');
+    /* From the project, not from the loop counter. `artFor(i)` used to be
+       here, and it was wrong in a way no gate could see: the card's picture
+       was a function of its position, so the drawing above the speech platform
+       described nothing and changed if the list was sorted. */
+    expect(loop).toContain('{...project.art}');
+    expect(loop, 'the card is picking its art by index again').not.toMatch(/artFor\(/);
   });
 });
 
 describe('the drawn art picks a layout and a colour', () => {
-  /* Nine projects ship today. The pair has to stay unique across all of them,
-     and the arithmetic that makes it unique — six layouts against four
-     accents, which are coprime — is not obvious from reading artFor. */
-  const indices = Array.from({ length: 9 }, (_, i) => i);
+  /* These used to run over `artFor(0..8)`. They now run over the projects
+     themselves, which is the only version that can catch the failure that
+     matters: a project added with no art, or two projects handed the same
+     drawing. The old arithmetic made uniqueness free and made relevance
+     impossible; naming the art per project trades one for the other, and this
+     block is the bill for that trade. */
 
-  it('never repeats a layout/colour pair across the nine project cards', () => {
-    const pairs = indices.map((i) => {
-      const { variant, accent } = artFor(i);
-      return `${variant}/${accent}`;
-    });
-    expect(new Set(pairs).size).toBe(pairs.length);
+  it('gives every project its own art, so none inherits a neighbour’s picture', () => {
+    expect(PROJECTS.length).toBeGreaterThanOrEqual(9);
+    for (const project of PROJECTS) {
+      expect(project.art, `${project.slug} has no art`).toBeTruthy();
+    }
+    const pairs = PROJECTS.map((p) => `${p.art.variant}/${p.art.accent}`);
+    const repeated = pairs.filter((pair, i) => pairs.indexOf(pair) !== i);
+    expect(repeated, `layout/colour pairs used twice: ${repeated.join(', ')}`).toEqual([]);
   });
 
   it('only ever picks a layout the component can draw', () => {
     const source = read('src/components/site/tech-art.tsx');
-    for (const i of indices) {
-      const { variant } = artFor(i);
-      expect(source, `no branch for variant ${variant}`).toContain(`variant === ${variant} ?`);
+    for (const { slug, art } of PROJECTS) {
+      expect(source, `${slug}: no branch for variant ${art.variant}`).toContain(
+        `variant === ${art.variant} ?`,
+      );
     }
   });
 
@@ -119,9 +129,26 @@ describe('the drawn art picks a layout and a colour', () => {
     // one the base rule already sets.
     const named = new Set([...css.matchAll(/\[data-art-accent='([a-z]+)'\]/g)].map((m) => m[1]!));
     const base = /\.tech-art\s*\{[^}]*color:\s*var\(--base-([a-z]+)\)/.exec(css)?.[1];
-    for (const i of indices) {
-      const { accent } = artFor(i);
-      expect(named.has(accent) || accent === base, `accent "${accent}" has no colour`).toBe(true);
+    for (const { slug, art } of PROJECTS) {
+      expect(
+        named.has(art.accent) || art.accent === base,
+        `${slug}: accent "${art.accent}" has no colour`,
+      ).toBe(true);
+    }
+  });
+
+  /* Not every <TechArt> comes from a project — the analytics band names its
+     variant inline. Whatever any call site asks for has to be drawable, or the
+     frame renders empty and every other gate stays green. */
+  it('draws whatever any call site asks for, project or not', () => {
+    const component = read('src/components/site/tech-art.tsx');
+    const asked = sourceFiles()
+      .filter((file) => !file.endsWith('tech-art.tsx'))
+      .flatMap((file) => [...stripComments(read(file)).matchAll(/variant=\{(\d+)\}/g)])
+      .map((m) => Number(m[1]));
+    expect(asked.length, 'found no inline variant= call sites to check').toBeGreaterThan(0);
+    for (const variant of asked) {
+      expect(component, `no branch for variant ${variant}`).toContain(`variant === ${variant} ?`);
     }
   });
 });
