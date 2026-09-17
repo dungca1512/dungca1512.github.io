@@ -41,6 +41,8 @@ const en: Dictionary = {
     moreProjects: 'Show {count} more projects',
     caseStudyDetail: 'Read the detail: problem, architecture, trade-offs, result',
     measuredOutcome: 'The measured outcome',
+    /* See vi.ts — `{names}` keeps the companies visible while the prose folds. */
+    earlierRoles: 'Show {count} earlier roles: {names}',
   },
   sections: {
     hero: {

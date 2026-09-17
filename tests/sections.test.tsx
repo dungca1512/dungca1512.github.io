@@ -217,14 +217,33 @@ describe('experience data', () => {
     }
   });
 
-  /* The section reverses a copy, so the data stays newest-first while the page
-     reads forwards in time. If someone ever reverses the module itself instead,
-     the `current` assertions above catch it — and this one says out loud that
-     the render is where the flip belongs. */
+  /* The data stays newest-first; the page reads forwards in time. The section
+     builds that order by splitting the head off and reversing the tail — the
+     past goes into the collapsed panel, the current role stays open below it —
+     so the order below is composed the same way the component composes it.
+
+     Reading the months out of `period` is what makes this a test rather than a
+     restatement of `toReversed`. It fails if someone reorders the module, or
+     inserts a role in the wrong place, which no amount of reversing would
+     catch. `vi` is parsed because it is the numeric one: `03/2023` needs no
+     month table, and the pair is proven identical in meaning by the bilingual
+     walker elsewhere in this suite. */
   it('renders the roles oldest first, so the timeline runs forwards', () => {
-    const rendered = EXPERIENCE.toReversed();
-    expect(rendered.at(0)!.company).toBe(EXPERIENCE.at(-1)!.company);
+    const [now, ...before] = EXPERIENCE;
+    const rendered = [...before.toReversed(), now];
+
     expect(rendered.at(-1)!.current).toBe(true);
+    expect(rendered.slice(0, -1).some((r) => r.current)).toBe(false);
+
+    const starts = rendered.map((role) => {
+      const match = /^(\d{2})\/(\d{4})/.exec(role.period.vi);
+      expect(match, `${role.company}: vi period does not start with MM/YYYY`).not.toBeNull();
+      return Number(match![2]) * 12 + Number(match![1]);
+    });
+    expect(
+      starts,
+      `roles render out of order: ${rendered.map((r) => r.company).join(' -> ')}`,
+    ).toEqual([...starts].toSorted((a, b) => a - b));
   });
 
   it('gives every role at least one highlight in both languages', () => {

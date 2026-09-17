@@ -191,12 +191,31 @@ const REQUIRED_TEXT = [
   'Whisper Finetune JA',
   'Raspberry Pi Homelab',
   'NewsPulse Reco Engine',
+  /* The three employers, for the same reason and against a newer risk. The
+     timeline now folds its past roles into one collapsed panel, and a panel is
+     one edit away from swallowing what it holds. Nothing else on the page
+     would notice: the headings floor is a count, not a list, so a fold that
+     dropped two roles would take their <h3>s with it and still clear 36.
+
+     The `@ ` prefix is what makes these bite. `Role.company` is a proper noun
+     rendered with no locale index, like a project name — but unlike a project
+     name it is not unique on the page: the section's own lead sentence reads
+     "phân tích hội thoại ở FPT Smart Cloud, kỹ sư AI ở AMELA, tới ... ở eUp
+     Group", so a bare `'eUp Group'` here is satisfied by a sentence that would
+     still be there after the whole timeline vanished. Measured: deleting the
+     folded panel and rebuilding failed only on AMELA Technology — two of the
+     three entries were vacuous. `experience.tsx` renders the node's heading as
+     `{role.role} <span>@ {role.company}</span>`, and that `@ ` appears nowhere
+     else, so it pins the timeline node rather than any mention of the name. */
+  '@ eUp Group',
+  '@ AMELA Technology',
+  '@ FPT Smart Cloud',
 ];
 
 check(
-  REQUIRED_TEXT.length === 9,
-  `${REQUIRED_TEXT.length} project name(s) are required to stay rendered`,
-  'REQUIRED_TEXT no longer holds all nine project names - the content gate would pass without checking them',
+  REQUIRED_TEXT.length === 12,
+  `${REQUIRED_TEXT.length} proper noun(s) are required to stay rendered`,
+  'REQUIRED_TEXT no longer holds all nine project names and three employers - the content gate would pass without checking them',
 );
 
 /* One <h3> per expertise area (4), per project card (9), and one for the case
@@ -317,8 +336,8 @@ for (const { path, locale } of PAGES) {
   const missingText = REQUIRED_TEXT.filter((needle) => !mainCopy.includes(needle));
   check(
     missingText.length === 0,
-    `${path} renders all ${REQUIRED_TEXT.length} project name(s)`,
-    `${path} is missing project name(s) that should be rendered: ${missingText.join(', ')}`,
+    `${path} renders all ${REQUIRED_TEXT.length} required proper noun(s)`,
+    `${path} is missing name(s) that should be rendered: ${missingText.join(', ')}`,
   );
 
   check(

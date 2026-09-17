@@ -55,6 +55,11 @@ const vi = {
     moreProjects: 'Xem thêm {count} dự án',
     caseStudyDetail: 'Xem chi tiết: bài toán, kiến trúc, đánh đổi và kết quả',
     measuredOutcome: 'Kết quả đo được',
+    /* `{names}` carries the companies into the summary line on purpose. A
+       recruiter scanning a timeline is often scanning for brand names, and a
+       fold that hides them would cost exactly the reader it was meant to
+       serve. The prose folds; the names stay on the surface. */
+    earlierRoles: 'Xem {count} vai trò trước đó: {names}',
   },
   sections: {
     hero: {
