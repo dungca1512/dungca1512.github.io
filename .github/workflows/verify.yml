@@ -1,8 +1,16 @@
+# Pull requests only.
+#
+# It used to run on pushes to `main` as well, and that was two identical
+# ~3-minute jobs per merge: `deploy.yml` runs `npm run verify` itself before it
+# uploads anything (deploy.yml:46), on the very commit this one would re-check.
+# The gate on `main` did not get weaker when this trigger went away - it is
+# still the same nine links, still blocking publication, just run once.
+#
+# What this one gates is the merge. It is the only check a PR has, so it is what
+# stands between a branch and `main`.
 name: verify
 
 on:
-  push:
-    branches: [main]
   pull_request:
 
 jobs:

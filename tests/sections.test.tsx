@@ -110,7 +110,10 @@ describe('CountUp', () => {
     // above the fold where nobody sees it.
     const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
     const columns = () =>
-      [...container.querySelectorAll('span[style*="will-change"]')].map(
+      // `data-target` rather than the `will-change` the columns also carry:
+      // that hint is dropped once each wheel stops, so a selector keyed on it
+      // would find the columns before the roll and nothing after it.
+      [...container.querySelectorAll('span[data-target]')].map(
         (c) => (c as HTMLElement).style.transform,
       );
     expect(columns().length).toBeGreaterThan(0);
@@ -125,6 +128,29 @@ describe('CountUp', () => {
     // feature's entire job, failing silently while the exported text stays
     // right. One cell per em, cell 0 at the top, so digit d is at -d em.
     expect(columns()).toEqual([...'1400'].map((d) => `translateY(-${d}em)`));
+  });
+
+  it('stops promoting the wheels once they have stopped turning', () => {
+    // `will-change` is a standing instruction to the compositor, not a
+    // decoration: a wheel left promoted keeps its own layer for the rest of
+    // the page's life, for an animation that runs once. jsdom does not run
+    // transitions, so the end of one is dispatched by hand.
+    const { container } = render(<CountUp value={1400} locale="vi" suffix="+" />);
+    const wheels = () => [...container.querySelectorAll<HTMLElement>('span[data-target]')];
+
+    MockIntersectionObserver.instances.at(-1)?.trigger(container.querySelector('span')!);
+    expect(wheels().map((w) => w.style.willChange)).toEqual(Array(4).fill('transform'));
+
+    for (const wheel of wheels()) {
+      wheel.dispatchEvent(new Event('transitionend'));
+    }
+    expect(wheels().map((w) => w.style.willChange)).toEqual(Array(4).fill('auto'));
+
+    // And the transform survives the release — dropping the hint must not
+    // reset the wheel to zero.
+    expect(wheels().map((w) => w.style.transform)).toEqual(
+      [...'1400'].map((d) => `translateY(-${d}em)`),
+    );
   });
 });
 

@@ -93,8 +93,19 @@ function renderedText(html) {
    Returns `null` (not 0) when no `<main>` exists at all, so that failure mode
    reads distinctly from "a very short but present `<main>`". */
 function mainText(html) {
+  const inner = mainHtml(html);
+  return inner === null ? null : renderedText(inner);
+}
+
+/* The same slice, before the tags are stripped out of it — for the checks that
+   COUNT elements rather than measure text. Those used to scan the whole
+   document, and the <h3> and <dt> floors below are set to exactly the number
+   the page renders today, so any <h3> added to the footer or the nav would have
+   bought the page one section's worth of slack in a gate that is supposed to
+   notice a section going missing. Chrome cannot pay a content floor's rent. */
+function mainHtml(html) {
   const match = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
-  return match ? renderedText(match[1]) : null;
+  return match ? match[1] : null;
 }
 
 // Measured on this build's <main> (Hero only, no other sections yet): vi 511
@@ -330,18 +341,19 @@ for (const { path, locale } of PAGES) {
       : `${path} renders copy from another locale: ${foreign.join(', ')}`,
   );
 
-  const headingCount = [...html.matchAll(/<h3\b/g)].length;
+  const inner = mainHtml(html) ?? '';
+  const headingCount = [...inner.matchAll(/<h3\b/g)].length;
   check(
     headingCount >= MIN_SECTION_HEADINGS,
-    `${path} renders ${headingCount} section heading(s) (>= ${MIN_SECTION_HEADINGS})`,
-    `${path} renders only ${headingCount} <h3> heading(s) — expected at least ${MIN_SECTION_HEADINGS}, so a section has stopped rendering its list`,
+    `${path} renders ${headingCount} section heading(s) inside <main> (>= ${MIN_SECTION_HEADINGS})`,
+    `${path}'s <main> renders only ${headingCount} <h3> heading(s) — expected at least ${MIN_SECTION_HEADINGS}, so a section has stopped rendering its list`,
   );
 
-  const termCount = [...html.matchAll(/<dt\b/g)].length;
+  const termCount = [...inner.matchAll(/<dt\b/g)].length;
   check(
     termCount >= MIN_DEFINITION_TERMS,
-    `${path} renders ${termCount} definition term(s) (>= ${MIN_DEFINITION_TERMS})`,
-    `${path} renders only ${termCount} <dt> element(s) — expected at least ${MIN_DEFINITION_TERMS}, so a definition list has stopped rendering its data`,
+    `${path} renders ${termCount} definition term(s) inside <main> (>= ${MIN_DEFINITION_TERMS})`,
+    `${path}'s <main> renders only ${termCount} <dt> element(s) — expected at least ${MIN_DEFINITION_TERMS}, so a definition list has stopped rendering its data`,
   );
 
   const ids = new Set([...html.matchAll(/\bid="([^"]*)"/g)].map((m) => m[1]));

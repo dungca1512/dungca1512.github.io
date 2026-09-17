@@ -6,25 +6,38 @@
   z-index: 40;
   display: flex;
   justify-content: center;
-  padding-inline: 1rem;
+  /* The same gutter `Container` uses (`px-5 sm:px-8`, at the same 40rem
+     breakpoint Tailwind's `sm:` compiles to). One custom property rather than
+     a literal, because the pill's `max-width` below subtracts it — see there
+     for why the two numbers have to be the same one. */
+  --menu-bar-gutter: 1.25rem;
+  padding-inline: var(--menu-bar-gutter);
   pointer-events: none;
 }
 
-/* `max-width` and horizontal padding both read the same values `Container`
-   uses (`--container-content` from globals.css; 1.25rem / 2rem mirror its
-   `px-5 sm:px-8`, at the same 40rem breakpoint Tailwind's `sm:` compiles to)
-   — Task 8 review, V2. Before this, the pill carried its own `64rem` and the
-   container carried `100rem`: two independent numbers with no reason to
-   agree, so nothing on the page ever lined up with the nav. Sharing one
-   token is what stops them drifting apart again; the matching padding is
-   what puts the brand name directly above the headline below it rather than
-   merely inside the same rough column. */
+/* `max-width` reads `--container-content` from globals.css, the same token
+   `Container` caps itself with — Task 8 review, V2. Before that the pill
+   carried its own `64rem` and the container carried `100rem`: two independent
+   numbers with no reason to agree, so nothing on the page lined up with the
+   nav.
+
+   The gutter is subtracted from it because `Container` spends its own gutter
+   INSIDE that cap: its text column is `min(100vw, 76rem)` minus two gutters,
+   while the pill sits in a bar that has already been inset by one gutter on
+   each side. Without the subtraction the pill was only as wide as the cap
+   allowed, which below ~78rem left its borders 1rem inside the page's own
+   content column and its text 1rem outside — aligned with nothing at the
+   width most laptops actually are. With it, the pill's borders land exactly
+   on the column, the way every card on the page does.
+
+   Its text is then one pill-padding further in, which is the point: this is a
+   card sitting on the column, not a heading floating above it. */
 .menu-bar-pill {
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
-  max-width: var(--container-content);
+  max-width: calc(var(--container-content) - 2 * var(--menu-bar-gutter));
   padding-block: 0.5rem;
   padding-inline: 1.25rem;
   border: 1px solid var(--base-border);
@@ -37,6 +50,10 @@
 }
 
 @media (min-width: 40rem) {
+  .menu-bar {
+    --menu-bar-gutter: 2rem;
+  }
+
   .menu-bar-pill {
     padding-inline: 2rem;
   }

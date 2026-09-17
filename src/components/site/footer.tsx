@@ -25,7 +25,7 @@ export function Footer({ locale }: { locale: Locale }) {
                 href={contact.url}
                 {...(contact.download
                   ? { download: true }
-                  : { target: '_blank', rel: 'noreferrer' })}
+                  : { target: '_blank', rel: 'noreferrer noopener' })}
                 className="text-muted-foreground hover:text-foreground duration-fast transition-colors"
               >
                 {contact.label[locale]}

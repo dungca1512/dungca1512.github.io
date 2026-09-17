@@ -73,6 +73,7 @@ export async function Writing() {
                     {article.repo && (
                       <a
                         href={article.repo}
+                        target="_blank"
                         rel="noreferrer noopener"
                         aria-label={`${dict.common.repository} — ${article.title[locale]}`}
                         className="text-ink-primary duration-fast mt-3 inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors hover:underline"
@@ -99,13 +100,17 @@ export async function Writing() {
 
           Absolute and off-site (a separate deployment, not a route in this
           export), so it is a plain <a>, not next/link: Link would try to
-          prefetch a route that does not exist here. `rel="noreferrer
-          noopener"` for the same reason every other outbound link carries
-          it. No `target="_blank"` — opening a new tab is a decision the
-          reader's own middle-click already makes better. */}
+          prefetch a route that does not exist here.
+
+          Off-site links on this page open in a new tab, so the portfolio
+          stays open behind them — a reader who follows a repo link is
+          sampling the work, not leaving. `rel="noreferrer noopener"` is
+          what makes that safe: without `noopener` the opened page gets a
+          live `window.opener` handle back to this one. */}
       <div className="reveal mt-12 flex justify-center">
         <a
           href={SITE.blog}
+          target="_blank"
           rel="noreferrer noopener"
           className="duration-fast ease-out-soft border-border hover:bg-surface inline-flex items-center gap-2 rounded-full border px-6 py-3 font-medium transition-all hover:-translate-y-0.5"
         >

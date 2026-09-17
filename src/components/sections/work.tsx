@@ -21,7 +21,10 @@ export async function Work() {
       {/* The case study first: it is the one piece of work with a problem, an
           architecture, its trade-offs and a result written down, so it carries
           more than a card can. */}
-      <article className="case-band reveal border-border bg-surface mt-16 rounded-lg border p-8 sm:p-12">
+      {/* No `bg-surface` here: `.case-band` sets the `background` SHORTHAND,
+          which resets background-color, so the utility never painted a pixel.
+          The band's ground is one declaration, in work.css. */}
+      <article className="case-band reveal border-border mt-16 rounded-lg border p-8 sm:p-12">
         <div className="wide:grid-cols-[minmax(0,1fr)_minmax(14rem,20rem)] wide:items-center grid gap-10">
           <div>
             <h3 className="text-[clamp(1.75rem,3vw,2.5rem)] leading-tight font-semibold tracking-tight text-balance">
@@ -48,6 +51,7 @@ export async function Work() {
                 carries what it is a repository FOR. */}
             <a
               href={CASE_STUDY.repoUrl}
+              target="_blank"
               rel="noreferrer noopener"
               aria-label={`${dict.common.repository} — ${CASE_STUDY.title[locale]}`}
               className="link-underline mt-6 inline-block text-sm font-medium"
@@ -83,9 +87,10 @@ export async function Work() {
       <ul className="stagger wide:grid-cols-3 mt-12 grid gap-6 sm:grid-cols-2">
         {PROJECTS.map((project, i) => {
           /* The data has no `highlight` flag and none is invented here — the
-             list is already ordered with the flagship first. Index 0 spans the
-             row and is the one card that shows its outcome; nine outcome
-             paragraphs in a grid would bury the case study above. */
+             list is already ordered with the flagship first. Index 0 takes
+             two columns — the full row at `sm`, two of three at `wide` — and
+             is the one card that shows its outcome; nine outcome paragraphs
+             in a grid would bury the case study above. */
           const lead = i === 0;
           return (
             <li
@@ -127,6 +132,7 @@ export async function Work() {
                       <a
                         key={link.url}
                         href={link.url}
+                        target="_blank"
                         rel="noreferrer noopener"
                         aria-label={`${link.label[locale]} — ${project.name}`}
                         className="link-underline font-medium"

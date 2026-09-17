@@ -230,6 +230,7 @@ export async function Analytics() {
             >
               <a
                 href={repo.html_url}
+                target="_blank"
                 rel="noreferrer noopener"
                 className="hover:text-ink-primary truncate font-medium underline-offset-4 hover:underline"
               >
