@@ -1,12 +1,15 @@
 import type { Localized } from './locales';
+import type { HighlightGlyph } from '@/components/site/highlight-icon';
 
 /** `PORTFOLIO_DATA.experience[i].period` is a single plain string (e.g.
- *  "Jan 2025 — Present") — the source never splits it by locale, because the
- *  month abbreviations and the en dash read the same in both languages. Per
- *  the porting rule ("if an entry has no en, port the vi into both and flag
- *  it"), that single string is ported into both `en` and `vi` here rather than
- *  left as a bare string, so `period` stays `Localized<string>` and every
- *  user-visible field keeps the same guarantee. */
+ *  "Jan 2025 — Present") — the source never splits it by locale. It was ported
+ *  into both `en` and `vi` verbatim, which left English month abbreviations and
+ *  the English word "Present" sitting in the Vietnamese export: the one field
+ *  in the timeline that a Vietnamese reader had to translate in their head,
+ *  in the section whose whole job is to be read at a glance. The `vi` side now
+ *  reads in Vietnamese — numeric months, which need no abbreviation in either
+ *  language, and "Hiện tại" for the open end. `period` stays
+ *  `Localized<string>`, so every user-visible field keeps the same guarantee.*/
 export type Role = {
   company: string;
   role: Localized<string>;
@@ -14,13 +17,37 @@ export type Role = {
   current: boolean;
   summary: Localized<string>;
   highlights: Localized<string[]>;
+  /** One glyph per highlight, index-aligned with both arrays in `highlights`.
+   *
+   *  A parallel array rather than a `{ glyph, en, vi }` object per line,
+   *  because `highlights` has to stay a `Localized<string[]>`: the bilingual
+   *  walker in tests/content.test.ts finds every user-visible pair on this
+   *  module by its SHAPE, and a third key beside `en` and `vi` would take
+   *  these strings out from under the gate that proves neither language is
+   *  missing. The cost of the parallel array is that it can fall out of step,
+   *  so tests/sections.test.tsx pins the three lengths equal — a bullet added
+   *  without a glyph fails there rather than rendering a hole. */
+  glyphs: HighlightGlyph[];
   stack: string[];
 };
 
-/** `PORTFOLIO_DATA.experience`, most recent first, verbatim. Each source
- *  highlight is itself a `{ en, vi }` pair; they are regrouped here into one
+/** `PORTFOLIO_DATA.experience`, most recent first. Each source highlight is
+ *  itself a `{ en, vi }` pair; they are regrouped here into one
  *  `{ en: string[], vi: string[] }` pair to match the `Localized<string[]>`
- *  contract — the strings themselves are untouched. */
+ *  contract.
+ *
+ *  The order here stays newest-first because that is what a CV is, and because
+ *  `current` is asserted to be the first entry. The SECTION renders it the
+ *  other way up — see experience.tsx, which reverses a copy. Reading order and
+ *  storage order are different questions and this file only answers the second.
+ *
+ *  The eUp highlights are no longer verbatim: that role shipped five bullets
+ *  and about 160 Vietnamese words against forty-nine for each of the other two,
+ *  so the most relevant role was also the one a reader gave up on. It is four
+ *  bullets now. Every number and every named system survived the cut; what went
+ *  was two enumerations the page already carries elsewhere — the four STT engine
+ *  names, which the projects section lists in full, and the build-tool list,
+ *  which is what the `stack` chips under this very role are for. */
 export const EXPERIENCE: Role[] = [
   {
     company: 'eUp Group',
@@ -28,7 +55,7 @@ export const EXPERIENCE: Role[] = [
       en: 'AI/ML Systems Architect — Infrastructure & MLOps',
       vi: 'AI/ML Systems Architect — Hạ tầng & MLOps',
     },
-    period: { en: 'Jan 2025 — Present', vi: 'Jan 2025 — Present' },
+    period: { en: 'Jan 2025 — Present', vi: '01/2025 — Hiện tại' },
     current: true,
     summary: {
       en: 'Own AI infrastructure end-to-end for the HeyJapan product line — provisioning, delivery, model serving and observability — and architect the speech, translation and lesson-generation systems on top of it.',
@@ -36,26 +63,25 @@ export const EXPERIENCE: Role[] = [
     },
     highlights: {
       en: [
-        'Architected a multi-market speech scoring platform (JLPT, TOPIK, HSKK, English): 4 FastAPI/Gunicorn services with multi-engine STT — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — behind automatic fallback.',
-        'Ruled out a ~$2,475/mo H100 plan with a benchmark instead of an opinion: p95 1.86s under concurrent load on ~8% of a commodity CUDA GPU. Also ran the RCA that closed a 3x ASR latency gap between two environments.',
-        'Migrated production ML services from Docker Swarm to Kubernetes (GKE and bare-metal kubeadm) with Terraform, Ansible, Helm and ArgoCD App-of-Apps; Prometheus, Grafana and Loki for observability.',
-        'Replaced the OpenAI Embedding API with a self-hosted Qwen3-Embedding-4B service and built the RAG code-review pipeline it feeds, gated by an exit-code check in GitLab CI.',
-        'Build and release engineering: Jenkins signed tags, GitLab CI with pytest and Docker-in-Docker, Harbor registry, gitleaks and Qodana quality gates.',
+        'Architected a multi-market speech scoring platform (JLPT, TOPIK, HSKK, English): four FastAPI services with multi-engine STT behind automatic fallback.',
+        'Ruled out a ~$2,475/mo H100 plan with a benchmark instead of an opinion: p95 1.86s under concurrent load on ~8% of a commodity CUDA GPU.',
+        'Migrated production ML services from Docker Swarm to Kubernetes — GKE and bare-metal — with Terraform, Ansible, Helm and ArgoCD, observable through Prometheus, Grafana and Loki.',
+        'Replaced the OpenAI Embedding API with a self-hosted Qwen3-Embedding-4B service, feeding the RAG code-review pipeline gated in GitLab CI.',
       ],
       vi: [
-        'Thiết kế nền tảng chấm điểm phát âm đa thị trường (JLPT, TOPIK, HSKK, tiếng Anh): 4 dịch vụ FastAPI/Gunicorn với STT đa engine — Kotoba-Whisper, faster-whisper/CTranslate2, SenseVoice ONNX, ReazonSpeech — kèm cơ chế fallback tự động.',
-        'Loại phương án H100 ~$2,475/tháng bằng số liệu chứ không bằng cảm tính: p95 1.86s dưới tải đồng thời, chỉ dùng ~8% một GPU CUDA phổ thông. Đồng thời chủ trì RCA khép lại chênh lệch latency ASR gấp 3 lần giữa hai môi trường.',
-        'Di trú các dịch vụ ML production từ Docker Swarm sang Kubernetes (GKE và bare-metal kubeadm) với Terraform, Ansible, Helm và ArgoCD App-of-Apps; observability bằng Prometheus, Grafana và Loki.',
-        'Thay thế OpenAI Embedding API bằng dịch vụ Qwen3-Embedding-4B tự host và xây pipeline review code RAG chạy trên đó, kiểm soát bằng exit-code gate trong GitLab CI.',
-        'Kỹ thuật build và release: Jenkins signed tag, GitLab CI với pytest và Docker-in-Docker, registry Harbor, quality gate gitleaks và Qodana.',
+        'Thiết kế nền tảng chấm điểm phát âm đa thị trường (JLPT, TOPIK, HSKK, tiếng Anh): 4 dịch vụ FastAPI, STT đa engine kèm fallback tự động.',
+        'Loại phương án H100 ~$2,475/tháng bằng số liệu chứ không bằng cảm tính: p95 1.86s dưới tải đồng thời, chỉ dùng ~8% một GPU CUDA phổ thông.',
+        'Di trú dịch vụ ML production từ Docker Swarm sang Kubernetes — GKE và bare-metal — với Terraform, Ansible, Helm, ArgoCD; quan trắc bằng Prometheus, Grafana, Loki.',
+        'Thay OpenAI Embedding API bằng dịch vụ Qwen3-Embedding-4B tự host, cấp cho pipeline review code RAG kiểm soát trong GitLab CI.',
       ],
     },
+    glyphs: ['waveform', 'gauge', 'cluster', 'vector'],
     stack: ['Terraform', 'Ansible', 'Kubernetes', 'ArgoCD', 'FastAPI', 'CTranslate2', 'Prometheus'],
   },
   {
     company: 'AMELA Technology',
     role: { en: 'AI Engineer', vi: 'AI Engineer' },
-    period: { en: 'Nov 2024 — Jan 2025', vi: 'Nov 2024 — Jan 2025' },
+    period: { en: 'Nov 2024 — Jan 2025', vi: '11/2024 — 01/2025' },
     current: false,
     summary: {
       en: 'Delivered computer vision and retrieval-augmented generation features for client products.',
@@ -71,12 +97,13 @@ export const EXPERIENCE: Role[] = [
         'Triển khai chatbot RAG trên tập tài liệu khách hàng và tính năng kẻ eyeliner có AI dẫn đường dựa trên nhận diện điểm mốc khuôn mặt.',
       ],
     },
+    glyphs: ['scan', 'chat'],
     stack: ['PyTorch', 'OCR', 'RAG', 'OpenCV'],
   },
   {
     company: 'FPT Smart Cloud',
     role: { en: 'AI Engineer', vi: 'AI Engineer' },
-    period: { en: 'Mar 2023 — Nov 2024', vi: 'Mar 2023 — Nov 2024' },
+    period: { en: 'Mar 2023 — Nov 2024', vi: '03/2023 — 11/2024' },
     current: false,
     summary: {
       en: 'Worked on FPT AI Enhance, the conversation analytics platform serving Home Credit, FE Credit, MB Bank, FPT Long Chau and FPT Shop.',
@@ -92,6 +119,7 @@ export const EXPERIENCE: Role[] = [
         'Xây dựng guardrail cho LLM và phát triển chatbot trợ lý ảo cho Ủy ban Chứng khoán Nhà nước Việt Nam.',
       ],
     },
+    glyphs: ['chart', 'shield'],
     stack: ['Python', 'NLP', 'LLM Guardrails', 'Chatbot'],
   },
 ];
@@ -112,7 +140,7 @@ export const EDUCATION: Education = {
   },
   detail: {
     en: 'Computer and Information Science · Mar 2019 — Jun 2025',
-    vi: 'Khoa học Máy tính và Thông tin · Mar 2019 — Jun 2025',
+    vi: 'Khoa học Máy tính và Thông tin · 03/2019 — 06/2025',
   },
 };
 

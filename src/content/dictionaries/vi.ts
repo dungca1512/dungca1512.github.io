@@ -75,7 +75,13 @@ const vi = {
     experience: {
       eyebrow: 'Kinh nghiệm',
       title: 'Ba năm xây dựng và vận hành hệ thống AI trong môi trường thực tế.',
-      lead: 'Ba năm qua ba nơi: phân tích hội thoại ở FPT Smart Cloud, kỹ sư AI ở AMELA, tới sở hữu hạ tầng AI/ML ở eUp Group.',
+      lead: 'Ba năm qua ba nơi, kể từ đầu: phân tích hội thoại ở FPT Smart Cloud, kỹ sư AI ở AMELA, tới sở hữu hạ tầng AI/ML ở eUp Group.',
+      /* The two ends of the time axis. `axisStart` is the year the first role
+         began, kept as copy rather than derived from EXPERIENCE: the axis is
+         the reader's orientation, and pinning it here means a role added at
+         either end is a deliberate edit to the label too. */
+      axisStart: '2023',
+      axisNow: 'Hiện tại',
     },
     capabilities: {
       eyebrow: 'Nguyên tắc triển khai',

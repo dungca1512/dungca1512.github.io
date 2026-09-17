@@ -205,6 +205,28 @@ describe('experience data', () => {
     expect(EXPERIENCE[0].current).toBe(true);
   });
 
+  /* The glyphs are a parallel array, which is the one shape that can silently
+     fall out of step: add a bullet, forget the icon, and the render falls back
+     to a default that looks deliberate. Pinning all three lengths equal is what
+     turns that into a failure here instead of a wrong picture on the page. */
+  it('gives every highlight its own glyph, in both languages', () => {
+    expect(EXPERIENCE).toHaveLength(3);
+    for (const role of EXPERIENCE) {
+      expect(role.glyphs.length, `${role.company} vi`).toBe(role.highlights.vi.length);
+      expect(role.glyphs.length, `${role.company} en`).toBe(role.highlights.en.length);
+    }
+  });
+
+  /* The section reverses a copy, so the data stays newest-first while the page
+     reads forwards in time. If someone ever reverses the module itself instead,
+     the `current` assertions above catch it — and this one says out loud that
+     the render is where the flip belongs. */
+  it('renders the roles oldest first, so the timeline runs forwards', () => {
+    const rendered = EXPERIENCE.toReversed();
+    expect(rendered.at(0)!.company).toBe(EXPERIENCE.at(-1)!.company);
+    expect(rendered.at(-1)!.current).toBe(true);
+  });
+
   it('gives every role at least one highlight in both languages', () => {
     // The count is pinned first for the same reason the project-link test pins
     // one: a `for` over an emptied EXPERIENCE passes having asserted nothing.

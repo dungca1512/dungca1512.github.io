@@ -62,7 +62,13 @@ const en: Dictionary = {
     experience: {
       eyebrow: 'Experience',
       title: 'Three years shipping and operating AI systems in production.',
-      lead: 'Three years across three places: conversation analytics at FPT Smart Cloud, AI engineering at AMELA, now owning AI/ML infrastructure at eUp Group.',
+      lead: 'Three years across three places, oldest first: conversation analytics at FPT Smart Cloud, AI engineering at AMELA, now owning AI/ML infrastructure at eUp Group.',
+      /* The two ends of the time axis. `axisStart` is the year the first role
+         began, kept as copy rather than derived from EXPERIENCE: the axis is
+         the reader's orientation, and pinning it here means a role added at
+         either end is a deliberate edit to the label too. */
+      axisStart: '2023',
+      axisNow: 'Now',
     },
     capabilities: {
       eyebrow: 'Engineering Playbook',
