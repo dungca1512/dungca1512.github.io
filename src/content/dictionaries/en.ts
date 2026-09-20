@@ -39,6 +39,9 @@ const en: Dictionary = {
     /* See vi.ts — these are the summary lines of the collapsed panels, and
        `{count}` is substituted at the call site from the list's own length. */
     moreProjects: 'Show {count} more projects',
+    /* See vi.ts — "all", not "more", because the pinned trio above is drawn
+       from this same list rather than removed from it. */
+    allProjects: 'All {count} projects',
     caseStudyDetail: 'Read the detail: problem, architecture, trade-offs, result',
     measuredOutcome: 'The measured outcome',
     /* See vi.ts — `{names}` keeps the companies visible while the prose folds. */

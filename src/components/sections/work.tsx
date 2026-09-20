@@ -8,14 +8,16 @@ import type { Dictionary } from '@/content/dictionaries';
 import type { Locale } from '@/content/locales';
 import { cn } from '@/lib/cn';
 
-/* How many cards stand open before the rest are folded away.
-   Nine cards of roughly equal size and roughly equal wording read as one grey
-   mass — which is the complaint that started this, almost word for word. Five
-   is what fits the grid without a ragged last row (a lead card spanning two
-   columns plus three, then one alone would look like an accident) and is about
-   as many as anyone compares before deciding whether to keep going. The other
-   four are not summarised or cut: they open in full, pictures and all. */
-const FEATURED = 5;
+/* How many projects get the pinned treatment above the fold.
+   Three, and not because three is tidy: the effect needs a repeat to read as
+   a structure rather than an accident, and each project costs 200dvh of
+   scroll (see the stage height in sections/work.css), so a fourth buys a
+   third repetition of something already understood at the price of two more
+   screens of scrolling.
+
+   These three are NOT removed from the grid below. The fold under them still
+   holds all nine — see the note on `allProjects` where it is rendered. */
+const PINNED = 3;
 
 /** One project. Lifted out of the map so the folded cards and the open ones
  *  are the same card, rather than the same JSX typed twice and edited once. */
@@ -97,6 +99,63 @@ function ProjectCard({
   );
 }
 
+/** One project, held near the middle of the viewport while the page scrolls
+ *  past it. Three layers — the drawing, a light info panel, the name at
+ *  display size — brought in one after another by scroll position.
+ *
+ *  There is no JavaScript here, and none in sections/work.css either: the pin
+ *  is `position: sticky` and the scrub is `animation-timeline`, both driven by
+ *  the browser off the scroll position it already knows. Nothing listens for a
+ *  wheel event, nothing reads a scroll offset on the main thread, and nothing
+ *  decides when the visitor has scrolled far enough — so scrolling fast goes
+ *  fast, and scrolling back runs the whole thing in reverse for free, because
+ *  the scroll position IS the playhead rather than a trigger for a clock.
+ *
+ *  What this returns is a perfectly ordinary card: a picture, an <h3>, a
+ *  paragraph, a list of tools, in that order. That is not a fallback rendered
+ *  alongside the real thing — it IS the real thing, and the animation is an
+ *  enhancement layered onto it by a stylesheet. Switch JS off, open it in
+ *  Firefox, or ask for reduced motion, and this is what stays; find-in-page
+ *  finds the project name in every one of those cases.
+ *
+ *  `still` drops TechArt's idle drift. The prop exists for exactly this —
+ *  "art shown large", per its own doc comment — and the drawing here is shown
+ *  at roughly six times a grid card's area, where a shape that never quite
+ *  settles reads as the page vibrating rather than as texture. */
+function PinnedProject({
+  project,
+  locale,
+  index,
+}: {
+  project: Project;
+  locale: Locale;
+  index: number;
+}) {
+  return (
+    <li className="pin-stage reveal" style={{ '--i': index } as React.CSSProperties}>
+      <article className="pin-card">
+        <div className="pin-art">
+          <TechArt {...project.art} still />
+          {/* Pure legibility, and only once the two text layers sit on top of
+              the picture rather than under it — so it is drawn only inside the
+              pinned layout, and is `display: none` everywhere else. */}
+          <span className="pin-scrim" aria-hidden="true" />
+        </div>
+        <h3 className="pin-name">{project.name}</h3>
+        <div className="pin-panel">
+          <p className="pin-period">{project.period}</p>
+          <p className="pin-summary">{project.summary[locale]}</p>
+          <ul className="pin-stack">
+            {project.stack.map((tool) => (
+              <li key={tool}>{tool}</li>
+            ))}
+          </ul>
+        </div>
+      </article>
+    </li>
+  );
+}
+
 const GRID = 'stagger wide:grid-cols-3 grid gap-6 sm:grid-cols-2';
 
 function cards(projects: Project[], offset: number, locale: Locale, dict: Dictionary) {
@@ -115,8 +174,7 @@ function cards(projects: Project[], offset: number, locale: Locale, dict: Dictio
 export async function Work() {
   const locale = await getLocale();
   const dict = await getDictionary();
-  const featured = PROJECTS.slice(0, FEATURED);
-  const rest = PROJECTS.slice(FEATURED);
+  const pinned = PROJECTS.slice(0, PINNED);
 
   return (
     <Section id="projects" className="band-muted">
@@ -198,16 +256,34 @@ export async function Work() {
         </Disclosure>
       </article>
 
-      <ul className={cn(GRID, 'mt-12')}>{cards(featured, 0, locale, dict)}</ul>
+      <ul className="pin-list stagger mt-16">
+        {pinned.map((project, i) => (
+          <PinnedProject key={project.slug} project={project} locale={locale} index={i} />
+        ))}
+      </ul>
 
-      {rest.length > 0 ? (
-        <Disclosure
-          label={dict.common.moreProjects.replace('{count}', String(rest.length))}
-          className="mt-8"
-        >
-          <ul className={cn(GRID, 'mt-8')}>{cards(rest, FEATURED, locale, dict)}</ul>
-        </Disclosure>
-      ) : null}
+      {/* All nine, INCLUDING the three pinned above, and the duplication is
+          the cheaper of two mistakes.
+
+          The alternative — fold only the six that were not pinned — quietly
+          deletes a paragraph. `ProjectCard` renders `project.outcome` for the
+          lead card and no other, and the lead card is the speech platform,
+          which is the first thing pinned. Fold six and the 132 words of
+          measured detail behind it (Needleman-Wunsch alignment, p95 under
+          benchmarked load, 740 consecutive 2XX) leave the page entirely, with
+          nothing to say they had gone.
+
+          So the pinned trio is a highlight reel and this is the record: the
+          grid keeps its lead card, its span, its banner art and its folded
+          outcome exactly as before, and `cards(PROJECTS, 0, …)` keeps index 0
+          meaning what it has always meant. The cost is three project names
+          appearing twice, one of those times behind a fold. */}
+      <Disclosure
+        label={dict.common.allProjects.replace('{count}', String(PROJECTS.length))}
+        className="mt-12"
+      >
+        <ul className={cn(GRID, 'mt-8')}>{cards(PROJECTS, 0, locale, dict)}</ul>
+      </Disclosure>
     </Section>
   );
 }

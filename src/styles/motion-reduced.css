@@ -79,6 +79,40 @@
     transform: none !important;
   }
 
+  /* The pinned Selected Work trio (sections/work.css). This is a SECOND line
+     of defence and should never fire: that file gates its whole pin block on
+     `(prefers-reduced-motion: no-preference)`, so a visitor who asked for
+     less motion is handed the static card and no keyframe is ever attached.
+
+     It is kept because the guarantee it backs is the one this file exists
+     for, and because a gate in another file is one edit away from being
+     widened by someone who does not know it was load-bearing. If that
+     happens, these rules still hold: no pin, no 200dvh of empty stage to
+     fall through, and every layer at rest and fully visible.
+
+     `transform: none` IS the landing this file asks for, even though it is
+     not the pin animation's last keyframe. The last frame belongs to a
+     layout — art absolutely filling a sticky card, name overlaid at 3.5rem —
+     that the reduced-motion visitor never sees. Their resting state is the
+     static card in document order, and `none` is that card's own frame. */
+  .pin-stage {
+    height: auto !important;
+    view-timeline-name: none !important;
+  }
+
+  .pin-card {
+    position: static !important;
+    height: auto !important;
+  }
+
+  .pin-art,
+  .pin-panel,
+  .pin-name {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .pop-on-hover {
     transition: none !important;
   }
