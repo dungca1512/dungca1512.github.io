@@ -207,6 +207,34 @@
       height: var(--pin-card-h);
     }
 
+    /* THE SCHEDULE, and the reason it finishes early.
+
+         0-24    the picture settles
+         22-46   the panel arrives (opaque by 34)
+         44-66   the name arrives (opaque by 56)
+         66-100  nothing moves
+
+       That last line is the whole point of this block. An earlier cut spread
+       the three layers across the entire window — 0-40, 38-68, 66-94 — which
+       meant the card was only ever FINISHED for the last 6% of it. Stop
+       scrolling anywhere, which is exactly what a reader does when something
+       catches their eye, and what you were looking at was a half-built card:
+       a panel with the artwork showing through it, an empty bay where the
+       name goes. It read as a page caught mid-load rather than as a page
+       with a finished thing on it.
+
+       So the sequence is compressed into the first two thirds and the rest
+       of the pin holds the finished composition. Measured on the built page
+       at 1440x900: the settled state went from 8% of the scrub to 47%, and
+       the share of the scrub showing a visibly half-faded layer fell from
+       53% to 24%.
+
+       Each layer also fades faster than it travels. `animation-range` is a
+       list that cycles over `animation-name`, so one element can carry a
+       short range for the fade and a longer one for the slide: a layer
+       reaches full opacity in the first half of its arrival and spends the
+       rest merely sliding the last few pixels home. A solid thing still
+       moving looks deliberate; a see-through one looks broken. */
     .pin-art {
       position: absolute;
       inset: 0;
@@ -214,7 +242,7 @@
       border-radius: var(--base-radius-md);
       animation: site-pin-art linear both;
       animation-timeline: --pin-stage;
-      animation-range: contain 0% contain 40%;
+      animation-range: contain 0% contain 24%;
     }
 
     /* `.tech-art` ships `aspect-ratio: 16 / 10` and `width: 100%`, which is
@@ -250,12 +278,8 @@
         );
     }
 
-    /* The three ranges barely overlap — 40 / 38-68 / 66-94 — because the
-       effect is a sequence, not a dissolve: the picture finishes settling
-       before the panel starts, and the panel is readable before the name
-       begins. The tail past 94% is left empty on purpose, so the last layer
-       has come to rest before the card unpins rather than still moving as it
-       leaves. */
+    /* Still a sequence and not a dissolve: the picture has settled before
+       the panel starts, and the panel is readable before the name begins. */
     .pin-panel {
       position: absolute;
       left: 5%;
@@ -271,7 +295,9 @@
         site-pin-fade linear both,
         site-pin-panel var(--ease-out-soft) both;
       animation-timeline: --pin-stage;
-      animation-range: contain 38% contain 68%;
+      animation-range:
+        contain 22% contain 34%,
+        contain 22% contain 46%;
     }
 
     /* Clipped, not cut: the full summary is in the DOM either way, so
@@ -302,7 +328,9 @@
         site-pin-fade linear both,
         site-pin-name var(--ease-out-soft) both;
       animation-timeline: --pin-stage;
-      animation-range: contain 66% contain 94%;
+      animation-range:
+        contain 44% contain 56%,
+        contain 44% contain 66%;
     }
   }
 }

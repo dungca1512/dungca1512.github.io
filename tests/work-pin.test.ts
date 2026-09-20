@@ -118,6 +118,36 @@ async function compileGlobals(): Promise<string> {
   }
 }
 
+/**
+ * Each layer's `animation-range`, parsed.
+ *
+ * The value is a LIST that cycles over `animation-name`, so a layer running
+ * a fade and a slide carries one range for each. `start`/`end` are the union
+ * — when the layer starts arriving and when it finally stops — and `parts`
+ * keeps them separate. `fadeIndex` says which part belongs to the opacity
+ * keyframes, read from the `animation` shorthand rather than assumed, so
+ * reordering the shorthand cannot silently invert the comparison.
+ */
+function layerSpans() {
+  const block = supportsBlock(WORK_CSS)!;
+  return LAYERS.map((selector) => {
+    const value = declsFor(block, selector, 'animation-range')[0]!.value;
+    const parts = value.split(',').map((part) => {
+      const nums = [...part.matchAll(/(\d+(?:\.\d+)?)%/g)].map((m) => Number(m[1]));
+      expect(nums.length, `${selector}'s range "${part.trim()}" is not a percentage pair`).toBe(2);
+      return { start: nums[0], end: nums[1] };
+    });
+    const names = (declsFor(block, selector, 'animation')[0]?.value ?? '').split(',');
+    return {
+      selector,
+      parts,
+      fadeIndex: names.findIndex((n) => n.includes('site-pin-fade')),
+      start: Math.min(...parts.map((p) => p.start)),
+      end: Math.max(...parts.map((p) => p.end)),
+    };
+  });
+}
+
 describe('the pinned trio is an enhancement, not the content', () => {
   it('puts every pin declaration behind a POSITIVE @supports (animation-timeline: view())', () => {
     const block = supportsBlock(WORK_CSS);
@@ -295,13 +325,7 @@ describe('the scrub only touches compositor properties', () => {
   });
 
   it('staggers the three layers instead of running them together', () => {
-    const block = supportsBlock(WORK_CSS)!;
-    const spans = LAYERS.map((selector) => {
-      const value = declsFor(block, selector, 'animation-range')[0]!.value;
-      const nums = [...value.matchAll(/(\d+(?:\.\d+)?)%/g)].map((m) => Number(m[1]));
-      expect(nums.length, `${selector}'s range is not a percentage pair`).toBe(2);
-      return { selector, start: nums[0], end: nums[1] };
-    });
+    const spans = layerSpans();
 
     for (const span of spans) expect(span.end).toBeGreaterThan(span.start);
 
@@ -319,9 +343,52 @@ describe('the scrub only touches compositor properties', () => {
         `${here.selector} starts ${overlap}% before ${prev.selector} has finished`,
       ).toBeLessThanOrEqual(0.2);
     }
+  });
 
-    // The last layer comes to rest before the card unpins.
-    expect(spans.at(-1)!.end).toBeLessThanOrEqual(100);
+  /* The regression this file exists for as much as any other.
+
+     The first cut of the scrub ran the last layer to 94%, which passed every
+     check above — the layers were staggered, nothing overlapped, the last one
+     came to rest before the card unpinned — and was still wrong to read. The
+     finished card existed for 6% of the pin, so a reader who stopped scrolling
+     almost always stopped on a half-built one, and it looked like a page that
+     had failed to load rather than a page holding something still.
+
+     A scrubbed animation has no resting state of its own; the reader chooses
+     where it rests, by stopping. So the schedule has to leave somewhere to
+     stop. */
+  it('finishes the sequence with a third of the pin still to go', () => {
+    const last = layerSpans().at(-1)!;
+    expect(
+      last.end,
+      `the scrub is still moving at ${last.end}% — a reader who stops after ` +
+        'that sees a half-built card, which is what this whole section is for',
+    ).toBeLessThanOrEqual(70);
+  });
+
+  it('brings each layer to full opacity well before it stops moving', () => {
+    const block = supportsBlock(WORK_CSS)!;
+    // A solid layer still sliding reads as deliberate; a translucent one
+    // reads as broken. So the fade gets a shorter range than the travel,
+    // which `animation-range` allows by cycling over `animation-name`.
+    for (const { selector, parts, fadeIndex } of layerSpans()) {
+      if (fadeIndex === -1) continue; // .pin-art has no fade, only travel
+      expect(
+        parts.length,
+        `${selector} runs a fade and a slide on one range, so the panel is ` +
+          'see-through for the whole of its arrival',
+      ).toBeGreaterThan(1);
+      const fade = parts[fadeIndex];
+      const travel = parts[fadeIndex === 0 ? 1 : 0];
+      expect(
+        fade.end - fade.start,
+        `${selector} fades over ${fade.end - fade.start}% but travels over ` +
+          `${travel.end - travel.start}% — the fade should be the shorter one`,
+      ).toBeLessThan(travel.end - travel.start);
+      expect(fade.end, `${selector} is still translucent when it stops`).toBeLessThan(travel.end);
+    }
+
+    expect(block, 'no guard, so none of the above was read from the real file').toBeDefined();
   });
 });
 
