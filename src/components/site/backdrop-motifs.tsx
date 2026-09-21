@@ -26,6 +26,8 @@
  * declarations. Nothing in this file names a colour.
  * ────────────────────────────────────────────────────────────────────────── */
 
+import { NeuralNet } from './glyphs';
+
 /** The tile, in CSS pixels: 64rem at a 16px root. Sized against the window, not
  *  against the drawing. At 44rem a 1440px window showed two full columns of the
  *  tile side by side, and the eye reads two identical terminals at the same
@@ -129,46 +131,6 @@ function Brackets() {
       <path d="M-32 -24 L-56 0 L-32 24" strokeWidth="3.5" />
       <path d="M32 -24 L56 0 L32 24" strokeWidth="3.5" />
       <path d="M12 -30 L-12 30" strokeWidth="3" opacity="0.7" />
-    </>
-  );
-}
-
-/** A three-layer net, every edge drawn: the model, not a metaphor for one. */
-function NeuralNet() {
-  const layers: { x: number; ys: number[] }[] = [
-    { x: -62, ys: [-40, 0, 40] },
-    { x: 0, ys: [-60, -20, 20, 60] },
-    { x: 62, ys: [-26, 26] },
-  ];
-  return (
-    <>
-      {layers
-        .slice(0, -1)
-        .map((layer, i) =>
-          layer.ys.map((from) =>
-            layers[i + 1]!.ys.map((to) => (
-              <path
-                key={`${layer.x}-${from}-${to}`}
-                d={`M${layer.x} ${from} L${layers[i + 1]!.x} ${to}`}
-                strokeWidth="1.5"
-                opacity="0.4"
-              />
-            )),
-          ),
-        )}
-      {layers.map((layer) =>
-        layer.ys.map((y) => (
-          <circle
-            key={`${layer.x}-${y}`}
-            cx={layer.x}
-            cy={y}
-            r="6"
-            fill="currentColor"
-            stroke="none"
-            opacity="0.85"
-          />
-        )),
-      )}
     </>
   );
 }
