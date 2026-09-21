@@ -32,8 +32,10 @@
   z-index: 1;
 }
 
-/* Hidden until the grid is two columns wide enough to have a gutter to sit
-   in. Below 48rem the list is the list. */
+/* `sm:grid-cols-2` (the Tailwind default breakpoint, unmodified in this repo)
+   turns the grid two-column at 40rem, but the hub waits for 48rem: below
+   that a two-column card is too narrow for a 3.5rem core plus the links
+   either side of it. Below 48rem the list is just the list. */
 .hub-core,
 .hub-links {
   display: none;
@@ -99,16 +101,17 @@
   }
 
   /* A 12%-of-path dash, parked past the end of the path (offset -1) where it
-     cannot be seen, and transparent besides. Both are undone only while the
+     cannot be seen, and transparent besides. Opacity is undone only while the
      wrapper reports itself in view — see the two rules after the media
-     block — so the loop below is never running off screen. */
+     block. There is no `animation-play-state` here: with no `animation` set
+     yet, there is nothing to pause — the pause lives in the `@supports`
+     block below, after the shorthand that would otherwise overwrite it. */
   .hub-pulse {
     stroke: var(--base-accent);
     stroke-width: 2.5;
     stroke-dasharray: 0.12 1;
     stroke-dashoffset: -1;
     opacity: 0;
-    animation-play-state: paused;
   }
 }
 
@@ -164,10 +167,18 @@
 
     /* Timed, not scrolled: a pulse that only moved when the reader did would
        read as the reader dragging it. 2.4s and a 0.55s stagger are wigin's;
-       the 0.8s lead lets the draw finish first on a normal scroll. */
+       the 0.8s lead lets the draw finish first on a normal scroll.
+       `animation-play-state` MUST come after the `animation` shorthand: the
+       shorthand resets every longhand it doesn't mention — including
+       play-state — back to its initial value, `running`. Setting it after
+       is what keeps the pulse paused by default; `.hub[data-inview='true']
+       .hub-pulse` above wins over this rule on specificity (0,3,0) to
+       (0,1,0), so it can flip play-state to `running` regardless of source
+       order. */
     .hub-pulse {
       animation: site-hub-pulse 2.4s linear infinite;
       animation-delay: calc(0.8s + var(--i) * 0.55s);
+      animation-play-state: paused;
     }
   }
 }

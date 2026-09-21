@@ -138,6 +138,34 @@ function keyframeProps(name: string): Set<string> {
   return props;
 }
 
+/** True if `d` sits anywhere inside an `@supports` at-rule. */
+function insideSupports(d: Declaration): boolean {
+  for (let n: postcss.Container | undefined = d.parent; n; n = n.parent as postcss.Container) {
+    if (n.type === 'atrule' && (n as AtRule).name === 'supports') return true;
+  }
+  return false;
+}
+
+/** Declarations of one rule whose selector list includes `selector`, in
+ *  source order — unlike `decls`, which may merge several rules, this keeps
+ *  each rule's own declaration order so a test can check that one longhand
+ *  comes after another (e.g. a play-state set after the shorthand that
+ *  would otherwise reset it). Only rules with an EXACT single-selector match
+ *  are considered, so `.hub-link, .hub-pulse { … }` (a rule with no relevant
+ *  declarations) does not get conflated with `.hub-pulse { … }` alone. */
+function ownDecls(selector: string): Declaration[][] {
+  const rules: Declaration[][] = [];
+  root.walkRules((r) => {
+    if (r.selectors.length !== 1 || r.selectors[0] !== selector) return;
+    const out: Declaration[] = [];
+    r.walkDecls((d) => {
+      out.push(d);
+    });
+    rules.push(out);
+  });
+  return rules;
+}
+
 describe('Hub stylesheet', () => {
   it('has no vh anywhere', () => {
     expect(HUB_CSS).not.toMatch(/\dvh\b/); // `74dvh` has a `d` before `vh`, so it passes; `74vh` does not
@@ -160,12 +188,6 @@ describe('Hub stylesheet', () => {
     expect(inside.some((d) => d.prop === 'animation-timeline' && d.value === '--hub')).toBe(true);
     expect(inside.some((d) => d.prop === 'animation-range')).toBe(true);
     // Nothing outside the guard animates the link.
-    const insideSupports = (d: Declaration) => {
-      for (let n: postcss.Container | undefined = d.parent; n; n = n.parent as postcss.Container) {
-        if (n.type === 'atrule' && (n as AtRule).name === 'supports') return true;
-      }
-      return false;
-    };
     const outside = decls(root, '.hub-link').filter(
       (d) => d.prop.startsWith('animation') && !insideSupports(d),
     );
@@ -179,10 +201,29 @@ describe('Hub stylesheet', () => {
   });
 
   it('runs the pulse only while the wrapper is in view', () => {
-    const paused = decls(root, '.hub-pulse');
-    expect(paused.some((d) => d.prop === 'animation-play-state' && d.value === 'paused')).toBe(
-      true,
+    // Nothing outside the guard animates the pulse either — same check as
+    // the link, above.
+    const outside = decls(root, '.hub-pulse').filter(
+      (d) => d.prop.startsWith('animation') && !insideSupports(d),
     );
+    expect(outside).toHaveLength(0);
+
+    // The `animation` shorthand resets every longhand it does not mention —
+    // including `animation-play-state` — back to its initial value,
+    // `running`. So a `paused` declaration only holds if it comes AFTER the
+    // shorthand in the same rule; asserting mere presence anywhere in the
+    // stylesheet (as this test used to) passes even when the shorthand
+    // clobbers it. Find the rule that sets `animation` on `.hub-pulse` and
+    // check the order directly.
+    const pulseRules = ownDecls('.hub-pulse');
+    const shorthandRule = pulseRules.find((rule) => rule.some((d) => d.prop === 'animation'));
+    expect(shorthandRule).toBeDefined();
+    const animIndex = shorthandRule!.findIndex((d) => d.prop === 'animation');
+    const pausedIndex = shorthandRule!.findIndex(
+      (d) => d.prop === 'animation-play-state' && d.value === 'paused',
+    );
+    expect(pausedIndex).toBeGreaterThan(animIndex);
+
     const running = decls(root, ".hub[data-inview='true'] .hub-pulse");
     expect(running.some((d) => d.prop === 'animation-play-state' && d.value === 'running')).toBe(
       true,
