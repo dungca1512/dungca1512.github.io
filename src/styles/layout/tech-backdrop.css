@@ -64,7 +64,7 @@
     /* 4. the dot matrix, at half the strength of everything above. Wider and
           fainter than it used to be: at 2rem and 45% it was the loudest thing
           on the page's ground, and read as graph paper rather than as a board.
-          The motif layer is the subject now; this is the field behind it. */
+          The constellation is the subject now; this is the field behind it. */
     radial-gradient(
         circle,
         color-mix(in srgb, var(--base-border) 32%, transparent) 0 1px,
@@ -82,57 +82,32 @@
   mask-image: radial-gradient(ellipse 64% 54% at 50% 38%, transparent 0%, black 100%);
 }
 
-/* ─── The motif layer ─────────────────────────────────────────────────────
-   Goes with src/components/site/backdrop-motifs.tsx, which draws the shapes.
-   Everything about colour is here, because the component draws in
-   `currentColor` only — so the palette surface of the whole layer is the four
-   `color` declarations below, each a token, each therefore already correct in
-   both themes with no dark-mode rule.
-
-   The tints are the same four the card art uses, and the mixes are low on
-   purpose: this sits behind body copy, and the board's own traces are ~11%
-   white in dark mode. A motif that competes with a paragraph is a bug, not a
-   stronger design. `--base-muted-foreground` rather than `--base-border` for
-   the untinted ones: border is near-invisible at these stroke widths, and the
-   shapes need to be legible as shapes to be worth drawing at all.
+/* ─── The constellation ───────────────────────────────────────────────────
+   Goes with src/components/motion/constellation.tsx, which draws the points.
+   Colour is read from the tokens by that component; the only thing decided
+   here is how much of it shows. Two numbers because the same blue line is
+   louder on white than on near-black: these are starting values, to be fixed
+   against a contrast measurement of body text over the busiest patch of the
+   field in both themes (see the spec, §3.4).
 
    It inherits the mask and the fixed positioning from `.tech-backdrop`, which
    is why it is a child of it rather than a second fixed element. */
-.tech-motifs {
-  position: absolute;
-  inset: 0;
+.constellation {
+  display: block;
   width: 100%;
   height: 100%;
+  opacity: 0.35;
 }
 
-.motif {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  /* Children that want a filled shape carry `fill="currentColor"` as a
-     presentation attribute, which beats the `none` they inherit from here —
-     inheritance loses to an element's own attribute. */
-  color: color-mix(in srgb, var(--base-muted-foreground) 22%, transparent);
-}
-
-.motif-info {
-  color: color-mix(in srgb, var(--base-info) 28%, transparent);
-}
-
-.motif-accent {
-  color: color-mix(in srgb, var(--base-accent) 26%, transparent);
-}
-
-.motif-success {
-  color: color-mix(in srgb, var(--base-success) 26%, transparent);
+[data-theme='dark'] .constellation {
+  opacity: 0.55;
 }
 
 /* The board is decoration that competes with text. Under a reduced-contrast
    preference it goes, rather than being made even fainter — half a pattern
    is the worst of both. */
 @media (prefers-contrast: more) {
-  /* The motif layer is a child, so it goes with this — no second rule. */
+  /* The canvas is a child, so it goes with this — no second rule. */
   .tech-backdrop {
     display: none;
   }

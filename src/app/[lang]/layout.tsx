@@ -9,7 +9,7 @@ import { Footer } from '@/components/site/footer';
 import { SkipLink } from '@/components/site/skip-link';
 import { ThemeScript } from '@/components/site/theme-script';
 import { IntroCurtain } from '@/components/site/intro-curtain';
-import { BackdropMotifs } from '@/components/site/backdrop-motifs';
+import { Constellation } from '@/components/motion/constellation';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ lang: locale }));
@@ -64,10 +64,10 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
             must be outside <main> and outside anything that establishes a
             containing block. aria-hidden: it is texture. The element itself
             paints the circuit board out of gradients; its one child draws the
-            motifs on top of it, and inherits the mask and the fixed position
+            constellation on top of it, and inherits the mask and the fixed position
             by being inside rather than beside it. */}
         <div className="tech-backdrop" aria-hidden="true">
-          <BackdropMotifs />
+          <Constellation />
         </div>
         <SkipLink label={dict.nav.skipToContent} />
         <MenuBar locale={locale} dict={dict} />
