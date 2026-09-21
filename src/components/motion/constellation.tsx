@@ -14,8 +14,11 @@ import { useEffect, useRef } from 'react';
    and doubles the work done next to every other animation on the page.
 
    No colour is written here. The two tokens are read off <html> and read
-   AGAIN when data-theme changes, so the theme toggle recolours the field
-   with no reload and no second component. */
+   AGAIN when data-theme changes, so IF a theme ever redefines --base-info
+   or --base-accent the field follows with no reload and no second
+   component. Today neither token is redefined under [data-theme='dark']
+   in globals.css — the per-theme difference is the opacity step in
+   layout/tech-backdrop.css. */
 
 const AREA_PER_POINT = 30_000;
 const MIN_POINTS = 24;
@@ -69,8 +72,11 @@ export function Constellation() {
       const info = style.getPropertyValue('--base-info').trim();
       const accent = style.getPropertyValue('--base-accent').trim();
       const g = ctx.createLinearGradient(0, 0, w || 1, 0);
-      g.addColorStop(0, info || 'currentColor');
-      g.addColorStop(1, accent || 'currentColor');
+      // A canvas gradient has no `currentColor` — passing it is not a valid
+      // stop and throws in some engines. 'transparent' is a silent no-op
+      // fallback instead.
+      g.addColorStop(0, info || 'transparent');
+      g.addColorStop(1, accent || 'transparent');
       gradient = g;
     };
 
@@ -110,8 +116,22 @@ export function Constellation() {
     /* Existing points are scaled into the new box rather than re-rolled, so
        rotating a phone or dragging a window edge does not reshuffle the sky. */
     const resize = () => {
-      const nw = window.innerWidth;
-      const nh = window.innerHeight;
+      // The canvas is `width:100%; height:100%` inside `.tech-backdrop`
+      // (fixed, inset 0), so its own box is the truth about what's on
+      // screen. `window.innerWidth` is wider than that box with a classic
+      // scrollbar (1440 buffer over 1425 CSS px observed) and, on phones,
+      // moves independently of it as the URL bar collapses.
+      const nw = canvas.clientWidth;
+      const nh = canvas.clientHeight;
+      if (!nw || !nh) {
+        // `@media (prefers-contrast: more)` sets `.tech-backdrop { display:
+        // none }`, which makes this a 0×0 box. Stop the loop rather than
+        // keep drawing into a buffer nobody sees; leave `w`/`h` and the
+        // points untouched so a later non-zero resize scales them instead
+        // of re-rolling.
+        stop();
+        return;
+      }
       const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
       if (w && h) {
         for (const p of points) {
@@ -129,6 +149,10 @@ export function Constellation() {
       points.length = Math.min(points.length, n);
       readColours();
       draw();
+      // The box just measured non-zero: if the canvas was hidden (contrast
+      // preference toggled off) and the loop had stopped, this restarts it.
+      // No-op otherwise — `start()` is idempotent via `running`.
+      start();
     };
 
     /* `window.`-prefixed on purpose: the tests spy on `window.requestAnimationFrame`
@@ -141,7 +165,10 @@ export function Constellation() {
       draw();
     };
     const start = () => {
-      if (running || reduced) return;
+      // `!w || !h` covers the frame before the first `resize()` measurement
+      // and a canvas hidden by `(prefers-contrast: more)`: a hidden canvas
+      // never starts the loop.
+      if (running || reduced || !w || !h) return;
       running = true;
       frame = window.requestAnimationFrame(tick);
     };

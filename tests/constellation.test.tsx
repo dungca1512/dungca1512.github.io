@@ -44,6 +44,13 @@ function mediaMatching(...matching: string[]) {
 
 let ctx: ReturnType<typeof mockContext>;
 
+// jsdom reports `clientWidth`/`clientHeight` as 0 for every element.
+// `resize()` now reads the canvas's own box (§A of the final-fix brief), so
+// the suite needs a non-zero default; individual tests reassign these to
+// exercise the zero-box and resize paths.
+let mockClientWidth = 1024;
+let mockClientHeight = 768;
+
 beforeEach(() => {
   ctx = mockContext();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -52,12 +59,25 @@ beforeEach(() => {
   // Never let a frame loop actually run under jsdom.
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1);
   vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+  mockClientWidth = 1024;
+  mockClientHeight = 768;
+  Object.defineProperty(HTMLCanvasElement.prototype, 'clientWidth', {
+    configurable: true,
+    get: () => mockClientWidth,
+  });
+  Object.defineProperty(HTMLCanvasElement.prototype, 'clientHeight', {
+    configurable: true,
+    get: () => mockClientHeight,
+  });
 });
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   delete document.documentElement.dataset.theme;
+  // Hand the prototype back to jsdom's own (always-0) accessor.
+  delete (HTMLCanvasElement.prototype as { clientWidth?: number }).clientWidth;
+  delete (HTMLCanvasElement.prototype as { clientHeight?: number }).clientHeight;
 });
 
 describe('Constellation', () => {
@@ -82,13 +102,66 @@ describe('Constellation', () => {
     expect(window.requestAnimationFrame).not.toHaveBeenCalled();
   });
 
-  it('sizes the buffer to the viewport times a capped device pixel ratio', () => {
+  it('sizes the buffer to its own box times a capped device pixel ratio', () => {
     Object.defineProperty(window, 'devicePixelRatio', { value: 3, configurable: true });
     const { container } = render(<Constellation />);
     const canvas = container.querySelector('canvas')!;
-    expect(canvas.width).toBe(window.innerWidth * 2);
-    expect(canvas.height).toBe(window.innerHeight * 2);
+    expect(canvas.width).toBe(1024 * 2);
+    expect(canvas.height).toBe(768 * 2);
     expect(ctx.setTransform).toHaveBeenLastCalledWith(2, 0, 0, 2, 0, 0);
+  });
+
+  it('stops the loop and draws nothing when its box is zero', () => {
+    mockClientWidth = 0;
+    mockClientHeight = 0;
+    render(<Constellation />);
+    expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+    expect(ctx.clearRect).not.toHaveBeenCalled();
+  });
+
+  it('scales existing points into the new box instead of re-rolling', () => {
+    // Only the debounce timer is faked, same reasoning as the resize test
+    // below: faking requestAnimationFrame too would let advanceTimersByTime
+    // fire frames and count them as draws. `Math.random` is pinned to 0.5 so
+    // every point's velocity is exactly 0 — `draw()` still runs (once inside
+    // the initial `resize()`, once inside the debounced one) and would
+    // otherwise add a frame of drift on top of the scale, which this
+    // assertion's 1e-6 tolerance has no room for.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    mockClientWidth = 1000;
+    mockClientHeight = 500;
+    render(<Constellation />);
+    const before = ctx.arc.mock.calls.map((call) => [call[0], call[1]]);
+    expect(before.length).toBeGreaterThan(0);
+
+    mockClientWidth = 500;
+    mockClientHeight = 500;
+    window.dispatchEvent(new Event('resize'));
+    vi.advanceTimersByTime(120);
+
+    const after = ctx.arc.mock.calls.slice(-before.length).map((call) => [call[0], call[1]]);
+    before.forEach(([x, y], i) => {
+      expect(after[i]![0]).toBeCloseTo((x as number) * 0.5, 6);
+      expect(after[i]![1]).toBeCloseTo(y as number, 6);
+    });
+    vi.useRealTimers();
+  });
+
+  it('starts again when the box becomes non-zero after a resize', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    mockClientWidth = 0;
+    mockClientHeight = 0;
+    render(<Constellation />);
+    expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+
+    mockClientWidth = 1024;
+    mockClientHeight = 768;
+    window.dispatchEvent(new Event('resize'));
+    vi.advanceTimersByTime(120);
+
+    expect(window.requestAnimationFrame).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 
   it('re-reads the colour tokens when the theme attribute changes', async () => {
