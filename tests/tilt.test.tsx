@@ -72,7 +72,9 @@ describe('Tilt', () => {
 
   it('returns to flat, softly, when the pointer leaves', () => {
     const el = mount();
+    pointer(el, 'pointerenter');
     pointer(el, 'pointermove', 200, 100);
+    expect(el.dataset.tilting).toBe('true'); // the reset below undoes a real tilt
     pointer(el, 'pointerleave');
     expect(el.style.getPropertyValue('--tilt-x')).toBe('0');
     expect(el.style.getPropertyValue('--tilt-y')).toBe('0');

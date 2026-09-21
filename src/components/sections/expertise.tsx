@@ -46,11 +46,11 @@ export async function Expertise() {
 
       {/* `wide:items-start` is load-bearing for the hub: site/hub.tsx sizes
           `.hub-core`/`.hub-links` off `.hub`'s own box, which in turn sizes
-          to the <ul> inside it. Any alignment other than `start` lets this
-          grid item stretch or centre against the row's height (set by the
-          taller illustration column next to it), decoupling that box from
-          the cards' actual height and pulling the core off the gutters'
-          crossing. */}
+          to the <ul> inside it. Drop the utility and the grid default,
+          `stretch`, pulls this item to the row's height (set by the taller
+          illustration column next to it), decoupling that box from the
+          cards' actual height and the core from the gutters' crossing.
+          `center` or `end` would keep the box tight and merely move it. */}
       <div className="wide:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] wide:items-start mt-16 grid gap-12">
         {/* The hub draws a core at the crossing of this grid's gutters and a
             link to each card — see site/hub.tsx. The <ul> is unchanged as a
