@@ -128,4 +128,11 @@
   .pop-on-hover {
     transition: none !important;
   }
+
+  /* The tilt never attaches its listeners under reduced motion, so this is
+     the second line, for a preference toggled after load. */
+  .tilt {
+    transform: none !important;
+    transition: none !important;
+  }
 }
