@@ -1,0 +1,173 @@
+/* src/styles/sections/expertise.css */
+
+/* ─── The hub over the four areas ─────────────────────────────────────────
+   Goes with src/components/site/hub.tsx. Same inversion as sections/work.css:
+   the defaults below are the FINISHED picture — links drawn, pulses hidden —
+   and the block at the bottom only ever adds motion inside a guard. Firefox,
+   Safari before 26, JS off and reduced motion all land on the defaults.
+
+   THE ONE EXCEPTION TO "TRANSFORM AND OPACITY ONLY" ON THIS SITE.
+   `stroke-dashoffset` is a paint property. It is animated here on eight
+   <path> elements that between them cover one grid's gutters and nothing
+   else — a repaint of a few hundred pixels of 1.5px stroke, on a layer
+   that contains no text. Measured against the alternative (a moving
+   <circle> on `offset-path`, which is not composited either), this is the
+   cheaper of two paints, and it is what the effect IS. Do not extend the
+   exception to anything with text in it. */
+
+.hub {
+  position: relative;
+}
+
+/* The wrapper's own grid. `gap` lives here rather than in a Tailwind utility
+   on the <ul> so the 48rem override below has one place to override. */
+.hub-grid {
+  gap: 1.5rem;
+}
+
+/* Cards paint above the links, so a path end that overshoots into a card is
+   covered, and the join looks like it stops at the edge. */
+.hub-grid > li {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hidden until the grid is two columns wide enough to have a gutter to sit
+   in. Below 48rem the list is the list. */
+.hub-core,
+.hub-links {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  /* 5rem, from 1.5rem: the channel the core and the curves live in. Cards
+     lose 1.75rem each; the grid gains a centre. */
+  .hub-grid {
+    gap: 5rem;
+  }
+
+  .hub-core {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 3.5rem;
+    height: 3.5rem;
+    translate: -50% -50%;
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-md);
+    background-color: var(--base-surface);
+    box-shadow: var(--base-shadow-raised);
+    color: var(--site-ink-primary);
+  }
+
+  .hub-glyph {
+    width: 2.25rem;
+    height: 2.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .hub-links {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hub-link,
+  .hub-pulse {
+    fill: none;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Drawn. `pathLength="1"` on the element makes these fractions. */
+  .hub-link {
+    stroke: color-mix(in srgb, var(--base-info) 45%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+  }
+
+  /* A 12%-of-path dash, parked past the end of the path (offset -1) where it
+     cannot be seen, and transparent besides. Both are undone only while the
+     wrapper reports itself in view — see the two rules after the media
+     block — so the loop below is never running off screen. */
+  .hub-pulse {
+    stroke: var(--base-accent);
+    stroke-width: 2.5;
+    stroke-dasharray: 0.12 1;
+    stroke-dashoffset: -1;
+    opacity: 0;
+    animation-play-state: paused;
+  }
+}
+
+/* Outside the media block so the specificity story is one line: these two
+   selectors are (0,3,0) and (0,2,0) against the (0,1,0) defaults above. */
+.hub[data-inview='true'] .hub-pulse {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+
+/* Offset 1 with a `1 1` dash on a unit path is a full gap: nothing drawn.
+   Offset 0 is the whole path. */
+@keyframes site-hub-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* With dasharray `0.12 1` (period 1.12), offset 0 puts the dash on [0, 0.12)
+   — at the core — and offset -1 puts it on [1, 1.12), off the far end. One
+   sweep, core to card, per iteration. */
+@keyframes site-hub-pulse {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+    /* The wrapper is the paths' ancestor; the <ul> is their sibling, and a
+       named timeline resolves through ancestors only. Same box either way. */
+    .hub {
+      view-timeline-name: --hub;
+      view-timeline-axis: block;
+    }
+
+    /* Each link draws over 40% of the grid's entry into the viewport,
+       starting 6% later than the one before it — wigin's 0.12s stagger,
+       expressed in scroll rather than seconds. */
+    .hub-link {
+      animation: site-hub-draw linear both;
+      animation-timeline: --hub;
+      animation-range: entry calc(20% + var(--i) * 6%) entry calc(60% + var(--i) * 6%);
+    }
+
+    /* Timed, not scrolled: a pulse that only moved when the reader did would
+       read as the reader dragging it. 2.4s and a 0.55s stagger are wigin's;
+       the 0.8s lead lets the draw finish first on a normal scroll. */
+    .hub-pulse {
+      animation: site-hub-pulse 2.4s linear infinite;
+      animation-delay: calc(0.8s + var(--i) * 0.55s);
+    }
+  }
+}
