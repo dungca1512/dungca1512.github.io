@@ -1,7 +1,6 @@
 # Spec — Three effects from wigin.ai, without its scroll hijack
 
-**Status:** design approved in chat by the site owner on 2026-09-21; spec
-awaiting their review.
+**Status:** implemented on branch `feat/constellation-backdrop`, 2026-09-21.
 **Branch:** `feat/constellation-backdrop`. Merged by pull request, never pushed
 straight to `main`.
 
