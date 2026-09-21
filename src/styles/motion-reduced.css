@@ -113,7 +113,30 @@
     transform: none !important;
   }
 
+  /* The hub in Expertise (sections/expertise.css). The link's last frame is
+     the whole line; the pulse's is off the end of the path, so it goes. */
+  .hub-link {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  .hub-pulse {
+    animation: none !important;
+    opacity: 0 !important;
+    /* The `@supports` block gives it a transition on opacity (see
+       expertise.css); reset it too or a preference toggled after the pulse
+       last faded in would animate it back out instead of landing instantly. */
+    transition: none !important;
+  }
+
   .pop-on-hover {
+    transition: none !important;
+  }
+
+  /* The tilt never attaches its listeners under reduced motion, so this is
+     the second line, for a preference toggled after load. */
+  .tilt {
+    transform: none !important;
     transition: none !important;
   }
 }

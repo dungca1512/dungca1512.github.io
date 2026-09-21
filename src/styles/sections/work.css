@@ -27,6 +27,34 @@
   background: color-mix(in srgb, var(--base-primary) 4%, var(--base-surface));
 }
 
+/* The case-study picture leans toward the pointer — motion/tilt.tsx writes
+   `--tilt-x`/`--tilt-y` in [-0.5, 0.5]; everything visible about the effect
+   is this rule. 6° is wigin.ai's number and it is about the most a flat
+   picture can lean before the far edge starts to look cropped. The return
+   is four times slower than the follow (the second rule): a picture that
+   snaps back reads as a bug, one that drifts back reads as weight.
+
+   Guarded the same way the component already gates its own listeners
+   (`matchMedia('(pointer: coarse)')`): a touch device never attaches
+   `pointermove`, so the variables are never written there either, but
+   without this guard the browser still has to resolve a 3D perspective
+   transform on every paint for a picture that will never actually lean.
+   `motion-reduced.css` still wins over this — its reset carries
+   `!important`. */
+@media (hover: hover) and (pointer: fine) {
+  .tilt {
+    transform: perspective(900px) rotateY(calc(var(--tilt-x, 0) * 6deg))
+      rotateX(calc(var(--tilt-y, 0) * -6deg));
+    transform-style: preserve-3d;
+    transition: transform 0.4s var(--ease-out-soft);
+  }
+
+  .tilt[data-tilting='true'] {
+    transition-duration: 0.1s;
+    transition-timing-function: linear;
+  }
+}
+
 /* ─── The pinned trio ──────────────────────────────────────────────────────
    Three projects held near the middle of the viewport while the page scrolls
    past them, their three layers — art, info panel, name — scrubbed by scroll

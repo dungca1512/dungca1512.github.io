@@ -2,6 +2,7 @@ import { Section, SectionHeading } from '@/components/site/section';
 import { Illustration } from '@/components/site/illustration';
 import { Disclosure } from '@/components/site/disclosure';
 import { TechArt } from '@/components/site/tech-art';
+import { Tilt } from '@/components/motion/tilt';
 import { PROJECTS, CASE_STUDY, type Project } from '@/content/projects';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import type { Dictionary } from '@/content/dictionaries';
@@ -226,14 +227,20 @@ export async function Work() {
               {dict.common.repository}
             </a>
           </div>
-          <Illustration
-            name="work"
-            parallax
-            alt=""
-            width={640}
-            height={640}
-            className="block overflow-hidden rounded-lg"
-          />
+          {/* Leans toward the pointer on a fine-pointer device; flat
+              everywhere else. The parallax on the <img> inside and the tilt
+              on this wrapper are two transforms on two elements, so neither
+              overwrites the other. */}
+          <Tilt>
+            <Illustration
+              name="work"
+              parallax
+              alt=""
+              width={640}
+              height={640}
+              className="block overflow-hidden rounded-lg"
+            />
+          </Tilt>
         </div>
 
         {/* All five blocks, each with the localized title that ships in the
