@@ -306,7 +306,9 @@ describe('Constellation', () => {
   });
 
   it('draws the whole field again after a resize, once the debounce has passed', () => {
-    vi.useFakeTimers();
+    // Only the debounce timer is faked: faking requestAnimationFrame too would
+    // let advanceTimersByTime fire frames and count them as draws.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     render(<Constellation />);
     const drawsBefore = ctx.clearRect.mock.calls.length;
     window.dispatchEvent(new Event('resize'));
@@ -440,7 +442,7 @@ export function Constellation() {
        canvas would otherwise need a colour parser for: any string the tokens
        resolve to — hex today, oklch tomorrow — is a valid gradient stop. */
     const readColours = () => {
-      const style = getComputedStyle(document.documentElement);
+      const style = window.getComputedStyle(document.documentElement);
       const info = style.getPropertyValue('--base-info').trim();
       const accent = style.getPropertyValue('--base-accent').trim();
       const g = ctx.createLinearGradient(0, 0, w || 1, 0);
@@ -506,8 +508,11 @@ export function Constellation() {
       draw();
     };
 
+    /* `window.`-prefixed on purpose: the tests spy on `window.requestAnimationFrame`
+       and `window.getComputedStyle`, and under vitest's jsdom a bare global is a
+       separate copy the spy never sees. In a browser they are the same function. */
     const tick = (t: number) => {
-      frame = requestAnimationFrame(tick);
+      frame = window.requestAnimationFrame(tick);
       if (t - last < FRAME_MS) return;
       last = t;
       draw();
@@ -515,11 +520,11 @@ export function Constellation() {
     const start = () => {
       if (running || reduced) return;
       running = true;
-      frame = requestAnimationFrame(tick);
+      frame = window.requestAnimationFrame(tick);
     };
     const stop = () => {
       running = false;
-      cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(frame);
     };
 
     const onVisibility = () => (document.hidden ? stop() : start());
@@ -1266,10 +1271,18 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```tsx
 // tests/tilt.test.tsx
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import postcss, { type Declaration } from 'postcss';
 import { Tilt } from '@/components/motion/tilt';
+
+/* jsdom 25 has no PointerEvent, and testing-library's fireEvent.pointerMove
+   falls back to a bare Event that drops clientX. A MouseEvent carrying the
+   pointer event's NAME reaches a `pointermove` listener with its coordinates
+   intact, which is all the component reads. */
+function pointer(el: Element, type: 'pointermove' | 'pointerleave', x = 0, y = 0) {
+  el.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, bubbles: true }));
+}
 
 const WORK_CSS = readFileSync('src/styles/sections/work.css', 'utf8');
 const REDUCED_CSS = readFileSync('src/styles/motion-reduced.css', 'utf8');
@@ -1317,19 +1330,19 @@ describe('Tilt', () => {
 
   it('writes the pointer position as two variables in [-0.5, 0.5]', () => {
     const el = mount();
-    fireEvent.pointerMove(el, { clientX: 100, clientY: 50 });
+    pointer(el, 'pointermove', 100, 50);
     expect(el.style.getPropertyValue('--tilt-x')).toBe('0.000');
     expect(el.style.getPropertyValue('--tilt-y')).toBe('0.000');
     expect(el.dataset.tilting).toBe('true');
-    fireEvent.pointerMove(el, { clientX: 200, clientY: 0 });
+    pointer(el, 'pointermove', 200, 0);
     expect(el.style.getPropertyValue('--tilt-x')).toBe('0.500');
     expect(el.style.getPropertyValue('--tilt-y')).toBe('-0.500');
   });
 
   it('returns to flat, softly, when the pointer leaves', () => {
     const el = mount();
-    fireEvent.pointerMove(el, { clientX: 200, clientY: 100 });
-    fireEvent.pointerLeave(el);
+    pointer(el, 'pointermove', 200, 100);
+    pointer(el, 'pointerleave');
     expect(el.style.getPropertyValue('--tilt-x')).toBe('0');
     expect(el.style.getPropertyValue('--tilt-y')).toBe('0');
     expect(el.dataset.tilting).toBeUndefined();
@@ -1338,14 +1351,14 @@ describe('Tilt', () => {
   it('attaches nothing on a touch device', () => {
     vi.spyOn(window, 'matchMedia').mockImplementation(media('pointer: coarse'));
     const el = mount();
-    fireEvent.pointerMove(el, { clientX: 200, clientY: 100 });
+    pointer(el, 'pointermove', 200, 100);
     expect(el.style.getPropertyValue('--tilt-x')).toBe('');
   });
 
   it('attaches nothing under reduced motion', () => {
     vi.spyOn(window, 'matchMedia').mockImplementation(media('prefers-reduced-motion'));
     const el = mount();
-    fireEvent.pointerMove(el, { clientX: 200, clientY: 100 });
+    pointer(el, 'pointermove', 200, 100);
     expect(el.style.getPropertyValue('--tilt-x')).toBe('');
   });
 
