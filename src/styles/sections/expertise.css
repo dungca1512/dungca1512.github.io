@@ -34,7 +34,7 @@
 
 /* `sm:grid-cols-2` (the Tailwind default breakpoint, unmodified in this repo)
    turns the grid two-column at 40rem, but the hub waits for 48rem: below
-   that a two-column card is too narrow for a 3.5rem core plus the links
+   that a two-column card is too narrow for a 4.5rem core plus the links
    either side of it. Below 48rem the list is just the list. */
 .hub-core,
 .hub-links {
@@ -42,12 +42,19 @@
 }
 
 @media (min-width: 48rem) {
-  /* 5rem, from 1.5rem: the channel the core and the curves live in. Cards
-     lose 1.75rem each; the grid gains a centre. */
+  /* 6rem, from 1.5rem: the channel the core and the curves live in. Cards
+     lose 2.25rem each; the grid gains a centre. Raised from 5rem alongside
+     the core below, on 2026-09-21, to keep the same ~0.75rem of clearance
+     each side once the core grew from 3.5rem to 4.5rem — a tighter channel
+     around a bigger core would have let it graze the cards. */
   .hub-grid {
-    gap: 5rem;
+    gap: 6rem;
   }
 
+  /* 4.5rem, from 3.5rem on 2026-09-21: the smaller core read as an
+     afterthought next to four cards. Link endpoints don't move — they are
+     percentages of the whole `.hub` box (see hub.tsx), not of the core's own
+     size — so this is a pure CSS resize with nothing else to keep in step. */
   .hub-core {
     display: grid;
     place-items: center;
@@ -55,8 +62,8 @@
     top: 50%;
     left: 50%;
     z-index: 2;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 4.5rem;
+    height: 4.5rem;
     translate: -50% -50%;
     border: 1px solid var(--base-border);
     border-radius: var(--base-radius-md);
@@ -66,8 +73,8 @@
   }
 
   .hub-glyph {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 3rem;
+    height: 3rem;
     fill: none;
     stroke: currentColor;
     stroke-linecap: round;

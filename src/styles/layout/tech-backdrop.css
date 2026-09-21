@@ -85,13 +85,15 @@
 /* ─── The constellation ───────────────────────────────────────────────────
    Goes with src/components/motion/constellation.tsx, which draws the points.
    Colour is read from the tokens by that component; the only thing decided
-   here is how much of it shows. Two numbers because the same blue line is
-   louder on white than on near-black: measured on the built page at
-   1440×900, 2026-09-21, hero body text over the busiest patch of the field —
-   light 5.19:1 (main, without the canvas: 4.44), dark 6.14:1 (main 4.41);
-   eyebrow light 7.35 (main 6.10), dark 5.05 (main 4.58). Higher than main
-   because the SVG motifs the canvas replaced sat under the text, and the
-   canvas is masked away from it (see the spec, §3.4).
+   here is how much of it shows. Raised from 0.35/0.55 on 2026-09-21 — at the
+   original values the field read as barely-there against a static
+   screenshot — re-measured the same way each step: built page at 1440×900,
+   hero body text over the busiest patch of the field, worst pixel in the
+   crop. 0.5 light clears it easily (4.61:1, 0% of the crop under 4.5:1).
+   0.7 dark did not — the eyebrow line (bolder but smaller) fell to 4.12:1
+   with a sliver of the crop under threshold — so dark stops at 0.6, where
+   the same eyebrow crop measures 4.74:1 with nothing under threshold. Two
+   numbers because the same blue line is louder on white than on near-black.
 
    It inherits the mask and the fixed positioning from `.tech-backdrop`, which
    is why it is a child of it rather than a second fixed element. */
@@ -99,11 +101,11 @@
   display: block;
   width: 100%;
   height: 100%;
-  opacity: 0.35;
+  opacity: 0.5;
 }
 
 [data-theme='dark'] .constellation {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 /* The board is decoration that competes with text. Under a reduced-contrast
