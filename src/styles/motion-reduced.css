@@ -123,6 +123,10 @@
   .hub-pulse {
     animation: none !important;
     opacity: 0 !important;
+    /* The `@supports` block gives it a transition on opacity (see
+       expertise.css); reset it too or a preference toggled after the pulse
+       last faded in would animate it back out instead of landing instantly. */
+    transition: none !important;
   }
 
   .pop-on-hover {

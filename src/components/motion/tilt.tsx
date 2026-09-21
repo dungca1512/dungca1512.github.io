@@ -31,14 +31,26 @@ export function Tilt({ children, className }: { children: React.ReactNode; class
     )
       return;
 
+    // One layout read per hover, not per move: `getBoundingClientRect`
+    // forces a reflow, and `pointermove` can fire tens of times a second.
+    // The box only changes on enter (the page may have scrolled or
+    // reflowed since the wrapper was last hovered) and on a window resize —
+    // never while the pointer is merely moving inside it.
+    let box = el.getBoundingClientRect();
+    const measure = () => {
+      box = el.getBoundingClientRect();
+    };
+
     const move = (e: PointerEvent) => {
-      const box = el.getBoundingClientRect();
       if (!box.width || !box.height) return;
       const x = (e.clientX - box.left) / box.width - 0.5;
       const y = (e.clientY - box.top) / box.height - 0.5;
       el.style.setProperty('--tilt-x', x.toFixed(3));
       el.style.setProperty('--tilt-y', y.toFixed(3));
-      el.dataset.tilting = 'true';
+      // Skip the write once it already reads 'true': a style-attribute
+      // mutation on every one of those same tens-of-times-a-second moves
+      // costs a recalc for a value that isn't changing.
+      if (el.dataset.tilting !== 'true') el.dataset.tilting = 'true';
     };
     const leave = () => {
       el.style.setProperty('--tilt-x', '0');
@@ -46,11 +58,17 @@ export function Tilt({ children, className }: { children: React.ReactNode; class
       delete el.dataset.tilting;
     };
 
-    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerenter', measure);
+    // passive: the handler never calls preventDefault, so the browser is
+    // free to treat this listener as non-blocking for scroll/touch work.
+    el.addEventListener('pointermove', move, { passive: true });
     el.addEventListener('pointerleave', leave);
+    window.addEventListener('resize', measure);
     return () => {
+      el.removeEventListener('pointerenter', measure);
       el.removeEventListener('pointermove', move);
       el.removeEventListener('pointerleave', leave);
+      window.removeEventListener('resize', measure);
     };
   }, []);
 

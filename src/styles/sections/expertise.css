@@ -102,7 +102,7 @@
 
   /* A 12%-of-path dash, parked past the end of the path (offset -1) where it
      cannot be seen, and transparent besides. Opacity is undone only while the
-     wrapper reports itself in view — see the two rules after the media
+     wrapper reports itself in view — see the one rule after the media
      block. There is no `animation-play-state` here: with no `animation` set
      yet, there is nothing to pause — the pause lives in the `@supports`
      block below, after the shorthand that would otherwise overwrite it. */
@@ -115,8 +115,8 @@
   }
 }
 
-/* Outside the media block so the specificity story is one line: these two
-   selectors are (0,3,0) and (0,2,0) against the (0,1,0) defaults above. */
+/* Outside the media block so the specificity story is one line: this one
+   selector is (0,3,0) against the (0,1,0) default above. */
 .hub[data-inview='true'] .hub-pulse {
   opacity: 1;
   animation-play-state: running;
@@ -179,6 +179,10 @@
       animation: site-hub-pulse 2.4s linear infinite;
       animation-delay: calc(0.8s + var(--i) * 0.55s);
       animation-play-state: paused;
+      /* Only opacity — never stroke-dashoffset, see the file banner's one
+         exception. Without this the pulse pops to opacity 1 the instant the
+         wrapper crosses into view instead of fading in. */
+      transition: opacity 0.3s var(--ease-out-soft);
     }
   }
 }

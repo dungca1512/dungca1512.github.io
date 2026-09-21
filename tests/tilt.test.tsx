@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
-import postcss, { type Declaration } from 'postcss';
+import postcss, { type AtRule, type Declaration } from 'postcss';
 import { Tilt } from '@/components/motion/tilt';
 
 /* jsdom 25 has no PointerEvent, and testing-library's fireEvent.pointerMove
    falls back to a bare Event that drops clientX. A MouseEvent carrying the
    pointer event's NAME reaches a `pointermove` listener with its coordinates
    intact, which is all the component reads. */
-function pointer(el: Element, type: 'pointermove' | 'pointerleave', x = 0, y = 0) {
+function pointer(el: Element, type: 'pointerenter' | 'pointermove' | 'pointerleave', x = 0, y = 0) {
   el.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, bubbles: true }));
 }
 
@@ -58,6 +58,9 @@ describe('Tilt', () => {
 
   it('writes the pointer position as two variables in [-0.5, 0.5]', () => {
     const el = mount();
+    // The component measures the box on `pointerenter`, not on every move
+    // (see tilt.tsx) — the mocked rect only takes effect once this fires.
+    pointer(el, 'pointerenter');
     pointer(el, 'pointermove', 100, 50);
     expect(el.style.getPropertyValue('--tilt-x')).toBe('0.000');
     expect(el.style.getPropertyValue('--tilt-y')).toBe('0.000');
@@ -116,17 +119,34 @@ describe('Tilt stylesheet', () => {
     return out;
   };
 
-  it('moves only transform, from the two variables, with a soft return and a tight follow', () => {
+  /** True if `d` sits anywhere inside an `@media (hover: hover) …` at-rule —
+   *  mirrors `insideSupports` in tests/expertise-hub.test.tsx. */
+  function insideHoverMedia(d: Declaration): boolean {
+    for (let n: postcss.Container | undefined = d.parent; n; n = n.parent as postcss.Container) {
+      if (
+        n.type === 'atrule' &&
+        (n as AtRule).name === 'media' &&
+        /hover:\s*hover/.test((n as AtRule).params)
+      )
+        return true;
+    }
+    return false;
+  }
+
+  it('moves only transform, from the two variables, with a soft return and a tight follow, only for a fine pointer with hover', () => {
     const rest = decls(WORK_CSS, '.tilt');
     const transform = rest.find((d) => d.prop === 'transform')!;
     expect(transform.value).toContain('var(--tilt-x, 0)');
     expect(transform.value).toContain('var(--tilt-y, 0)');
     expect(transform.value).toMatch(/perspective\(/);
+    expect(insideHoverMedia(transform)).toBe(true);
     const transition = rest.find((d) => d.prop === 'transition')!;
     expect(transition.value).toMatch(/^transform\b/);
     expect(transition.value).not.toContain(',');
+    expect(insideHoverMedia(transition)).toBe(true);
     const follow = decls(WORK_CSS, ".tilt[data-tilting='true']");
     expect(follow.some((d) => d.prop === 'transition-duration')).toBe(true);
+    expect(follow.every((d) => insideHoverMedia(d))).toBe(true);
   });
 
   it('is flat under reduced motion', () => {

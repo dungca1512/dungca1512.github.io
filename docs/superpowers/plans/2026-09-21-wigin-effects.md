@@ -28,10 +28,12 @@ Copied from the spec. Every task inherits them.
 - Commit trailer: `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 - Run `npx prettier --write <files>` before every commit; `format:check` is the first verify gate.
 
-**Two deviations from the spec, decided while planning:**
+**Four deviations from the spec, decided while planning:**
 
 1. `view-timeline-name: --hub` goes on the hub WRAPPER, not the `<ul>`. Named timelines resolve through ancestors only, and the SVG paths are siblings of the `<ul>`, not descendants. The wrapper is the same box.
 2. There is no separate `HubGate`. The `Hub` component is itself `'use client'` and owns the IntersectionObserver; the cards are passed in as `children` from the server component, which React allows.
+3. The pulse keyframe `site-hub-pulse` starts `from { stroke-dashoffset: 0 }`, not the spec's `1.12` (§3.2). With the `0.12 1` dasharray the path period is `1.12`, so offset `0` and offset `1.12` land the dash in the same place — the rendered sweep is identical either way, and only the number written down differs from what shipped.
+4. The §6 hub assertions live in `tests/expertise-hub.test.tsx`, not a separate `tests/hub.test.tsx` as the spec's file list names it.
 
 ## File Map
 
