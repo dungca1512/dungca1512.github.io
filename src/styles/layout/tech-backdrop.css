@@ -86,9 +86,12 @@
    Goes with src/components/motion/constellation.tsx, which draws the points.
    Colour is read from the tokens by that component; the only thing decided
    here is how much of it shows. Two numbers because the same blue line is
-   louder on white than on near-black: these are starting values, to be fixed
-   against a contrast measurement of body text over the busiest patch of the
-   field in both themes (see the spec, §3.4).
+   louder on white than on near-black: measured on the built page at
+   1440×900, 2026-09-21, hero body text over the busiest patch of the field —
+   light 5.19:1 (main, without the canvas: 4.44), dark 6.14:1 (main 4.41);
+   eyebrow light 7.35 (main 6.10), dark 5.05 (main 4.58). Higher than main
+   because the SVG motifs the canvas replaced sat under the text, and the
+   canvas is masked away from it (see the spec, §3.4).
 
    It inherits the mask and the fixed positioning from `.tech-backdrop`, which
    is why it is a child of it rather than a second fixed element. */
