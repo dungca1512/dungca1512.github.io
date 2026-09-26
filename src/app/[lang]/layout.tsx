@@ -4,6 +4,7 @@ import '../globals.css';
 import { LOCALES, BCP47 } from '@/content/locales';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { SITE } from '@/content/site';
+import { profileJsonLd, jsonLdScript } from '@/lib/structured-data';
 import { MenuBar } from '@/components/layout/menu-bar';
 import { Footer } from '@/components/site/footer';
 import { SkipLink } from '@/components/site/skip-link';
@@ -15,6 +16,8 @@ import { SmoothScroll } from '@/components/motion/smooth-scroll';
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ lang: locale }));
 }
+
+const OG_LOCALE = { vi: 'vi_VN', en: 'en_US' } as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   const current = await getLocale();
@@ -31,11 +34,26 @@ export async function generateMetadata(): Promise<Metadata> {
       languages: { vi: '/vi/', en: '/en/', 'x-default': '/vi/' },
     },
     openGraph: {
-      type: 'website',
+      type: 'profile',
+      firstName: 'Dũng',
+      lastName: 'Công',
+      username: 'dungca1512',
+      url: `/${current}/`,
       siteName: SITE.name,
-      locale: current,
+      // Open Graph wants language_TERRITORY, not a bare BCP 47 tag.
+      locale: OG_LOCALE[current],
+      alternateLocale: LOCALES.filter((l) => l !== current).map((l) => OG_LOCALE[l]),
       title: dict.meta.title,
       description: dict.meta.description,
+      images: [{ ...SITE.ogImage, alt: dict.meta.title }],
+    },
+    // X reads its own tags; the large card shows og.jpg whole rather than
+    // as a thumbnail beside the title.
+    twitter: {
+      card: 'summary_large_image',
+      title: dict.meta.title,
+      description: dict.meta.description,
+      images: [SITE.ogImage.url],
     },
     // A raster, not the drawn SVG this replaces. The mark is a generated
     // illustration in the same hand-drawn line style as the rest of the
@@ -60,6 +78,12 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
     >
       <head>
         <ThemeScript />
+        {/* Who this page is about, for search engines: see
+            lib/structured-data.ts. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(profileJsonLd(locale)) }}
+        />
       </head>
       <body className="bg-background text-foreground flex min-h-full flex-col">
         {/* First in the body and outside <main>: it covers the whole page, not

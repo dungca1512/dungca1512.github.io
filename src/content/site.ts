@@ -12,6 +12,23 @@ export const SITE = {
    *  export. Kept here rather than inline in the Writing band because it is
    *  a property of the person, not of that one section. */
   blog: 'https://blog-dungca.ai-innovation-homelab.org/',
+  /** The card a link to the site unfurls into. Drawn by
+   *  scripts/build-og-image.py; 1200x630 is the size every unfurler crops to. */
+  ogImage: { url: '/og.jpg', width: 1200, height: 630 },
+  /** Every other page on the web that is this person, for the `sameAs` of
+   *  the Person in lib/structured-data.ts. This list is what lets a search
+   *  engine treat the portfolio, the social profiles and the research
+   *  profile as one entity, so a search for the name can surface all of
+   *  them together. Add a profile here when one is created (Google Scholar,
+   *  ORCID, ResearchGate); nothing else needs to change. */
+  sameAs: [
+    'https://github.com/dungca1512',
+    'https://www.linkedin.com/in/dungca/',
+    'https://huggingface.co/dungca',
+    'https://www.facebook.com/dungca1512',
+    'https://www.alphaxiv.org/@cong-anh-dung',
+    'https://blog-dungca.ai-innovation-homelab.org/',
+  ],
   location: {
     en: 'Hanoi, Vietnam',
     vi: 'Hà Nội, Việt Nam',
