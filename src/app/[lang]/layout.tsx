@@ -52,7 +52,12 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
   const dict = await getDictionary();
 
   return (
-    <html lang={BCP47[locale]} className="h-full antialiased" suppressHydrationWarning>
+    <html
+      lang={BCP47[locale]}
+      className="h-full antialiased"
+      data-theme="dark"
+      suppressHydrationWarning
+    >
       <head>
         <ThemeScript />
       </head>
