@@ -313,9 +313,12 @@ Under reduced motion the effect returns before scheduling anything, so the full 
 is the last frame; `motion-reduced.css` stops the live dot and the cursor. The card is
 `aria-hidden`: the lead paragraph beside it already says what the services are.
 
-The card's colours are `--site-code-*` tokens on `:root` that do not flip with the
-theme, on purpose: it is dark in both themes, and on the light page it is the one place
-wigin's ground shows through. Frame in `src/styles/site/code-window.css`, placement
+The card's colours are `--site-code-*` tokens with one set per theme. It started
+dark in both, as the one place wigin's ground showed through the light page, and on
+the built page that read as a navy slab with a blue glow in a band of white cards.
+It now follows the theme: a white surface in the site's ink, blue and a darker teal
+on the light page (every text colour at AA on its palest ground, held by
+`tests/contrast.test.ts`), and wigin's navy, blue and cyan on the dark one. Frame in `src/styles/site/code-window.css`, placement
 in `sections/expertise.tsx`. Two layouts: `stack` (one body, the answer under the
 request) and `split`, used there, with the request typing in a left pane and the
 answer streaming into a right one; the panes sit side by side from 44rem of card

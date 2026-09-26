@@ -146,14 +146,44 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
- * The code window (styles/site/code-window.css). These do NOT flip with the
- * theme, and that is the decision, not an omission: the card is a terminal,
- * dark in both themes, and on the light page it is the one place wigin's
- * navy ground shows through. Declared on :root alone for that reason.
+ * The code window (styles/site/code-window.css). It follows the theme.
+ *
+ * It used to be dark in both, on the argument that a light terminal reads
+ * as a text box. On the light page that made it a navy slab with a blue
+ * glow under it, the one dark object in a band of white cards and black
+ * ink, and it looked pasted on rather than placed. So the light card is a
+ * white surface like its neighbours, set in the site's own ink and blues,
+ * and the dark card keeps wigin's navy, blue and cyan.
+ *
+ * The light text colours are measured against the palest ground they sit
+ * on, the response pane (white with 6% of the glow): text 14.4:1, string
+ * 10.1:1, key 5.6:1, muted 5.1:1, accent 4.6:1. The site's own teal is
+ * 2.6:1 there, which is why the accent is a darker teal of the same hue.
+ * tests/contrast.test.ts holds both themes to AA.
  * ──────────────────────────────────────────────────────────────────────── */
 :root {
+  --site-code-ground: var(--base-palette-neutral-0);
+  --site-code-ground-deep: #f6f8fb;
+  --site-code-ground-top: color-mix(in srgb, var(--site-code-glow) 6%, var(--site-code-ground));
+  --site-code-border: #0d17261f;
+  --site-code-text: #16202e;
+  --site-code-muted: #5a6679;
+  --site-code-key: #1d5fae;
+  --site-code-string: #2c3a4f;
+  --site-code-accent: #0b7a70;
+  --site-code-glow: var(--base-palette-blue-500);
+  --site-code-tab-active: color-mix(in srgb, var(--site-code-glow) 12%, var(--site-code-ground));
+  /* A lift, not a glow: the page's own raised shadow, with a little of the
+     blue in its long tail so it belongs to the card above it. */
+  --site-code-shadow:
+    0 24px 56px -32px color-mix(in srgb, var(--site-code-glow) 30%, transparent),
+    0 2px 6px -2px #0d172614;
+}
+
+[data-theme='dark'] {
   --site-code-ground: var(--base-palette-navy-900);
   --site-code-ground-deep: var(--base-palette-navy-950);
+  --site-code-ground-top: color-mix(in srgb, var(--site-code-glow) 14%, var(--site-code-ground));
   --site-code-border: #f3f5f71f;
   --site-code-text: #eef2f7;
   --site-code-muted: #8a98ad; /* 6.5:1 on the ground */
@@ -161,6 +191,13 @@
   --site-code-string: #dbe4f0;
   --site-code-accent: var(--base-palette-cyan-500);
   --site-code-glow: var(--base-palette-blue-600);
+  --site-code-tab-active: color-mix(in srgb, var(--site-code-glow) 30%, transparent);
+  /* The blue cast under the card is what lifts it off a navy page, where a
+     grey shadow would vanish; the one-pixel light edge along the top is
+     what makes it read as glass rather than paint. */
+  --site-code-shadow:
+    0 32px 80px -28px color-mix(in srgb, var(--site-code-glow) 55%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, var(--site-code-text) 9%, transparent);
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

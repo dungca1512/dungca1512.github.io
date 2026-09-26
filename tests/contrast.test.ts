@@ -198,3 +198,59 @@ describe('globals.css', () => {
     expect(css).toMatch(/--base-palette-brand-500:\s*var\(--base-palette-blue-500\)/);
   });
 });
+
+/* The code window's text sits on four grounds: the card, its deeper
+ * bottom, the tinted header strip, and the response pane (6% of the glow
+ * over the card). Each theme declares its own set, in the globals.css
+ * section headed "The code window", so each is read from its own block
+ * there and every text colour is held to AA against the least favourable
+ * of the four. */
+describe('the code window, in both themes', () => {
+  const blocks = [
+    ...css.matchAll(/(:root|\[data-theme='dark'\])\s*\{([^}]*--site-code-text[^}]*)\}/g),
+  ];
+  const light = blocks.find((m) => m[1] === ':root')?.[2];
+  const dark = blocks.find((m) => m[1] !== ':root')?.[2];
+  const TEXT = ['--site-code-text', '--site-code-string', '--site-code-key', '--site-code-muted'];
+
+  /** A code token's colour: a literal in its own block, or a palette entry. */
+  const colour = (name: string, block: string) => {
+    let value = readCustomProperty(name, block);
+    const ref = value.match(/^var\(\s*(--[\w-]+)\s*\)$/);
+    if (ref) value = resolveColour(ref[1]);
+    expect(value, `${name} did not resolve to a hex literal`).toMatch(/^#[0-9a-fA-F]{3,8}$/);
+    return value;
+  };
+
+  const grounds = (block: string) => {
+    const ground = colour('--site-code-ground', block);
+    const glow = colour('--site-code-glow', block);
+    const top = readCustomProperty('--site-code-ground-top', block).match(/(\d+)%/);
+    expect(top, 'the header tint is not a percentage of the glow').not.toBeNull();
+    return {
+      ground,
+      deep: colour('--site-code-ground-deep', block),
+      top: mix(glow, ground, Number(top![1])),
+      response: mix(glow, colour('--site-code-ground-deep', block), 6),
+    };
+  };
+
+  it('declares one set per theme, and they differ', () => {
+    expect(light, 'no light code-window block').toBeDefined();
+    expect(dark, 'no dark code-window block').toBeDefined();
+    expect(colour('--site-code-ground', light!)).not.toBe(colour('--site-code-ground', dark!));
+  });
+
+  it.each([
+    ['light', () => light!],
+    ['dark', () => dark!],
+  ])('sets every text colour at AA on every ground, %s', (_theme, read) => {
+    const block = read();
+    for (const [where, ground] of Object.entries(grounds(block))) {
+      for (const name of [...TEXT, '--site-code-accent']) {
+        const r = ratio(colour(name, block), ground);
+        expect(r, `${name} on the ${where} ground: ${r.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});

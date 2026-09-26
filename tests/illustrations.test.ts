@@ -60,6 +60,21 @@ describe('illustrations', () => {
     }
   });
 
+  /* The art ships with its ground keyed out (scripts/key-ground.py), so it
+   * sits on the page in either theme with no plate behind it. A regenerate
+   * through an RGB-only step - a jpg intermediate, a `convert('RGB')` -
+   * drops the alpha without failing anything else, and the plates come back.
+   * Read from the containers rather than decoded: a WebP with alpha is an
+   * extended (VP8X) file with the alpha flag set, and an AVIF with alpha
+   * carries an auxiliary image tagged with the alpha URN. */
+  it.each(promptNames)('%s carries alpha in avif and webp', (name) => {
+    const webp = readFileSync(join(ART_DIR, `${name}.webp`));
+    expect(webp.toString('latin1', 12, 16), `${name}.webp chunk`).toBe('VP8X');
+    expect(webp[20]! & 0x10, `${name}.webp alpha flag`).toBe(0x10);
+    const avif = readFileSync(join(ART_DIR, `${name}.avif`)).toString('latin1');
+    expect(avif, `${name}.avif`).toContain('urn:mpeg:mpegB:cicp:systems:auxiliary:alpha');
+  });
+
   it('ships no image whose prompt has been deleted', () => {
     const onDisk = [
       ...new Set(readdirSync(ART_DIR).map((f) => f.replace(/\.(avif|webp|jpg)$/, ''))),

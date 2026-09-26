@@ -1,11 +1,11 @@
 /* ─── The code window ──────────────────────────────────────────────────────
    Goes with src/components/motion/code-window.tsx, which types the text.
-   What is decided here is the frame: a terminal card that is DARK IN BOTH
-   THEMES. The `--site-code-*` tokens in globals.css do not flip, on
-   purpose — a light-ground terminal reads as a text box, and the card is
-   the one place on the light page where the wigin.ai dark ground shows
-   through. Every colour is still a token, so the gate in
-   scripts/check-no-hardcoded-colors.mjs has nothing to find here. */
+   What is decided here is the frame: a terminal card that follows the
+   theme, a white surface in the light one and wigin's navy in the dark.
+   The `--site-code-*` tokens in globals.css carry both sets, and say why
+   the card stopped being dark on the light page. Every colour is a token,
+   so the gate in scripts/check-no-hardcoded-colors.mjs has nothing to
+   find here. */
 
 .code-window {
   position: relative;
@@ -17,17 +17,14 @@
   color: var(--site-code-text);
   background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--site-code-glow) 14%, var(--site-code-ground)) 0,
+      var(--site-code-ground-top) 0,
       var(--site-code-ground) 5rem,
       var(--site-code-ground-deep) 100%
     )
     padding-box;
-  /* Two shadows: the blue cast under the card, which is what lifts it off a
-     navy page where a grey shadow would vanish, and a one-pixel light edge
-     along the top, which is what makes it read as glass rather than paint. */
-  box-shadow:
-    0 32px 80px -28px color-mix(in srgb, var(--site-code-glow) 55%, transparent),
-    inset 0 1px 0 0 color-mix(in srgb, var(--site-code-text) 9%, transparent);
+  /* Per theme, in globals.css: a soft lift on the light page, a blue cast
+     and a glass edge on the navy one. */
+  box-shadow: var(--site-code-shadow);
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   /* The `split` layout below answers to the card's own width. Safe here:
      the card is always `width: 100%` of its parent, so nothing about its
@@ -94,7 +91,7 @@
 
 .code-window-tab[data-active='true'] {
   color: var(--site-code-text);
-  background: color-mix(in srgb, var(--site-code-glow) 30%, transparent);
+  background: var(--site-code-tab-active);
   border-color: color-mix(in srgb, var(--site-code-accent) 55%, transparent);
 }
 
