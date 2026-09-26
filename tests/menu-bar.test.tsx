@@ -72,7 +72,9 @@ describe('MenuBar', () => {
     render(<MenuBar locale="vi" dict={viDict} />);
     for (const id of EXPECTED_SECTION_IDS) {
       expect(
-        screen.getByRole('link', { name: viDict.nav[id as keyof typeof viDict.nav] }),
+        // `as string`: nav also holds the theme labels, an object, and the
+        // section ids never index it.
+        screen.getByRole('link', { name: viDict.nav[id as keyof typeof viDict.nav] as string }),
       ).toBeInTheDocument();
     }
   });

@@ -21,7 +21,13 @@ export const metadata: Metadata = {
  *  languages are shown rather than guessing one. */
 export default function NotFound() {
   return (
-    <html lang="vi" className="h-full antialiased" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang="vi"
+      className="h-full antialiased"
+      data-theme="dark"
+      data-theme-pref="dark"
+      suppressHydrationWarning
+    >
       <head>
         <ThemeScript />
       </head>
