@@ -4,3 +4,53 @@
   background: color-mix(in srgb, var(--base-primary) 12%, transparent);
   border-color: color-mix(in srgb, var(--base-primary) 40%, var(--base-border));
 }
+
+/* The address is the band's one big link, so its hover is drawn rather than
+   toggled: an underline that grows from the left in the accent ink. */
+.contact-email {
+  background-image: linear-gradient(var(--site-ink-accent), var(--site-ink-accent));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 2px;
+  transition:
+    background-size var(--base-duration) var(--base-ease),
+    color var(--base-duration) var(--base-ease);
+}
+
+.contact-email:hover,
+.contact-email:focus-visible {
+  background-size: 100% 2px;
+  color: var(--site-ink-accent);
+}
+
+/* The availability dot in the footer: a still dot with one soft ring that
+   breathes outwards. motion-reduced.css holds it still. */
+.status-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--base-accent);
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--base-accent);
+  animation: status-ping 2.4s var(--base-ease) infinite;
+}
+
+@keyframes status-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}

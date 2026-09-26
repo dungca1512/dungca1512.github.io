@@ -47,6 +47,11 @@ const vi = {
     repository: 'Mã nguồn',
     demo: 'Bản chạy thử',
     present: 'Hiện tại',
+    /* Interface chrome for the contact band and the footer, not a claim about
+       the owner — the copy button's two states and the footer's way back up. */
+    copyEmail: 'Sao chép email',
+    copied: 'Đã sao chép',
+    backToTop: 'Lên đầu trang',
     /* The labels on the page's collapsed panels. They are written as a promise
        of what is inside, not as a bare "Xem thêm": a summary line that does not
        say what it hides is a line nobody opens. `{count}` is filled in at the

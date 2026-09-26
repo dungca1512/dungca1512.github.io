@@ -112,7 +112,7 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
         <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <Footer locale={locale} />
+        <Footer locale={locale} dict={dict} />
       </body>
     </html>
   );
