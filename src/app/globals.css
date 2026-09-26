@@ -320,8 +320,11 @@
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* The section head goes two-column here. Not one of Tailwind's defaults,
-   * because the break is set by the headline's measure, not by device width. */
-  --breakpoint-wide: 900px;
+   * because the break is set by the headline's measure, not by device width.
+   * 900px, written in rem like the defaults: Tailwind orders breakpoints by
+   * value and cannot compare px with rem, so a px value landed ahead of sm
+   * and md and every `wide:` lost to them. */
+  --breakpoint-wide: 56.25rem;
 
   /* The one width both `Container` (via `max-w-content`) and the menu bar
    * pill (`.menu-bar-pill` in menu-bar.css, via `var(--container-content)`)

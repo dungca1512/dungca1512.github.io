@@ -95,6 +95,29 @@ describe('the @theme inline token surface reaches the built CSS', () => {
     expect(css).toMatch(/--max-width-prose:\s*var\(--container-prose\)/);
   });
 
+  it('sorts the wide breakpoint between md and lg, so wide: beats sm: and md:', async () => {
+    // Later rules win, so Tailwind has to order the media queries by width.
+    // It cannot compare px with rem: `wide` in px was emitted ahead of every
+    // default breakpoint, and `sm:grid-cols-2 wide:grid-cols-3` stayed on two
+    // columns at every width.
+    const css = await compileFor([
+      'sm:grid-cols-2',
+      'md:grid-cols-3',
+      'wide:grid-cols-4',
+      'lg:grid-cols-5',
+    ]);
+    const at = (cls: string) => css.indexOf(`.${cls.replace(':', String.raw`\:`)}`);
+    const order = ['sm:grid-cols-2', 'md:grid-cols-3', 'wide:grid-cols-4', 'lg:grid-cols-5'].map(
+      at,
+    );
+
+    expect(
+      order.every((i) => i >= 0),
+      'every probe class compiles to a rule',
+    ).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
   it('compiles all five duration-* utilities and the three custom easings', async () => {
     // Tailwind 4's `duration-*` utility reads `--transition-duration-*`, not
     // `--duration-*`. If globals.css declared the wrong theme key, none of
