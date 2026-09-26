@@ -40,9 +40,10 @@ afterEach(() => {
 });
 
 describe('theme resolution', () => {
-  it('defaults to dark for anything it does not know', () => {
-    expect(readPref(null)).toBe('dark');
-    expect(readPref('sepia')).toBe('dark');
+  it('defaults to system for anything it does not know', () => {
+    expect(readPref(null)).toBe('system');
+    expect(readPref('sepia')).toBe('system');
+    expect(readPref('dark')).toBe('dark');
     expect(readPref('light')).toBe('light');
     expect(readPref('system')).toBe('system');
   });
@@ -126,10 +127,21 @@ function runThemeScript() {
 }
 
 describe('ThemeScript', () => {
-  it('starts a first visit on dark', () => {
+  it.each([
+    [true, 'light'],
+    [false, 'dark'],
+  ])('starts a first visit on the OS theme (light: %s)', (prefersLight, theme) => {
+    mockSystem(prefersLight);
+    runThemeScript();
+    expect(root.dataset.themePref).toBe('system');
+    expect(root.dataset.theme).toBe(theme);
+  });
+
+  it('keeps a visitor who chose dark on dark, whatever the OS says', () => {
+    mockSystem(true);
+    localStorage.setItem('portfolio-theme', 'dark');
     runThemeScript();
     expect(root.dataset.theme).toBe('dark');
-    expect(root.dataset.themePref).toBe('dark');
   });
 
   it('keeps a visitor who chose light on light', () => {
@@ -139,10 +151,11 @@ describe('ThemeScript', () => {
   });
 
   it('treats a value it does not know as the default', () => {
+    mockSystem(true);
     localStorage.setItem('portfolio-theme', 'sepia');
     runThemeScript();
-    expect(root.dataset.theme).toBe('dark');
-    expect(root.dataset.themePref).toBe('dark');
+    expect(root.dataset.themePref).toBe('system');
+    expect(root.dataset.theme).toBe('light');
   });
 
   it.each([

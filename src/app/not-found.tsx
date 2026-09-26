@@ -25,7 +25,7 @@ export default function NotFound() {
       lang="vi"
       className="h-full antialiased"
       data-theme="dark"
-      data-theme-pref="dark"
+      data-theme-pref="system"
       suppressHydrationWarning
     >
       <head>

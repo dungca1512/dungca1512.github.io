@@ -441,7 +441,7 @@
  * choice (data-theme-pref), not by the painted theme: on `system` the icon
  * is the monitor whichever way the OS points. Doing it in React state means
  * the icon is wrong until hydration, which is visible. The layouts render
- * data-theme-pref="dark" on <html>, so there is always one to match. */
+ * data-theme-pref="system" on <html>, so there is always one to match. */
 @utility theme-pref-dark-only {
   display: none;
   [data-theme-pref='dark'] & {

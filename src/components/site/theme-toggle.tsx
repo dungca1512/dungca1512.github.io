@@ -29,7 +29,7 @@ function subscribe(onChange: () => void) {
 }
 
 const getPref = () => readPref(document.documentElement.dataset.themePref);
-const getServerPref = (): ThemePref => 'dark';
+const getServerPref = (): ThemePref => 'system';
 
 export function ThemeToggle({ labels }: { labels: ThemeLabels }) {
   const pref = useSyncExternalStore(subscribe, getPref, getServerPref);

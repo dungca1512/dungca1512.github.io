@@ -10,12 +10,12 @@ import { LIGHT_QUERY, THEME_KEY } from '@/lib/theme';
 
    It resolves the theme the way lib/theme.ts does - `readPref` then
    `resolveTheme` - written out by hand because nothing can be imported
-   into a string. Dark is the default: no key, a junk value or storage that
-   throws all land on dark. 'system' asks the OS once here; after hydration
-   the toggle keeps listening for the OS to change. The layouts render
-   `data-theme="dark"` and `data-theme-pref="dark"` on <html> as well, so a
-   visitor with JS off gets the same page. */
-const script = `(function(){var r=document.documentElement;r.classList.add('js');var p=null;try{p=localStorage.getItem('${THEME_KEY}')}catch(e){}if(p!=='light'&&p!=='system'){p='dark'}r.dataset.themePref=p;r.dataset.theme=p==='system'?(window.matchMedia('${LIGHT_QUERY}').matches?'light':'dark'):p})()`;
+   into a string. System is the default: no key, a junk value or storage
+   that throws all follow the OS, which is asked once here; after hydration
+   the toggle keeps listening for it to change. The layouts render
+   `data-theme="dark"` and `data-theme-pref="system"` on <html>: without JS
+   there is no asking the OS, and dark is the fallback it paints. */
+const script = `(function(){var r=document.documentElement;r.classList.add('js');var p=null;try{p=localStorage.getItem('${THEME_KEY}')}catch(e){}if(p!=='light'&&p!=='dark'){p='system'}r.dataset.themePref=p;r.dataset.theme=p==='system'?(window.matchMedia('${LIGHT_QUERY}').matches?'light':'dark'):p})()`;
 
 export function ThemeScript() {
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
