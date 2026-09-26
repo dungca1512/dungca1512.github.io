@@ -37,6 +37,17 @@
   --base-palette-green-200: #95f1d5;
   --base-palette-yellow-400: #ffb319;
   --base-palette-yellow-100: #fff1d6;
+  /* The dark theme's ground and its two lights, after wigin.ai (measured
+     2026-09-26: `--c-black #000`, `--c-blue #0160fb`, `--c-cyan #02e7c9`).
+     Their black is lifted to a navy here — three steps of it, the same
+     four-point spacing the neutral ramp keeps — because a canvas of glowing
+     points reads as depth on a blue-black and as a screensaver on a true
+     black. The blue and cyan are theirs to the digit. */
+  --base-palette-navy-950: #060c17;
+  --base-palette-navy-900: #0d1726;
+  --base-palette-navy-850: #122034;
+  --base-palette-blue-600: #0160fb;
+  --base-palette-cyan-500: #02e7c9;
 
   --base-radius-xs: 4px;
   --base-radius-sm: 8px;
@@ -86,21 +97,29 @@
 
 /* Step C — semantic tokens, DARK (under `[data-theme='dark']`).
  *
- * Only the tokens that must flip appear here. The accents keep their hue;
- * the ink layer below is what makes them legible, in both directions. */
+ * Only the tokens that must flip appear here. Since 2026-09-26 that includes
+ * the two accents: the light theme keeps its teal and its mid blue, and the
+ * dark theme takes wigin's electric blue and cyan, which on a navy ground
+ * are the whole point of the picture and on white would be neon. The ink
+ * layer below is what keeps both pairs legible as text (measured: ink-accent
+ * 13.24:1 and ink-info 6.18:1 on this background). */
 [data-theme='dark'] {
-  --base-background: var(--base-palette-neutral-950); /* #0b0b0b */
+  --base-background: var(--base-palette-navy-950);
   /* A shadow cannot lift anything off near-black, so the lift comes from the
      surface being lighter than what it sits on — the same four-point distance
      --surface-muted keeps from --background at the light end. */
-  --base-surface: #191919;
-  --base-surface-muted: var(--base-palette-neutral-850);
+  --base-surface: var(--base-palette-navy-900);
+  --base-surface-muted: var(--base-palette-navy-850);
   /* NOT neutral-0: a pure-white surface colour used as ink on near-black lands
-     at 18:1 and glares. Pulled down two steps. */
-  --base-foreground: #ededed;
-  --base-muted-foreground: #9aa0a6; /* 6.1:1 on the dark background */
-  --base-border: #ffffff1c; /* ~11% white */
-  --base-border-soft: #ffffff12;
+     at 18:1 and glares. Pulled down two steps, and a hair towards blue so it
+     sits in the navy rather than on it. 17.41:1 on the background. */
+  --base-foreground: #eef2f7;
+  --base-muted-foreground: #9aa7b8; /* 8.01:1 on the background, 6.70:1 on surface-muted */
+  /* wigin's borders are their grey at 10% and 18%; these are the same grey. */
+  --base-border: #f3f5f71a;
+  --base-border-soft: #f3f5f710;
+  --base-accent: var(--base-palette-cyan-500);
+  --base-info: var(--base-palette-blue-600);
 }
 
 /* Step D — the brand override (BOTH selectors, one rule). Verbatim from spec
@@ -124,6 +143,24 @@
    * the brand colour instead, since --base-primary already resolves to the
    * same blue in both themes via the override above. */
   --base-ring: var(--base-primary);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * The code window (styles/site/code-window.css). These do NOT flip with the
+ * theme, and that is the decision, not an omission: the card is a terminal,
+ * dark in both themes, and on the light page it is the one place wigin's
+ * navy ground shows through. Declared on :root alone for that reason.
+ * ──────────────────────────────────────────────────────────────────────── */
+:root {
+  --site-code-ground: var(--base-palette-navy-900);
+  --site-code-ground-deep: var(--base-palette-navy-950);
+  --site-code-border: #f3f5f71f;
+  --site-code-text: #eef2f7;
+  --site-code-muted: #8a98ad; /* 6.5:1 on the ground */
+  --site-code-key: #8fc0ff;
+  --site-code-string: #dbe4f0;
+  --site-code-accent: var(--base-palette-cyan-500);
+  --site-code-glow: var(--base-palette-blue-600);
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -325,6 +362,22 @@
       'cv11' 1;
   }
 
+  /* wigin's `--grad-glow`, measured 2026-09-26: a radial wash of blue then
+     cyan hanging from the top edge, which is what makes their black read as
+     lit from above rather than as a void. Sized to one viewport and not
+     repeated, so it belongs to the hero and the page below it is plain navy.
+     Dark only; on white the same wash is a stain. */
+  [data-theme='dark'] body {
+    background-image: radial-gradient(
+      60% 40% at 50% 0%,
+      color-mix(in srgb, var(--base-palette-blue-600) 26%, transparent),
+      color-mix(in srgb, var(--base-palette-cyan-500) 10%, transparent) 45%,
+      transparent 72%
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100vh;
+  }
+
   h1,
   h2,
   h3,
@@ -381,4 +434,5 @@
 @import '../styles/site/illustration.css';
 @import '../styles/motion/art.css';
 @import '../styles/site/tech-art.css';
+@import '../styles/site/code-window.css';
 @import '../styles/motion/marquee.css';

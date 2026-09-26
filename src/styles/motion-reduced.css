@@ -113,6 +113,17 @@
     transition: none !important;
   }
 
+  /* The code window (site/code-window.css). Its typing never starts under
+     reduced motion — the component checks the query and shows the whole
+     snippet — so what is left to stop is the CSS: the live dot's ring and
+     the cursor's blink. The cursor is not rendered in that state at all, so
+     its line is the second one, for a preference toggled after load. The
+     tab's colour transition stays: a colour change is not motion. */
+  .code-window-dot[data-live='true'],
+  .code-window-cursor {
+    animation: none !important;
+  }
+
   /* The tilt never attaches its listeners under reduced motion, so this is
      the second line, for a preference toggled after load. */
   .tilt {

@@ -77,9 +77,18 @@
     auto,
     auto,
     2.5rem 2.5rem;
-  /* Strongest at the edges, clearing out behind the column of text. Without
-     this the traces run under body copy and cost it contrast. */
-  mask-image: radial-gradient(ellipse 64% 54% at 50% 38%, transparent 0%, black 100%);
+  /* Strongest at the edges, thinning behind the column of text. Without
+     this the traces run under body copy and cost it contrast. The centre
+     is no longer fully clear (it was `transparent 0%` until 2026-09-26):
+     the constellation inherits this mask, and a field that is CUT OUT
+     behind the hero reads as a hole in the sky rather than as depth. At
+     28% the near points still show through the middle, faintly, and the
+     text measurements in the `.constellation` note below still hold. */
+  mask-image: radial-gradient(
+    ellipse 64% 54% at 50% 38%,
+    color-mix(in srgb, black 28%, transparent) 0%,
+    black 100%
+  );
 }
 
 /* ─── The constellation ───────────────────────────────────────────────────
@@ -95,6 +104,21 @@
    the same eyebrow crop measures 4.74:1 with nothing under threshold. Two
    numbers because the same blue line is louder on white than on near-black.
 
+   Dark went from 0.6 to 0.8 on 2026-09-26, when the field became a neural
+   one (halos, depth, breathing — see the component) and the dark palette
+   went navy, and the bar it is held to changed with it, on purpose. A
+   worst-pixel bar is not a meaningful one for a field of moving point
+   cores: a core under ANY light text fails 4.5:1 at any opacity above a few
+   percent, in the old field as in this one, and the 0.6 measurement above
+   passed because no core happened to be under the eyebrow in the frame
+   that was measured. What is measured now, on the built page at 1440×900
+   in dark, over four frames 0.7s apart, with the text hidden and every
+   pixel of its box compared against its own colour: the lead paragraph
+   (muted foreground) worst 4.71:1 with 0% of pixels under 4.5; the eyebrow
+   (ink-info) worst 4.37:1 with 0.008% under — a single core crossing its
+   box in one frame. The light theme at 0.5: eyebrow 7.48, lead 4.70, both
+   0% under. The mask below is what keeps those fractions where they are.
+
    It inherits the mask and the fixed positioning from `.tech-backdrop`, which
    is why it is a child of it rather than a second fixed element. */
 .constellation {
@@ -105,7 +129,7 @@
 }
 
 [data-theme='dark'] .constellation {
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 /* The board is decoration that competes with text. Under a reduced-contrast

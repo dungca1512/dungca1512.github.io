@@ -50,6 +50,23 @@ of it as one small client island plus CSS, no libraries.
 
 ## 3. Constellation backdrop
 
+> **Extended 2026-09-26, the neural field.** The owner brought a picture — glowing
+> cyan-and-blue nodes of different sizes and brightnesses, thin links, a sense of depth
+> on a navy-black ground — and asked for "the neural bits that move by themselves". The
+> field below is still the one canvas and the one loop, with the same link rule and the
+> same clock-integrated motion; what changed is what a point IS. Every point now has a
+> depth `z` in [0, 1] that sets its radius (0.8–3px), its speed (45–100% of the cap)
+> and its brightness together, so big-bright-fast and small-dim-slow read as near and
+> far. Every point wears a halo, drawn as two pre-rendered 64px radial sprites (one per
+> token colour, blended by x so the field keeps its left-to-right gradient) at one
+> `drawImage` each — no per-frame gradient. Every point breathes on its own phase, one
+> in six deeper and wider (a "hot" node). A link between two far points is fainter
+> than one between two near ones. Density went from one point per 30,000px² to one per
+> 24,000 (28–72 points). The mask over the hero now lets 28% through at its centre so
+> the field is not cut out behind the headline. Tests in `tests/constellation.test.tsx`
+> are unchanged: the halo path is skipped where the context has no
+> `createRadialGradient` — which is the test DOM — so every count still holds.
+
 ### 3.1 Placement
 
 `src/components/motion/constellation.tsx`, `'use client'`. Renders one
@@ -272,3 +289,43 @@ wigin's product micro-animations; dark-theme-only styling (both themes are
 kept); changes to the pinned Work trio (moot since 2026-09-26: the trio was un-pinned at
 the owner's request and the featured projects are plain cards again — motion-system spec
 §3.3, last note).
+
+## 8. Added 2026-09-26: the code window and the dark palette
+
+The same request as the neural field brought two more things from wigin.ai's hero.
+
+**The code window.** `src/components/motion/code-window.tsx` (`'use client'`), placed
+in the hero's right column in place of the portrait illustration (the picture stays on
+the page in the intro curtain). A dark terminal card — three dots with a breathing
+"live" light, a row of tab pills, a monospace body — that types an API request one
+character at a time (24ms per character, jittered, a beat at every line end), waits
+the request's stated latency, streams the response in three-character chunks every
+28ms, holds for 3.2s, fades the body for 280ms, and moves to the next tab. Four
+snippets in `src/content/snippets.ts` (ASR, pronunciation scoring, embeddings, agentic
+RAG), illustrative, bilingual tab labels, JSON in one language. The server renders
+snippet 0 in full with no cursor; the client's first render is identical (`shown`
+starts at Infinity) so hydration reconciles nothing, and the reset to zero happens under
+the hero's own `reveal-load` fade. The loop pauses on `visibilitychange` and when an
+IntersectionObserver reports the card off screen, and resumes from the same character.
+Under reduced motion the effect returns before scheduling anything, so the full snippet
+is the last frame; `motion-reduced.css` stops the live dot and the cursor. The card is
+`aria-hidden`: the lead paragraph beside it already says what the services are.
+
+The card's colours are `--site-code-*` tokens on `:root` that do not flip with the
+theme, on purpose: it is dark in both themes, and on the light page it is the one place
+wigin's ground shows through. Frame in `src/styles/site/code-window.css`, placement
+(`.hero-terminal`, a 220ms delay behind the headline, a 30rem cap below `wide`) in
+`sections/hero.css`.
+
+**The dark palette.** wigin's measured tokens are `#000` ground, `#0160fb` blue,
+`#02e7c9` cyan, `#f3f5f7` grey at 10%/18% for borders and 62% for muted text, and a
+radial glow `60% 60% at 50% 0%` of blue at 30% to cyan at 14%. The dark theme now uses
+their blue and cyan as `--base-info` and `--base-accent` (the light theme keeps its teal
+and mid blue), their grey for borders, and a navy rather than their black — three steps,
+`#060c17` / `#0d1726` / `#122034`, as background, surface and surface-muted — because a
+field of glowing points reads as depth on blue-black and as a screensaver on true
+black. Foreground `#eef2f7` (17.4:1), muted `#9aa7b8` (8.0:1). The glow hangs from the
+top of `<body>` in dark only, sized to one viewport. `tests/contrast.test.ts` now reads
+the dark pair out of the dark block and measures the inks there: accent 13.24:1, info
+6.18:1. The constellation's dark opacity went from 0.6 to 0.8 with the softer, depth-faded
+drawing.

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Container } from '@/components/site/container';
 import { DrawnUnderline } from '@/components/motion/drawn-underline';
 import { SplitLines } from '@/components/motion/split-lines';
-import { Illustration } from '@/components/site/illustration';
+import { CodeWindow } from '@/components/motion/code-window';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { localeAnchorHref } from '@/lib/paths';
 import { HERO_TRUST, SITE } from '@/content/site';
@@ -113,15 +113,16 @@ export async function Hero() {
             </p>
           </div>
 
-          <Illustration
-            name="hero"
-            parallax
-            alt=""
-            width={880}
-            height={880}
-            priority
-            className="hero-portrait reveal-load"
-          />
+          {/* The right column used to be the `hero` illustration in a circle
+              (`.hero-portrait`). It is a terminal now — a request typing
+              itself and its answer streaming back, on a clock, for ever —
+              because the headline claims services in production and a
+              picture of a desk cannot evidence that while a request that
+              answers can. The illustration is still the intro curtain's.
+              `reveal-load`, like everything else here: the card is on screen
+              at load, and the wrapper class in sections/hero.css delays it a
+              beat behind the headline. */}
+          <CodeWindow locale={locale} className="hero-terminal reveal-load" />
         </div>
       </Container>
     </section>
