@@ -8,31 +8,39 @@ import { SNIPPETS, type Snippet } from '@/content/snippets';
 /* ─── The code window ──────────────────────────────────────────────────────
    A terminal card that types an API request, waits the request's latency,
    streams the answer back in small chunks, holds it, and moves on to the
-   next tab — for ever, on a clock, with no input from the reader. It is the
-   right column of the hero, and it exists because the headline makes a
-   claim about services in production and a picture cannot evidence that
-   while a request that answers can. The composition is wigin.ai's hero
-   card (measured 2026-09-26): three dots, a tab row, a monospace body.
+   next tab — for ever, on a clock, with no input from the reader. It sits
+   in the Expertise band, beside the toolbox, because that band claims
+   services in production and a picture cannot evidence that while a
+   request that answers can. The composition is wigin.ai's hero card
+   (measured 2026-09-26): three dots, a tab row, a monospace body.
+
+   Two layouts. `stack` is that card: one body, the answer under the
+   request. `split` gives a wide column something to fill: the request
+   types in a left pane and the answer streams into a right one, like an
+   API client — and folds back to one pane over the other when the card
+   is too narrow for two (a container query in site/code-window.css, so
+   it answers to the card's width, not the viewport's).
 
    Everything below is decoration in the accessibility sense. The card is
    `aria-hidden`: the text it types is illustrative (content/snippets.ts),
    and a screen reader following a region that rewrites itself thirty times
-   a second would be read a request one letter at a time. The lead
-   paragraph beside it already says what the services are.
+   a second would be read a request one letter at a time. The band
+   around it already says in text what the services are.
 
    Three states this has to get right, and how it does:
 
    - No JavaScript / first paint. The server renders snippet 0 IN FULL, with
      no cursor. `shown` starts at Infinity so the client's first render is
      identical to the server's and hydration has nothing to reconcile; the
-     effect then resets to zero and starts typing. That reset happens under
-     the hero's own 700ms `reveal-load` fade, which is what hides it.
+     effect then resets to zero and waits for the card to come on screen.
+     The card sits well below the fold, so the reset is never seen, and
+     the band's own scroll reveal fades it in as the typing starts.
    - Reduced motion. The effect returns before scheduling anything, so the
      full snippet 0 stays put — the last frame, which is the rule every
      motion file here follows (see styles/motion-reduced.css).
    - Offscreen or hidden tab. The loop pauses on `visibilitychange` and on
      an IntersectionObserver leaving the viewport, and resumes from the same
-     character when it comes back. A hero card is off screen for most of a
+     character when it comes back. This card is off screen for most of a
      visit, and there is no reason to keep re-rendering it there. */
 
 export const TYPE_MS = 24;
@@ -107,15 +115,20 @@ export function compile(snippet: Snippet): Compiled {
 
 const COMPILED = SNIPPETS.map(compile);
 
-/** The first `shown` characters of the token list, each token in its
- *  colour class. A token the counter lands inside is cut, not dropped. */
-function Typed({ tokens, shown }: { tokens: Token[]; shown: number }) {
+/** Characters `from` to `to` of the flat token stream, each token in its
+ *  colour class. A token an edge lands inside is cut, not dropped. */
+function Typed({ tokens, from = 0, to }: { tokens: Token[]; from?: number; to: number }) {
   const parts: ReactNode[] = [];
-  let left = shown;
-  for (let i = 0; i < tokens.length && left > 0; i++) {
+  let at = 0;
+  for (let i = 0; i < tokens.length && at < to; i++) {
     const token = tokens[i]!;
-    const text = token.text.length <= left ? token.text : token.text.slice(0, left);
-    left -= token.text.length;
+    const start = at;
+    at += token.text.length;
+    if (at <= from) continue;
+    const text = token.text.slice(
+      Math.max(0, from - start),
+      Math.min(token.text.length, to - start),
+    );
     parts.push(
       token.cls ? (
         <span key={i} className={`code-window-${token.cls}`}>
@@ -129,12 +142,23 @@ function Typed({ tokens, shown }: { tokens: Token[]; shown: number }) {
   return <>{parts}</>;
 }
 
+/** The request / response blank line in the stream. `split` skips it: the
+ *  pane border does that job. */
+const SEPARATOR = 2;
+
+function Cursor({ blink }: { blink: boolean }) {
+  return <span className="code-window-cursor" data-blink={blink} />;
+}
+
 type CodeWindowProps = {
   locale: Locale;
+  /** `stack` (default): the answer under the request in one body. `split`:
+   *  request and answer in two panes, side by side when the card is wide. */
+  layout?: 'stack' | 'split';
   className?: string;
 };
 
-export function CodeWindow({ locale, className }: CodeWindowProps) {
+export function CodeWindow({ locale, layout = 'stack', className }: CodeWindowProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<State>({
     index: 0,
@@ -238,11 +262,24 @@ export function CodeWindow({ locale, className }: CodeWindowProps) {
   }, []);
 
   const { index, shown, phase } = state;
+  const compiled = COMPILED[index]!;
   const cursor =
     phase === 'idle' ? null : phase === 'waiting' || phase === 'hold' ? 'blink' : 'solid';
+  // In `split` the cursor lives where the next character will land: the
+  // request pane while typing, the response pane from the moment the
+  // request is sent — blinking there while the answer is awaited.
+  const cursorInRequest = cursor !== null && phase === 'typing';
+  const cursorInResponse = cursor !== null && !cursorInRequest;
+  const responseFrom = compiled.requestLength + SEPARATOR;
 
   return (
-    <div ref={ref} className={cn('code-window', className)} data-phase={phase} aria-hidden="true">
+    <div
+      ref={ref}
+      className={cn('code-window', className)}
+      data-phase={phase}
+      data-layout={layout}
+      aria-hidden="true"
+    >
       <div className="code-window-bar">
         <span className="code-window-dot" data-live="true" />
         <span className="code-window-dot" />
@@ -259,10 +296,29 @@ export function CodeWindow({ locale, className }: CodeWindowProps) {
           </span>
         ))}
       </div>
-      <pre className="code-window-body">
-        <Typed tokens={COMPILED[index]!.tokens} shown={shown} />
-        {cursor && <span className="code-window-cursor" data-blink={cursor === 'blink'} />}
-      </pre>
+      {layout === 'split' ? (
+        <div className="code-window-split">
+          <div className="code-window-pane" data-pane="request">
+            <p className="code-window-pane-label">Request</p>
+            <pre className="code-window-body">
+              <Typed tokens={compiled.tokens} to={Math.min(shown, compiled.requestLength)} />
+              {cursorInRequest && <Cursor blink={false} />}
+            </pre>
+          </div>
+          <div className="code-window-pane" data-pane="response">
+            <p className="code-window-pane-label">Response</p>
+            <pre className="code-window-body">
+              <Typed tokens={compiled.tokens} from={responseFrom} to={shown} />
+              {cursorInResponse && <Cursor blink={cursor === 'blink'} />}
+            </pre>
+          </div>
+        </div>
+      ) : (
+        <pre className="code-window-body">
+          <Typed tokens={compiled.tokens} to={shown} />
+          {cursor && <Cursor blink={cursor === 'blink'} />}
+        </pre>
+      )}
     </div>
   );
 }

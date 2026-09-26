@@ -29,6 +29,10 @@
     0 32px 80px -28px color-mix(in srgb, var(--site-code-glow) 55%, transparent),
     inset 0 1px 0 0 color-mix(in srgb, var(--site-code-text) 9%, transparent);
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* The `split` layout below answers to the card's own width. Safe here:
+     the card is always `width: 100%` of its parent, so nothing about its
+     width depends on its content. */
+  container-type: inline-size;
 }
 
 .code-window-bar {
@@ -103,7 +107,7 @@
   overflow-wrap: anywhere;
   /* Eleven lines: the tallest snippet in content/snippets.ts. Reserved so
      the card does not grow and shrink as one snippet is replaced by a
-     shorter one, and the hero's two columns stay where they were. */
+     shorter one, and the band around it does not shift. */
   min-height: calc(11 * 1.65em + 2.65rem);
   transition: opacity var(--duration-base) var(--ease-out-soft);
 }
@@ -155,5 +159,60 @@
 @keyframes code-window-blink {
   to {
     visibility: hidden;
+  }
+}
+
+/* ─── The split layout ────────────────────────────────────────────────────
+   Request in one pane, response in the other, like an API client. One pane
+   over the other by default; side by side from 44rem of CARD width, where
+   each pane still holds the longest snippet line (36 characters, content/
+   snippets.ts) without wrapping. A container query rather than a media
+   query because the card's width is set by the column it sits in, and the
+   same viewport gives different columns in different bands. */
+.code-window-split {
+  display: grid;
+}
+
+.code-window-pane + .code-window-pane {
+  border-top: 1px solid var(--site-code-border);
+}
+
+.code-window-pane-label {
+  margin: 0;
+  padding: 0.9rem 1.3rem 0;
+  font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--site-code-muted);
+}
+
+.code-window[data-layout='split'] .code-window-body {
+  padding-top: 0.7rem;
+  /* Six lines: the tallest request. The response pane is at most three,
+     and side by side the grid row stretches it to match; stacked, it keeps
+     its own reservation so the card does not grow as the answer lands. */
+  min-height: calc(6 * 1.65em + 2.1rem);
+}
+
+.code-window-pane[data-pane='response'] .code-window-body {
+  min-height: calc(3 * 1.65em + 2.1rem);
+}
+
+/* The response pane's ground carries a little more of the glow, so the two
+   halves read as the two ends of a call rather than as one box cut in two. */
+.code-window-pane[data-pane='response'] {
+  background: color-mix(in srgb, var(--site-code-glow) 6%, transparent);
+}
+
+@container (min-width: 44rem) {
+  .code-window-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .code-window-pane + .code-window-pane {
+    border-top: 0;
+    border-left: 1px solid var(--site-code-border);
   }
 }

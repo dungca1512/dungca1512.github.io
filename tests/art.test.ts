@@ -68,8 +68,8 @@ function pageSections(): string[] {
 // `<CodeWindow` counts as art since 2026-09-26: the terminal that types a
 // request and its answer (components/motion/code-window.tsx) is a picture in
 // every sense this test cares about — a drawn, decorative, aria-hidden thing
-// that keeps a band from being a column of text alone. The hero carries it
-// over the portrait illustration, so the hero passes on both markers.
+// that keeps a band from being a column of text alone. It sits in the
+// Expertise band's toolbox row; the hero passes on its portrait alone.
 const ART_MARKERS = ['<Illustration', '<TechArt', '<MetricGlyph', '<CodeWindow'];
 
 describe('every band on the page carries art', () => {

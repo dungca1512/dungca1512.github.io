@@ -294,9 +294,11 @@ the owner's request and the featured projects are plain cards again — motion-s
 
 The same request as the neural field brought two more things from wigin.ai's hero.
 
-**The code window.** `src/components/motion/code-window.tsx` (`'use client'`), placed
-on a second row of the hero grid, under the portrait illustration and never over it:
-the owner asked for the portrait to stay exactly as it was. A dark terminal card — three dots with a breathing
+**The code window.** `src/components/motion/code-window.tsx` (`'use client'`). It
+spent one afternoon in the hero's right column and left it: the owner wants the
+portrait there exactly as it was, and the card now sits in the Expertise band's
+toolbox row, under the marquee and beside the capabilities illustration, where the
+column had an empty stretch to fill. A dark terminal card — three dots with a breathing
 "live" light, a row of tab pills, a monospace body — that types an API request one
 character at a time (24ms per character, jittered, a beat at every line end), waits
 the request's stated latency, streams the response in three-character chunks every
@@ -304,8 +306,8 @@ the request's stated latency, streams the response in three-character chunks eve
 snippets in `src/content/snippets.ts` (ASR, pronunciation scoring, embeddings, agentic
 RAG), illustrative, bilingual tab labels, JSON in one language. The server renders
 snippet 0 in full with no cursor; the client's first render is identical (`shown`
-starts at Infinity) so hydration reconciles nothing, and the reset to zero happens under
-the hero's own `reveal-load` fade. The loop pauses on `visibilitychange` and when an
+starts at Infinity) so hydration reconciles nothing, and the reset to zero happens while
+the card is still below the fold, before the band's scroll reveal fades it in. The loop pauses on `visibilitychange` and when an
 IntersectionObserver reports the card off screen, and resumes from the same character.
 Under reduced motion the effect returns before scheduling anything, so the full snippet
 is the last frame; `motion-reduced.css` stops the live dot and the cursor. The card is
@@ -314,9 +316,10 @@ is the last frame; `motion-reduced.css` stops the live dot and the cursor. The c
 The card's colours are `--site-code-*` tokens on `:root` that do not flip with the
 theme, on purpose: it is dark in both themes, and on the light page it is the one place
 wigin's ground shows through. Frame in `src/styles/site/code-window.css`, placement
-in `sections/hero.css`: from `wide` up the card takes the right column of the second
-row (the portrait's width, which the snippets are measured to), below it the card
-follows the portrait capped at 30rem; it reveals 320ms behind the headline.
+in `sections/expertise.tsx`. Two layouts: `stack` (one body, the answer under the
+request) and `split`, used there, with the request typing in a left pane and the
+answer streaming into a right one; the panes sit side by side from 44rem of card
+width (a container query on the card) and one over the other below it.
 
 **The dark palette.** wigin's measured tokens are `#000` ground, `#0160fb` blue,
 `#02e7c9` cyan, `#f3f5f7` grey at 10%/18% for borders and 62% for muted text, and a

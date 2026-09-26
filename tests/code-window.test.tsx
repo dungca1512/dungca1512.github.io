@@ -196,11 +196,71 @@ describe('wiring', () => {
     expect(reduced).toMatch(/\.code-window-cursor[^{]*\{[^}]*animation:\s*none\s*!important/s);
   });
 
-  it('sits in the hero under the portrait illustration, not in place of it', () => {
+  it('sits in the Expertise toolbox row, and the hero keeps its portrait alone', () => {
+    const expertise = readFileSync('src/components/sections/expertise.tsx', 'utf8');
+    expect(expertise).toContain('<CodeWindow locale={locale} layout="split"');
     const hero = readFileSync('src/components/sections/hero.tsx', 'utf8');
-    expect(hero).toContain('<CodeWindow locale={locale}');
-    // The owner's portrait is required on the hero, as it was; the card
-    // takes a row below it and neither replaces nor covers it.
+    // The owner's portrait is required on the hero, exactly as it was.
     expect(hero).toMatch(/<Illustration[\s\S]*?name="hero"/);
+    expect(hero).not.toContain('<CodeWindow');
+  });
+});
+
+describe('<CodeWindow layout="split">', () => {
+  const responseText = fullText(first).slice(first.requestLength + 2);
+  const pane = (container: HTMLElement, name: 'request' | 'response') =>
+    container.querySelector(`[data-pane="${name}"]`)!;
+  const paneBody = (container: HTMLElement, name: 'request' | 'response') =>
+    pane(container, name).querySelector('.code-window-body')!.textContent ?? '';
+  const cursorIn = (container: HTMLElement, name: 'request' | 'response') =>
+    pane(container, name).querySelector('.code-window-cursor');
+
+  function mountSplit() {
+    vi.useFakeTimers();
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    return render(<CodeWindow locale="en" layout="split" />);
+  }
+
+  it('serves request and response in full in their own panes, with no cursor', () => {
+    const html = renderToString(<CodeWindow locale="en" layout="split" />);
+    expect(html).toContain('data-layout="split"');
+    expect(html).toContain('data-pane="request"');
+    expect(html).toContain('data-pane="response"');
+    expect(html).not.toContain('code-window-cursor');
+    // Parsed rather than rendered: a client render runs the effect, whose
+    // first commit resets both panes to empty.
+    const host = document.createElement('div');
+    host.innerHTML = html;
+    expect(paneBody(host, 'request')).toBe(requestText);
+    expect(paneBody(host, 'response')).toBe(responseText);
+  });
+
+  it('types into the request pane, then waits and streams in the response pane', () => {
+    const { container } = mountSplit();
+    expect(paneBody(container, 'request')).toBe('');
+    expect(paneBody(container, 'response')).toBe('');
+    expect(cursorIn(container, 'request')).not.toBeNull();
+    expect(cursorIn(container, 'response')).toBeNull();
+
+    act(() => vi.advanceTimersByTime(typingMs(first)));
+    expect(paneBody(container, 'request')).toBe(requestText);
+    expect(paneBody(container, 'response')).toBe('');
+    // Sent: the cursor has moved across and blinks while the answer is out.
+    expect(cursorIn(container, 'request')).toBeNull();
+    expect(cursorIn(container, 'response')).toHaveAttribute('data-blink', 'true');
+
+    act(() => vi.advanceTimersByTime(SNIPPETS[0]!.waitMs + streamMs(first)));
+    expect(paneBody(container, 'request')).toBe(requestText);
+    expect(paneBody(container, 'response')).toBe(responseText);
+    expect(responseText.startsWith(`200 OK — ${SNIPPETS[0]!.latency}`)).toBe(true);
+  });
+
+  it('never lets a response character into the request pane mid-stream', () => {
+    const { container } = mountSplit();
+    act(() => vi.advanceTimersByTime(typingMs(first) + SNIPPETS[0]!.waitMs + STREAM_MS * 3));
+    expect(paneBody(container, 'request')).toBe(requestText);
+    const partial = paneBody(container, 'response');
+    expect(partial.length).toBeGreaterThan(0);
+    expect(responseText.startsWith(partial)).toBe(true);
   });
 });

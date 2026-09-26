@@ -3,6 +3,7 @@ import { Illustration } from '@/components/site/illustration';
 import { Disclosure } from '@/components/site/disclosure';
 import { Hub } from '@/components/site/hub';
 import { ScrollMarquee } from '@/components/motion/scroll-marquee';
+import { CodeWindow } from '@/components/motion/code-window';
 import { EXPERTISE, FOCUS } from '@/content/expertise';
 import { SKILL_GROUPS, PLAYBOOK } from '@/content/capabilities';
 import { getDictionary, getLocale } from '@/content/dictionaries';
@@ -121,6 +122,14 @@ export async function Expertise() {
               screen reader reads this list once — and the cards below carry the
               same names as real content anyway. */}
           <ScrollMarquee items={MARQUEE_ITEMS} className="border-border mt-6 rounded-lg border" />
+          {/* The toolbox at work: a request typing itself into one of the
+              services these tools run, and its answer streaming back — see
+              motion/code-window.tsx. `split` because this column is wide
+              enough for request and response side by side; the card folds
+              them one over the other on its own when it is not. It also
+              fills what was an empty stretch of this column beside the
+              taller illustration. */}
+          <CodeWindow locale={locale} layout="split" className="reveal mt-8" />
         </div>
         <div className="reveal wide:order-none order-first">
           <Illustration

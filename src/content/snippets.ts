@@ -1,6 +1,6 @@
 import type { Localized } from './locales';
 
-/* The API calls the hero's code window types out (components/motion/
+/* The API calls the code window types out (components/motion/
  * code-window.tsx). Four of them, one per service the lead paragraph
  * claims: speech recognition, pronunciation and tone scoring, embeddings,
  * and the agentic RAG layer on top. They are ILLUSTRATIVE — the shape of a
@@ -10,7 +10,7 @@ import type { Localized } from './locales';
  * Line lengths are kept under 44 characters on purpose: the window is
  * `pre-wrap`, and a line that wraps on a phone changes the card's height
  * mid-animation. Measured at 13.4px monospace, 44 characters is 345px,
- * which fits the narrowest column the hero renders (a 360px phone minus
+ * which fits the narrowest column the card renders in (a 360px phone minus
  * the gutters and the card's own padding). The tab label is bilingual;
  * the JSON is not, because it is JSON. */
 export type Snippet = {

@@ -50,35 +50,3 @@
     margin-inline: auto;
   }
 }
-
-/* The code window (components/motion/code-window.tsx; its own frame is
-   styles/site/code-window.css) takes a second row of the hero grid, under
-   the portrait and never over it: the portrait above keeps its original
-   size and place, and the first row keeps its original height, so the
-   headline still centres against the portrait alone. From `wide` up the
-   card sits in the right column, the portrait's width exactly — the
-   snippets are measured to fit that width (content/snippets.ts). Below it
-   the grid is one column and the card simply follows the portrait.
-
-   The delay puts the card a beat behind the portrait. `reveal-load` is an
-   `@utility` in the utilities layer and this rule is unlayered, so the
-   `animation-delay` wins over the shorthand's implicit 0s. */
-.hero-terminal {
-  animation-delay: 320ms;
-}
-
-@media (min-width: 900px) {
-  .hero-terminal {
-    grid-column: 2;
-  }
-}
-
-/* Capped and centred below `wide` for the same reason as the portrait: a
-   full-width card at 899px is wider than it is tall, with eleven short
-   lines lost in its left third. */
-@media (max-width: 899px) {
-  .hero-terminal {
-    max-width: 30rem;
-    margin-inline: auto;
-  }
-}
