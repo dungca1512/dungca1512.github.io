@@ -121,13 +121,18 @@ until later the same day; see the last note below.)
 > distance (normalised to the frame's length, so 120Hz covers the same ground per
 > millisecond). The page is scrolled for real with `scrollTo({behavior: 'instant'})`, so
 > the observer, the view timelines, the sticky header and the scrollbar see an ordinary
-> scroll. It stands down for a trackpad (a heuristic on whole-number deltas and the
-> 120-unit `wheelDeltaY` grid, plus a half-second hold once a trackpad is seen), for a
-> coarse pointer, for reduced motion, for sideways and ctrl-wheel, for a nested scroller
-> with room, and the moment anything else moves the page. Verified in Chromium with a real
-> synthetic notch (27 → 100 over 0.75s) and in WebKit with a Safari-mouse-shaped event;
-> Playwright's WebKit wheel is trackpad-shaped (`wheelDeltaY` is −3× the delta), so the
-> stand-down path is what a plain WebKit run exercises.
+> scroll. It stands down for a coarse pointer, for reduced motion, for sideways and
+> ctrl-wheel, for a nested scroller with room, and the moment anything else moves the
+> page. Verified in Chromium with a real synthetic notch (27 → 100 over 0.75s).
+>
+> **Same day, inertia on every device.** The first version also stood down for a trackpad,
+> guessing the device from whole-number deltas and the 120-unit `wheelDeltaY` grid. On
+> macOS that guess fails: trackpads, Magic Mice and smooth-wheel mice all send accelerated,
+> off-grid deltas, so on the owner's machine the inertia came and went. A throwaway lab page
+> (the built page plus a panel, never committed) offered three modes side by side: the
+> shipped heuristic, no smoothing, and inertia on every device. The owner chose the last.
+> The heuristic, its half-second trackpad hold and their tests are gone; every vertical
+> wheel event now feeds the same target at the same 0.1 per 60Hz frame.
 >
 > **Same day, the signal.** The drawn art's wires (chip legs, pipeline, stream feeds in
 > `site/tech-art.tsx`) carry a packet stream INTO the chip: a dashed overlay path per

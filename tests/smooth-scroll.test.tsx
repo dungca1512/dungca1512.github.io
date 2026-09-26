@@ -1,16 +1,19 @@
 /* The wheel's inertia. A mouse wheel scrolls in steps and stops dead; the
  * ask on 2026-09-26 was "quán tính khi lướt để nó chạy chậm dần" — momentum
- * that decays. SmoothScroll takes the wheel's steps as a TARGET and eases the
- * real scroll position towards it a fraction per frame, so the page keeps
- * moving after the wheel stops and settles rather than halting.
+ * that decays. SmoothScroll takes each wheel event's delta as a TARGET and
+ * eases the real scroll position towards it a fraction per frame, so the page
+ * keeps moving after the input stops and settles rather than halting.
  *
- * What it must never do is fight an input that already has inertia (a
- * trackpad, a finger) or a reader who asked for less motion, or take over
- * from the scrollbar, the keyboard or an anchor link mid-flight. Most of the
- * cases below are about standing down. */
+ * Every device gets it, trackpad included. It used to stand down for a
+ * trackpad, but the guess at which device sent an event was wrong on the
+ * owner's machine (macOS reports accelerated deltas for smooth-wheel mice as
+ * well as trackpads), and in a side-by-side lab they chose inertia on
+ * everything. What it must still never do is fight a reader who asked for
+ * less motion or a finger, or take over from the scrollbar, the keyboard or
+ * an anchor link mid-flight. */
 import { render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SmoothScroll, isTrackpadWheel } from '@/components/motion/smooth-scroll';
+import { SmoothScroll } from '@/components/motion/smooth-scroll';
 
 type Frame = (now: number) => void;
 
@@ -138,35 +141,6 @@ describe('a mouse wheel', () => {
 });
 
 describe('standing down', () => {
-  it('leaves a trackpad alone — it has its own inertia, and two stacked read as lag', () => {
-    render(<SmoothScroll />);
-    const e = wheel({ deltaY: 12.5, wheelDeltaY: -37 });
-    expect(e.defaultPrevented).toBe(false);
-    frame();
-    expect(scrollTo).not.toHaveBeenCalled();
-  });
-
-  it('treats anything that follows a trackpad event within half a second as the trackpad', () => {
-    render(<SmoothScroll />);
-    wheel({ deltaY: 12.5, wheelDeltaY: -37 });
-    // A trackpad flick can produce one event whose deltas happen to look
-    // like a wheel's. It is still the trackpad.
-    const e = wheel({ deltaY: 40, wheelDeltaY: -120 });
-    expect(e.defaultPrevented).toBe(false);
-  });
-
-  it('stops mid-flight the moment a trackpad event arrives', () => {
-    render(<SmoothScroll />);
-    wheel({ deltaY: 400, wheelDeltaY: -480 });
-    frame();
-    frame();
-    const before = scrollTo.mock.calls.length;
-    wheel({ deltaY: 12.5, wheelDeltaY: -37 });
-    frame();
-    frame();
-    expect(scrollTo.mock.calls.length).toBe(before);
-  });
-
   it('stops the moment something else moves the page — scrollbar, keyboard, an anchor', () => {
     render(<SmoothScroll />);
     wheel({ deltaY: 400, wheelDeltaY: -480 });
@@ -245,26 +219,33 @@ describe('standing down', () => {
   });
 });
 
-describe('isTrackpadWheel', () => {
-  const ev = (init: WheelEventInit, wheelDeltaY?: number) => {
-    const e = new WheelEvent('wheel', init);
-    if (wheelDeltaY !== undefined) Object.defineProperty(e, 'wheelDeltaY', { value: wheelDeltaY });
-    return e;
-  };
-  it('reads a fractional pixel delta as a trackpad', () => {
-    expect(isTrackpadWheel(ev({ deltaY: 4.5 }))).toBe(true);
+describe('a trackpad', () => {
+  it('is eased too: small fractional deltas are taken over and add up', () => {
+    render(<SmoothScroll />);
+    const first = wheel({ deltaY: 12.5, wheelDeltaY: -37 });
+    expect(first.defaultPrevented).toBe(true);
+    wheel({ deltaY: 7.25, wheelDeltaY: -21 });
+    for (let i = 0; i < 240; i++) frame();
+    expect(positions().at(-1)).toBeCloseTo(19.75, 5);
   });
-  it('reads a wheelDelta off the 120 grid as a trackpad', () => {
-    expect(isTrackpadWheel(ev({ deltaY: 4 }, -12))).toBe(true);
+
+  it('is not trailed by a half-second hold: a wheel notch right after it is eased as well', () => {
+    render(<SmoothScroll />);
+    wheel({ deltaY: 12.5, wheelDeltaY: -37 });
+    const e = wheel({ deltaY: 100, wheelDeltaY: -120 });
+    expect(e.defaultPrevented).toBe(true);
   });
-  it('reads a wheelDelta on the 120 grid with a whole pixel delta as a mouse', () => {
-    expect(isTrackpadWheel(ev({ deltaY: 100 }, -120))).toBe(false);
-    expect(isTrackpadWheel(ev({ deltaY: 300 }, -360))).toBe(false);
-  });
-  it('reads line and page deltas as a mouse, whatever else they carry', () => {
-    expect(isTrackpadWheel(ev({ deltaY: 3.5, deltaMode: WheelEvent.DOM_DELTA_LINE }))).toBe(false);
-  });
-  it('reads a whole pixel delta with no wheelDelta at all as a mouse (jsdom, Firefox)', () => {
-    expect(isTrackpadWheel(ev({ deltaY: 100 }))).toBe(false);
+
+  it('keeps one flight going when its events arrive mid-flight, instead of restarting', () => {
+    render(<SmoothScroll />);
+    wheel({ deltaY: 100, wheelDeltaY: -120 });
+    frame();
+    frame();
+    const moved = positions().at(-1)!;
+    wheel({ deltaY: 8.5, wheelDeltaY: -25 });
+    frame();
+    expect(positions().at(-1)!).toBeGreaterThan(moved);
+    for (let i = 0; i < 240; i++) frame();
+    expect(positions().at(-1)).toBeCloseTo(108.5, 5);
   });
 });
