@@ -50,7 +50,7 @@ export async function Hero() {
               <SplitLines lines={dict.sections.hero.title} mode="load" step={80} />
             </h1>
 
-            <DrawnUnderline className="mt-2 max-w-xl" />
+            <DrawnUnderline mode="load" className="mt-2 max-w-xl" />
 
             <p className="reveal-load text-muted-foreground mt-6 max-w-prose text-lg">
               {dict.sections.hero.lead}

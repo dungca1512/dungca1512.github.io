@@ -105,7 +105,15 @@ export async function Expertise() {
           comes with it — the band is gone, the picture is not, and this half of
           the section is the one it was drawn for. */}
       <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center mt-24 grid gap-10">
-        <div>
+        {/* `min-w-0` is load-bearing below `wide`. A grid item's automatic
+            minimum is its min-content, and this item's min-content is the
+            marquee's `w-max` track — measured at 8857px. On the single auto
+            column of a phone that became the column's width, the picture
+            beside it filled the same column, and <body>'s old `overflow-x:
+            clip` only hid the scrollbar: iPhone visitors saw a 9389px-wide
+            illustration cut to the screen. `minmax(0,1fr)` above does the
+            same job from `wide` up; this does it everywhere else. */}
+        <div className="min-w-0">
           <h3 className="reveal text-2xl font-semibold tracking-tight sm:text-3xl">
             {dict.sections.expertise.toolbox}
           </h3>

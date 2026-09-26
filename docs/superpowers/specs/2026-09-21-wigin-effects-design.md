@@ -28,16 +28,16 @@ Read from the site's own bundles on 2026-09-21 (`page-bc551b8f9de1396d.js`,
 `689-72a8f72a9033f98c.js`, `00750f8f84d526f8.css`), not guessed from the
 screen.
 
-| Effect                      | How they do it                                                                                                                                                                                        | Verdict                                                                                               |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Smooth scroll               | Lenis `duration: 1.1`, exponential easing, driven from the GSAP ticker. Disabled on `(pointer: coarse)`. Modals and the careers list carry `data-lenis-prevent` to scroll natively.                   | **Not ported.** Violates constraint 3 outright, and would break the `animation-timeline` pin in Work. |
-| Fixed particle backdrop     | Full-viewport 2D canvas, `clamp(24, w·h/30000, 60)` particles, links under 168px, gradient blue→cyan, rAF gated to 33ms (~30fps), stops on `visibilitychange`, one static frame under reduced motion. | **Ported** (§3).                                                                                      |
-| Hero network canvas         | Second canvas, 28–64 particles, DPR capped at 2, follows `pointermove`, paused by IntersectionObserver.                                                                                               | Not ported: one backdrop is enough, and the hero already has its own composition.                     |
-| Enter reveals               | IntersectionObserver `threshold .06`, `rootMargin -8%`, adds `.in`; `transition opacity/transform .7s cubic-bezier(.22,1,.36,1)` from `translateY(26px)`.                                             | Not ported: `.reveal` already exists on `animation-timeline: view()`.                                 |
-| Hub SVG                     | GSAP ScrollTrigger draws three bezier links with `stroke-dashoffset` (`power2.out`, 1.1s, staggered 0.12s), then three cyan pulses loop `repeat: -1`, 2.4s, staggered 0.55s.                          | **Ported in CSS** (§4). No GSAP: the two tweens are one scroll-driven and one timed keyframe.         |
-| 3D tilt on the About photo  | `pointermove` → `rotateY(6·x) rotateX(−6·y)`, `.1s linear` while moving, `.4s` ease on leave; skipped under reduced motion.                                                                           | **Ported** (§5), on the case-study illustration.                                                      |
-| Decorative micro-animations | Caret blink, time belt, product float, redact shine, chart ping.                                                                                                                                      | Not ported: they mimic wigin's products, which this site does not have.                               |
-| Reduced motion              | `* { animation: none !important; transition: none !important }` plus per-effect guards.                                                                                                               | Already how `motion-reduced.css` works here.                                                          |
+| Effect                      | How they do it                                                                                                                                                                                        | Verdict                                                                                                                               |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Smooth scroll               | Lenis `duration: 1.1`, exponential easing, driven from the GSAP ticker. Disabled on `(pointer: coarse)`. Modals and the careers list carry `data-lenis-prevent` to scroll natively.                   | **Not ported.** Violates constraint 3 outright, and would break the `animation-timeline` pin in Work.                                 |
+| Fixed particle backdrop     | Full-viewport 2D canvas, `clamp(24, w·h/30000, 60)` particles, links under 168px, gradient blue→cyan, rAF gated to 33ms (~30fps), stops on `visibilitychange`, one static frame under reduced motion. | **Ported** (§3).                                                                                                                      |
+| Hero network canvas         | Second canvas, 28–64 particles, DPR capped at 2, follows `pointermove`, paused by IntersectionObserver.                                                                                               | Not ported: one backdrop is enough, and the hero already has its own composition.                                                     |
+| Enter reveals               | IntersectionObserver `threshold .06`, `rootMargin -8%`, adds `.in`; `transition opacity/transform .7s cubic-bezier(.22,1,.36,1)` from `translateY(26px)`.                                             | **Ported on 2026-09-26**, replacing the scroll-driven `.reveal`: same observer numbers, `translateY(26px)`, 0.7s, `--ease-out-quint`. |
+| Hub SVG                     | GSAP ScrollTrigger draws three bezier links with `stroke-dashoffset` (`power2.out`, 1.1s, staggered 0.12s), then three cyan pulses loop `repeat: -1`, 2.4s, staggered 0.55s.                          | **Ported in CSS** (§4). No GSAP: the two tweens are one scroll-driven and one timed keyframe.                                         |
+| 3D tilt on the About photo  | `pointermove` → `rotateY(6·x) rotateX(−6·y)`, `.1s linear` while moving, `.4s` ease on leave; skipped under reduced motion.                                                                           | **Ported** (§5), on the case-study illustration.                                                                                      |
+| Decorative micro-animations | Caret blink, time belt, product float, redact shine, chart ping.                                                                                                                                      | Not ported: they mimic wigin's products, which this site does not have.                                                               |
+| Reduced motion              | `* { animation: none !important; transition: none !important }` plus per-effect guards.                                                                                                               | Already how `motion-reduced.css` works here.                                                                                          |
 
 Nothing on wigin.ai is sticky or pinned except the header, and nothing uses CSS
 scroll-driven animation. Their "smooth" is Lenis. This spec keeps the parts
@@ -172,6 +172,15 @@ path through a per-path `animation-range` shift, as Work does. Inside
 and (prefers-reduced-motion: no-preference)`, the same nesting and the same
 inversion as `work.css`: outside the guard the paths are simply drawn.
 
+> **Superseded 2026-09-26.** The draw is now what wigin's is: fired once on
+> entry. `hub.tsx`'s observer sets `data-drawn` the first time the grid
+> intersects (bottom margin −8%, as the reveals) and never clears it;
+> `.js .hub-link` parks `stroke-dashoffset: 1` with a
+> `stroke-dashoffset var(--duration-hero) var(--ease-out-quint)` transition
+> delayed `var(--i) * 0.12s`, and `.js .hub[data-drawn='true'] .hub-link`
+> releases it to 0. No keyframe, no scroll timeline, no `@supports` fork;
+> the media guard and the drawn-by-default picture outside it are unchanged.
+
 **Pulse**, timed. `.hub-pulse` has `stroke-dasharray: 0.12 1`,
 `@keyframes site-hub-pulse { from { stroke-dashoffset: 1.12 } to {
 stroke-dashoffset: -1 } }`, `2.4s linear infinite`, `animation-delay:
@@ -255,6 +264,7 @@ Evidence handed to the owner before the PR:
 
 ## 7. Out of scope
 
-Lenis or any smooth-scroll; changes to `.reveal` timing; the hero canvas;
-any of wigin's product micro-animations; dark-theme-only styling (both themes
-are kept); changes to the pinned Work trio.
+Lenis or any smooth-scroll; changes to `.reveal` timing (revisited on
+2026-09-26 — see the table row and §4.2's note); the hero canvas; any of
+wigin's product micro-animations; dark-theme-only styling (both themes are
+kept); changes to the pinned Work trio.

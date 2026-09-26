@@ -86,25 +86,64 @@ describe('Hub markup', () => {
     expect(wrapper.dataset.inview).toBe('false');
   });
 
+  it('marks itself drawn on the first intersection and never un-draws', () => {
+    /* The draw is a one-way trip, like every reveal on the page: the links
+       transition to fully drawn once and stay. `data-inview` (above) keeps
+       toggling for the pulse, which IS meant to stop off screen. */
+    const c = hub();
+    const wrapper = c.querySelector('.hub') as HTMLElement;
+    const io = MockIntersectionObserver.instances.find((i) => i.observed.has(wrapper));
+    expect(wrapper.dataset.drawn).toBeUndefined();
+    io!.trigger(wrapper, false);
+    expect(wrapper.dataset.drawn).toBeUndefined();
+    io!.trigger(wrapper, true);
+    expect(wrapper.dataset.drawn).toBe('true');
+    io!.trigger(wrapper, false);
+    expect(wrapper.dataset.drawn).toBe('true');
+    expect(wrapper.dataset.inview).toBe('false');
+  });
+
+  it("watches from the same line the reveals fire on, so the links draw with the cards' arrival", () => {
+    // wigin's `rootMargin: -8%` on the bottom edge, as in use-in-view.ts.
+    // threshold stays 0: the grid is tall, and 6% of it is not a reason
+    // to keep a pulse paused on a section the reader can already see.
+    const c = hub();
+    const wrapper = c.querySelector('.hub') as HTMLElement;
+    const io = MockIntersectionObserver.instances.find((i) => i.observed.has(wrapper));
+    expect(io!.rootMargin).toBe('0px 0px -8% 0px');
+    expect([...io!.thresholds]).toEqual([0]);
+  });
+
   it('is what Expertise wraps its four areas in', () => {
     expect(EXPERTISE_TSX).toMatch(/<Hub>\s*<ul className="[^"]*\bhub-grid\b/);
     expect(GLOBALS).toContain("@import '../styles/sections/expertise.css';");
   });
 });
 
+describe('the toolbox grid', () => {
+  it('clamps the marquee item so its w-max track cannot size the column', () => {
+    // Measured in WebKit at 390px and 768px before this: the single auto
+    // column took the marquee track's min-content, 8857px, and the
+    // illustration beside it filled that. <body>'s old `overflow-x: clip`
+    // only hid the scrollbar — the picture still rendered 9389px wide.
+    // The wide layout already says `minmax(0,1fr)`; the narrow one needs
+    // the same clamp on the item, and the ONLY item that can blow up is the
+    // marquee's, so the class lives there, not on the picture's.
+    expect(EXPERTISE_TSX).toMatch(/<ScrollMarquee[\s\S]*?\/>/);
+    const marqueeItem = EXPERTISE_TSX.match(
+      /<div className="([^"]*)">\s*<h3 className="reveal[^"]*">\s*\{dict\.sections\.expertise\.toolbox\}/,
+    );
+    expect(
+      marqueeItem,
+      'the marquee lives in a <div> whose first child is the toolbox <h3>',
+    ).not.toBeNull();
+    expect(marqueeItem![1].split(/\s+/)).toContain('min-w-0');
+  });
+});
+
 /* ── Stylesheet ──────────────────────────────────────────────────────────── */
 
 const root = postcss.parse(HUB_CSS);
-
-function supportsGuard(): AtRule {
-  let found: AtRule | undefined;
-  root.walkAtRules('supports', (at) => {
-    if (/^\s*not\b/.test(at.params)) return;
-    if (/animation-timeline:\s*view\(\)/.test(at.params)) found = at;
-  });
-  if (!found) throw new Error('no @supports (animation-timeline: view()) in expertise.css');
-  return found;
-}
 
 function motionMedia(parent: AtRule | postcss.Root): AtRule {
   let found: AtRule | undefined;
@@ -138,10 +177,12 @@ function keyframeProps(name: string): Set<string> {
   return props;
 }
 
-/** True if `d` sits anywhere inside an `@supports` at-rule. */
-function insideSupports(d: Declaration): boolean {
+/** True if `d` sits inside the (min-width: 48rem) and (no-preference) media
+ *  block — the only place in this file allowed to put anything in motion. */
+function insideMotionMedia(d: Declaration): boolean {
+  const media = motionMedia(root);
   for (let n: postcss.Container | undefined = d.parent; n; n = n.parent as postcss.Container) {
-    if (n.type === 'atrule' && (n as AtRule).name === 'supports') return true;
+    if (n === media) return true;
   }
   return false;
 }
@@ -183,28 +224,48 @@ describe('Hub stylesheet', () => {
     expect(shown).toBe(true);
   });
 
-  it('draws the links on the scroll timeline, only inside the guard', () => {
-    const inside = decls(motionMedia(supportsGuard()), '.hub-link');
-    expect(inside.some((d) => d.prop === 'animation-timeline' && d.value === '--hub')).toBe(true);
-    expect(inside.some((d) => d.prop === 'animation-range')).toBe(true);
-    // Nothing outside the guard animates the link.
+  it('draws the links with a transition released by data-drawn, under `.js`, only in the motion media block', () => {
+    /* wigin's draw is a 1.1s `power2.out` tween staggered 0.12s per link,
+       fired by ScrollTrigger on entry. Until 2026-09-26 this was expressed in
+       scroll (`animation-timeline: --hub`); now it is what wigin does, minus
+       GSAP: a transition on `stroke-dashoffset` that the wrapper's observer
+       releases once (see hub.tsx). Same clock and ease as the reveals. */
+    const media = motionMedia(root);
+    const parked = decls(media, '.js .hub-link');
+    expect(parked.some((d) => d.prop === 'stroke-dashoffset' && d.value === '1')).toBe(true);
+    const transition = parked.find((d) => d.prop === 'transition');
+    expect(transition?.value).toMatch(
+      /^stroke-dashoffset var\(--duration-hero\) var\(--ease-out-quint\)/,
+    );
+    expect(transition?.value).toMatch(/calc\(var\(--i\) \* 0\.12s\)$/);
+    const drawn = decls(media, ".js .hub[data-drawn='true'] .hub-link");
+    expect(drawn.some((d) => d.prop === 'stroke-dashoffset' && d.value === '0')).toBe(true);
+    // Nothing outside that block moves the link, and the ungated default is
+    // the finished picture: no JS, no media match, no reduced-motion opt-out
+    // ever sees an undrawn link.
     const outside = decls(root, '.hub-link').filter(
-      (d) => d.prop.startsWith('animation') && !insideSupports(d),
+      (d) => /^(animation|transition)/.test(d.prop) && !insideMotionMedia(d),
     );
     expect(outside).toHaveLength(0);
-    // The timeline is named on the wrapper, which is the paths' ancestor.
     expect(
-      decls(motionMedia(supportsGuard()), '.hub').some(
-        (d) => d.prop === 'view-timeline-name' && d.value === '--hub',
+      decls(root, '.hub-link').some(
+        (d) => d.prop === 'stroke-dashoffset' && d.value === '0' && !insideMotionMedia(d),
       ),
     ).toBe(true);
+  });
+
+  it('has no scroll timeline and no feature fork left', () => {
+    // A transition and a timed keyframe run on every browser this site
+    // supports, so there is nothing to fork on any more.
+    expect(HUB_CSS).not.toMatch(/animation-timeline|view-timeline|animation-range/);
+    expect(HUB_CSS).not.toMatch(/@supports/);
   });
 
   it('runs the pulse only while the wrapper is in view', () => {
     // Nothing outside the guard animates the pulse either — same check as
     // the link, above.
     const outside = decls(root, '.hub-pulse').filter(
-      (d) => d.prop.startsWith('animation') && !insideSupports(d),
+      (d) => d.prop.startsWith('animation') && !insideMotionMedia(d),
     );
     expect(outside).toHaveLength(0);
 
@@ -231,9 +292,9 @@ describe('Hub stylesheet', () => {
     expect(running.some((d) => d.prop === 'opacity' && d.value === '1')).toBe(true);
   });
 
-  it('the two keyframes touch stroke-dashoffset and nothing else', () => {
-    expect([...keyframeProps('site-hub-draw')]).toEqual(['stroke-dashoffset']);
+  it('the pulse keyframes touch stroke-dashoffset and nothing else, and the draw has none', () => {
     expect([...keyframeProps('site-hub-pulse')]).toEqual(['stroke-dashoffset']);
+    expect(() => keyframeProps('site-hub-draw')).toThrow();
   });
 
   it('lands on the last frame under reduced motion', () => {
@@ -248,7 +309,7 @@ describe('Hub stylesheet', () => {
       return out;
     };
     const link = inReduced('.hub-link');
-    expect(link.some((d) => d.prop === 'animation' && d.value === 'none' && d.important)).toBe(
+    expect(link.some((d) => d.prop === 'transition' && d.value === 'none' && d.important)).toBe(
       true,
     );
     expect(link.some((d) => d.prop === 'stroke-dashoffset' && d.value === '0' && d.important)).toBe(

@@ -1,10 +1,10 @@
 /* src/styles/sections/expertise.css */
 
 /* ─── The hub over the four areas ─────────────────────────────────────────
-   Goes with src/components/site/hub.tsx. Same inversion as sections/work.css:
-   the defaults below are the FINISHED picture — links drawn, pulses hidden —
-   and the block at the bottom only ever adds motion inside a guard. Firefox,
-   Safari before 26, JS off and reduced motion all land on the defaults.
+   Goes with src/components/site/hub.tsx. The defaults below are the FINISHED
+   picture — links drawn, pulses hidden — and the block at the bottom only
+   ever adds motion inside a media guard, and (for the draw) under `.js`.
+   Narrow screens, JS off and reduced motion all land on the defaults.
 
    THE ONE EXCEPTION TO "TRANSFORM AND OPACITY ONLY" ON THIS SITE.
    `stroke-dashoffset` is a paint property. It is animated here on eight
@@ -111,8 +111,8 @@
      cannot be seen, and transparent besides. Opacity is undone only while the
      wrapper reports itself in view — see the one rule after the media
      block. There is no `animation-play-state` here: with no `animation` set
-     yet, there is nothing to pause — the pause lives in the `@supports`
-     block below, after the shorthand that would otherwise overwrite it. */
+     yet, there is nothing to pause — the pause lives in the motion block
+     below, after the shorthand that would otherwise overwrite it. */
   .hub-pulse {
     stroke: var(--base-accent);
     stroke-width: 2.5;
@@ -131,17 +131,6 @@
 
 /* ── Motion ─────────────────────────────────────────────────────────────── */
 
-/* Offset 1 with a `1 1` dash on a unit path is a full gap: nothing drawn.
-   Offset 0 is the whole path. */
-@keyframes site-hub-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
 /* With dasharray `0.12 1` (period 1.12), offset 0 puts the dash on [0, 0.12)
    — at the core — and offset -1 puts it on [1, 1.12), off the far end. One
    sweep, core to card, per iteration. */
@@ -154,42 +143,45 @@
   }
 }
 
-@supports (animation-timeline: view()) {
-  @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
-    /* The wrapper is the paths' ancestor; the <ul> is their sibling, and a
-       named timeline resolves through ancestors only. Same box either way. */
-    .hub {
-      view-timeline-name: --hub;
-      view-timeline-axis: block;
-    }
+/* No feature-test fork any more. Until 2026-09-26 the draw ran on a named
+   view timeline of the grid and needed one; a transition and a timed
+   keyframe run on every browser this site supports. */
+@media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+  /* The draw. wigin's is a 1.1s `power2.out` ScrollTrigger tween, one link
+     0.12s after the last, fired once on entry — this is that, minus GSAP:
+     the offset is parked at 1 (with a `1 1` dash on a unit path that is a
+     full gap, nothing drawn) and released to 0 by `data-drawn`, which
+     hub.tsx sets once and never clears. Same clock and curve as every
+     reveal on the page. `.js` for the same reason motion.css needs it:
+     without JS nothing sets data-drawn, and the ungated default above
+     (offset 0, drawn) is the picture. */
+  .js .hub-link {
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset var(--duration-hero) var(--ease-out-quint) calc(var(--i) * 0.12s);
+  }
 
-    /* Each link draws over 40% of the grid's entry into the viewport,
-       starting 6% later than the one before it — wigin's 0.12s stagger,
-       expressed in scroll rather than seconds. */
-    .hub-link {
-      animation: site-hub-draw linear both;
-      animation-timeline: --hub;
-      animation-range: entry calc(20% + var(--i) * 6%) entry calc(60% + var(--i) * 6%);
-    }
+  .js .hub[data-drawn='true'] .hub-link {
+    stroke-dashoffset: 0;
+  }
 
-    /* Timed, not scrolled: a pulse that only moved when the reader did would
-       read as the reader dragging it. 2.4s and a 0.55s stagger are wigin's;
-       the 0.8s lead lets the draw finish first on a normal scroll.
-       `animation-play-state` MUST come after the `animation` shorthand: the
-       shorthand resets every longhand it doesn't mention — including
-       play-state — back to its initial value, `running`. Setting it after
-       is what keeps the pulse paused by default; `.hub[data-inview='true']
-       .hub-pulse` above wins over this rule on specificity (0,3,0) to
-       (0,1,0), so it can flip play-state to `running` regardless of source
-       order. */
-    .hub-pulse {
-      animation: site-hub-pulse 2.4s linear infinite;
-      animation-delay: calc(0.8s + var(--i) * 0.55s);
-      animation-play-state: paused;
-      /* Only opacity — never stroke-dashoffset, see the file banner's one
-         exception. Without this the pulse pops to opacity 1 the instant the
-         wrapper crosses into view instead of fading in. */
-      transition: opacity 0.3s var(--ease-out-soft);
-    }
+  /* Timed, not scrolled: a pulse that only moved when the reader did would
+     read as the reader dragging it. 2.4s and a 0.55s stagger are wigin's;
+     the 0.8s lead lets the first link finish drawing before its pulse sets
+     off, and each later link's 0.55s step outruns its 0.12s draw delay.
+     `animation-play-state` MUST come after the `animation` shorthand: the
+     shorthand resets every longhand it doesn't mention — including
+     play-state — back to its initial value, `running`. Setting it after
+     is what keeps the pulse paused by default; `.hub[data-inview='true']
+     .hub-pulse` above wins over this rule on specificity (0,3,0) to
+     (0,1,0), so it can flip play-state to `running` regardless of source
+     order. */
+  .hub-pulse {
+    animation: site-hub-pulse 2.4s linear infinite;
+    animation-delay: calc(0.8s + var(--i) * 0.55s);
+    animation-play-state: paused;
+    /* Only opacity — never stroke-dashoffset, see the file banner's one
+       exception. Without this the pulse pops to opacity 1 the instant the
+       wrapper crosses into view instead of fading in. */
+    transition: opacity 0.3s var(--ease-out-soft);
   }
 }

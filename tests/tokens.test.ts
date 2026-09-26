@@ -95,7 +95,7 @@ describe('the @theme inline token surface reaches the built CSS', () => {
     expect(css).toMatch(/--max-width-prose:\s*var\(--container-prose\)/);
   });
 
-  it('compiles all five duration-* utilities and both custom easings', async () => {
+  it('compiles all five duration-* utilities and the three custom easings', async () => {
     // Tailwind 4's `duration-*` utility reads `--transition-duration-*`, not
     // `--duration-*`. If globals.css declared the wrong theme key, none of
     // these five classes would produce a rule at all — no build error, no
@@ -108,6 +108,7 @@ describe('the @theme inline token surface reaches the built CSS', () => {
       'duration-hero',
       'ease-out-soft',
       'ease-spring',
+      'ease-out-quint',
     ]);
 
     expect(css, 'duration-instant must compile').toMatch(
@@ -131,6 +132,13 @@ describe('the @theme inline token surface reaches the built CSS', () => {
     expect(css, 'ease-spring must compile').toMatch(
       /\.ease-spring\s*\{[^}]*transition-timing-function:\s*var\(--ease-spring\)/,
     );
+    // wigin.ai's reveal curve, cubic-bezier(0.22, 1, 0.36, 1): a quint-ish
+    // ease-out that lands without overshoot. Every on-enter reveal and
+    // drawing on the site runs on it since 2026-09-26.
+    expect(css, 'ease-out-quint must compile').toMatch(
+      /\.ease-out-quint\s*\{[^}]*transition-timing-function:\s*var\(--ease-out-quint\)/,
+    );
+    expect(css).toMatch(/--ease-out-quint:\s*cubic-bezier\(0\.22, 1, 0\.36, 1\)/);
   });
 
   it('aliases the short --duration-* spelling onto --transition-duration-* for raw animation shorthands', async () => {

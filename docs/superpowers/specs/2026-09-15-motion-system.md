@@ -96,6 +96,22 @@ page reads exactly the same, it is just static.
 load is already at 100% and never animates. The hero therefore needs a separate
 time-based `.reveal-load` variant. This is not a workaround, it is how the API works.
 
+**Reversed for the reveals and the drawings on 2026-09-26.** `.reveal`, `.reveal-clip`,
+the drawn underline and the Expertise hub links now fire once on entry
+(`IntersectionObserver`, `threshold .06`, `rootMargin -8%` on the bottom edge) and play a
+700ms transition on `--ease-out-quint`, which is wigin.ai's model measured token for
+token — see `2026-09-21-wigin-effects-design.md` §2. The one exception is the headline
+wipe (`.reveal-clip`), which plays its keyframes on `data-inview` instead of transitioning:
+Chromium's IntersectionObserver clips the target by its own `clip-path`, so a heading parked
+behind an empty mask never intersects. The hidden state is opacity and transform only. The
+hero underline gets a `-load` variant (`DrawnUnderline mode="load"`) for the same reason the
+hero text does. The scroll-scrubbed version could be
+parked half-done between two flicks of the wheel and replayed backwards on every
+scroll-up, so a reveal never _arrived_; that is what was asked to change. The observer is
+the only path now (no `@supports` fork), `reveal-load` keeps the hero on the same clock,
+and the scroll timeline remains where scroll position IS the effect: the header, the
+background drift, the pinned Work trio, the art parallax and shutter.
+
 ### 3.4 Effects to build
 
 | #   | Where        | What                                                | Technique                                | JS                       |

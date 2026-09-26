@@ -63,13 +63,11 @@
    past them, their three layers — art, info panel, name — scrubbed by scroll
    position rather than by a clock.
 
-   THE GUARD IS INVERTED RELATIVE TO motion.css, DELIBERATELY.
+   THE GUARD IS THE OPPOSITE OF motion.css's, DELIBERATELY.
 
-   That file declares its animation in the open and its fallback inside
-   `@supports not (animation-timeline: view())`, because `.reveal` has no
-   honest resting state: the keyframes are `both`-filled from opacity 0, so a
-   browser with no timeline to drive them would park every revealing element
-   at invisible. It needs JS (use-in-view.ts) to hand the content back.
+   That file holds every `.reveal` hidden under `.js` and needs JS
+   (use-in-view.ts) to hand the content back, because a reveal has no honest
+   resting state: hidden IS the effect, and something has to end it.
 
    Nothing here needs handing back. The static card below — art, heading,
    panel, in document order — IS the finished state of the animation, and it
