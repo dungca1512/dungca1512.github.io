@@ -114,26 +114,22 @@ export async function Hero() {
             </p>
           </div>
 
-          {/* The right column carries two things, stacked with an overlap:
-              the owner's portrait illustration in its circle, and the code
-              window floating over the circle's lower edge. The portrait is
-              who; the terminal — a request typing itself and its answer
-              streaming back, on a clock, for ever — is what he runs. The
-              card covers only the bottom of the circle, where the drawing
-              has nothing but legs, his and the desk's. Placement is in
-              sections/hero.css. Both are `reveal-load`, a beat apart. */}
-          <div className="hero-visual">
-            <Illustration
-              name="hero"
-              parallax
-              alt=""
-              width={880}
-              height={880}
-              priority
-              className="hero-portrait reveal-load"
-            />
-            <CodeWindow locale={locale} className="hero-terminal reveal-load" />
-          </div>
+          <Illustration
+            name="hero"
+            parallax
+            alt=""
+            width={880}
+            height={880}
+            priority
+            className="hero-portrait reveal-load"
+          />
+
+          {/* The code window: a request typing itself and its answer
+              streaming back, on a clock, for ever. It sits on a row of its
+              own UNDER the portrait, never over it — the portrait is the
+              owner's and keeps its original size and place in the first
+              row. Placement is in sections/hero.css. */}
+          <CodeWindow locale={locale} className="hero-terminal reveal-load" />
         </div>
       </Container>
     </section>

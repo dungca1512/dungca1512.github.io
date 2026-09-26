@@ -1,48 +1,29 @@
-/* The hero's right column: the portrait illustration in a circle, and the
-   code window (components/motion/code-window.tsx; its own frame is
-   styles/site/code-window.css) floating over the circle's lower edge.
-
-   The column is a one-column grid, not absolute positioning, so its height
-   is the real height of both pieces minus the overlap and the left column's
-   `items-center` still centres against something true. The overlap is a
-   negative top margin on the card: it covers the bottom of the circle,
-   where the drawing (public/images/illustrations/hero.jpg) holds only legs,
-   the owner's and the desk's, and leaves his head, hands, keyboard and the
-   whole diagram above them clear. The card stays the full column width
-   because its snippets are measured to fit that width
-   (content/snippets.ts); the circle is the one that gives way. */
-.hero-visual {
-  position: relative;
-  display: grid;
-  justify-items: center;
-}
-
 /* The portrait sits in a circle with a soft tinted ground behind it, so a
    rectangular illustration reads as part of the page rather than as a photo
    dropped on it.
 
-   This class lands directly on `Illustration`'s `<picture>` element.
-   `<picture>` is inline by default, and an inline box ignores
-   `aspect-ratio` and clips nothing via `overflow`, so `display: block` is
-   load-bearing. `overflow: hidden` is load-bearing too: the image carries
-   `art-parallax`, which oversizes it to pay for its travel, and this is the
-   frame that clips it (tests/art.test.ts checks for exactly that). */
+   This class now lands directly on `Illustration`'s `<picture>` element
+   (Task 8 review, Q2 — `className` used to land on the inner `<img>`, which
+   is why a wrapper `<div>` and a `.hero-portrait img` descendant selector
+   both existed). `<picture>` is inline by default, and an inline box ignores
+   `aspect-ratio` and clips nothing via `overflow`, so `display: block` here
+   is now load-bearing in a way it was not when a `<div>` carried the class. */
 .hero-portrait {
   position: relative;
   isolation: isolate;
   display: block;
-  /* Explicit, not left to grid-item sizing: a `<picture>` containing an
+  /* Explicit, not left to grid-item stretch: a `<picture>` containing an
      `<img>` is close enough to a replaced element that at least one engine
-     sized it to the image's intrinsic box instead of the width asked for. */
-  width: 84%;
+     sized it to the (missing) image's intrinsic box instead of stretching it
+     to the grid column — a 20px sliver instead of filling the column, found
+     while checking this fix in a real browser. The `<div>` wrapper this
+     replaced never had that problem, because a plain block box has no
+     content-based intrinsic size to fall back to. */
+  width: 100%;
   border-radius: 999px;
   overflow: hidden;
   background: color-mix(in srgb, var(--base-primary) 8%, var(--base-surface));
   aspect-ratio: 1;
-  /* A ring of the accent, faint, so the circle holds its edge on the navy
-     dark ground as well as on the light one. */
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--base-accent) 22%, transparent);
-  animation-delay: 120ms;
 }
 
 .hero-portrait img {
@@ -52,38 +33,52 @@
   object-fit: cover;
 }
 
-/* The delay is on this class rather than in the component: the card's
-   `reveal-load` plays a beat behind the portrait's, so the column builds in
-   the order it is read. `reveal-load` is an `@utility` in the utilities
-   layer and these rules are unlayered, so the `animation-delay` here wins
-   over the shorthand's implicit 0s regardless of order. `z-index` puts the
-   card over the circle it overlaps. */
+/* Task 8 review, V1: below `wide` (900px — the point at which the grid in
+   hero.tsx goes two-column and the `minmax(18rem, 0.9fr)` column caps the
+   portrait itself, measured 598-670px), the layout is a single column and
+   `.hero-portrait` would otherwise stretch to the full container width —
+   measured 689px at 768px and a full-bleed 820px circle at 899px, taller
+   than the viewport. Capped so a visitor never sees that, on today's missing
+   art or on the real thing later (the reservation is aspect-ratio-driven, so
+   the real image inherits the same box). `max-width: 899px` mirrors
+   Tailwind's `wide:` variant (`min-width: 900px`) so this rule and the grid's
+   own column sizing are complementary, never both fighting to size the same
+   element. */
+@media (max-width: 899px) {
+  .hero-portrait {
+    max-width: 22rem;
+    margin-inline: auto;
+  }
+}
+
+/* The code window (components/motion/code-window.tsx; its own frame is
+   styles/site/code-window.css) takes a second row of the hero grid, under
+   the portrait and never over it: the portrait above keeps its original
+   size and place, and the first row keeps its original height, so the
+   headline still centres against the portrait alone. From `wide` up the
+   card sits in the right column, the portrait's width exactly — the
+   snippets are measured to fit that width (content/snippets.ts). Below it
+   the grid is one column and the card simply follows the portrait.
+
+   The delay puts the card a beat behind the portrait. `reveal-load` is an
+   `@utility` in the utilities layer and this rule is unlayered, so the
+   `animation-delay` wins over the shorthand's implicit 0s. */
 .hero-terminal {
-  position: relative;
-  z-index: 1;
-  margin-top: -5.5rem;
   animation-delay: 320ms;
 }
 
-/* Below `wide` (900px, where the grid in hero.tsx goes two-column) the
-   layout is a single column and the pair would otherwise stretch to the
-   full container width: a circle taller than the viewport and a card wider
-   than it is tall. Capped and centred so it keeps the proportions it was
-   drawn at. `max-width: 899px` mirrors Tailwind's `wide:` variant
-   (`min-width: 900px`) so this rule and the grid's own column sizing are
-   complementary, never both fighting to size the same element. */
+@media (min-width: 900px) {
+  .hero-terminal {
+    grid-column: 2;
+  }
+}
+
+/* Capped and centred below `wide` for the same reason as the portrait: a
+   full-width card at 899px is wider than it is tall, with eleven short
+   lines lost in its left third. */
 @media (max-width: 899px) {
-  .hero-visual {
-    width: 100%;
+  .hero-terminal {
     max-width: 30rem;
     margin-inline: auto;
-  }
-
-  .hero-portrait {
-    width: 78%;
-  }
-
-  .hero-terminal {
-    margin-top: -4rem;
   }
 }

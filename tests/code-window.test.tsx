@@ -196,11 +196,11 @@ describe('wiring', () => {
     expect(reduced).toMatch(/\.code-window-cursor[^{]*\{[^}]*animation:\s*none\s*!important/s);
   });
 
-  it('sits in the hero beside the portrait illustration, not in place of it', () => {
+  it('sits in the hero under the portrait illustration, not in place of it', () => {
     const hero = readFileSync('src/components/sections/hero.tsx', 'utf8');
     expect(hero).toContain('<CodeWindow locale={locale}');
-    // The owner's portrait is required on the hero; the card overlaps it,
-    // it does not replace it.
+    // The owner's portrait is required on the hero, as it was; the card
+    // takes a row below it and neither replaces nor covers it.
     expect(hero).toMatch(/<Illustration[\s\S]*?name="hero"/);
   });
 });
