@@ -36,6 +36,11 @@ const en: Dictionary = {
     repository: 'Repository',
     demo: 'Demo',
     present: 'Present',
+    /* Interface chrome for the contact band and the footer, not a claim about
+       the owner — the copy button's two states and the footer's way back up. */
+    copyEmail: 'Copy email',
+    copied: 'Copied',
+    backToTop: 'Back to top',
     /* See vi.ts — these are the summary lines of the collapsed panels, and
        `{count}` is substituted at the call site from the list's own length. */
     moreProjects: 'Show {count} more projects',

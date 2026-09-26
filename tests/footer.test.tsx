@@ -2,13 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Footer } from '@/components/site/footer';
 import { CONTACTS } from '@/content/contacts';
+import vi from '@/content/dictionaries/vi';
+import en from '@/content/dictionaries/en';
 
 describe('Footer', () => {
   it('gives the CV link a download attribute, so it saves instead of navigating', () => {
     // Falsify by dropping `download: true` from the CV's spread branch: the
     // link would then open the PDF in a new tab/navigate to it like every
     // other contact, and this assertion would fail.
-    render(<Footer locale="en" />);
+    render(<Footer locale="en" dict={en} />);
     const cv = CONTACTS.find((c) => c.download)!;
     const link = screen.getByRole('link', { name: cv.label.en });
     expect(link).toHaveAttribute('download');
@@ -18,7 +20,7 @@ describe('Footer', () => {
     // Falsify by dropping `rel="noreferrer"` (or `target="_blank"`) from the
     // non-download branch: an opened tab would then keep a `window.opener`
     // handle back to this page (a reverse-tabnabbing risk), and this would fail.
-    render(<Footer locale="en" />);
+    render(<Footer locale="en" dict={en} />);
     for (const contact of CONTACTS.filter((c) => !c.download)) {
       const link = screen.getByRole('link', { name: contact.label.en });
       expect(link).toHaveAttribute('target', '_blank');
@@ -27,7 +29,7 @@ describe('Footer', () => {
   });
 
   it('renders every contact from CONTACTS, not a hardcoded subset', () => {
-    render(<Footer locale="vi" />);
+    render(<Footer locale="vi" dict={vi} />);
     for (const contact of CONTACTS) {
       expect(screen.getByRole('link', { name: contact.label.vi })).toBeInTheDocument();
     }

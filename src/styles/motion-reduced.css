@@ -130,4 +130,11 @@
     transform: none !important;
     transition: none !important;
   }
+
+  /* The footer's availability ring: its last frame is invisible, so parking
+     it there leaves the plain dot, which is all the signal there is. */
+  .status-dot::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }
