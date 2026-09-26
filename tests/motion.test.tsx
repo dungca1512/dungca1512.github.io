@@ -250,8 +250,8 @@ describe('reveal', () => {
   // The fade and the movement are deliberately two animations. A single
   // @keyframes carries one timing function, and these two cannot share one:
   // `--ease-spring` is cubic-bezier(0.34, 1.56, 0.64, 1), which passes y=1 at
-  // roughly a third of the way through and keeps climbing. Movement wants
-  // that overshoot. Opacity clamps at 1, so riding the same curve finished
+  // roughly a third of the way through and keeps climbing. The timed hero
+  // movement wants that overshoot. Opacity clamps at 1, so riding the same curve finished
   // the fade inside the first third of its scroll range — measured in Chrome
   // at a 900px viewport, fully opaque with its top edge still 82% of the way
   // down the screen, below anything being read. On its own linear track the
@@ -271,6 +271,28 @@ describe('reveal', () => {
       expect(fade).toMatch(/\blinear\b/);
     },
   );
+
+  /* On `animation-timeline: view()` a timing function is not a speed — it is
+     the map from scroll position to element position, and the reader drives
+     it in both directions. `--ease-spring` peaks near 1.1 before returning
+     to 1, so on the scroll timeline the element ran 3.1px past its resting
+     place and slid back over roughly 200px of scroll, then replayed that
+     wobble in reverse on every scroll-up (measured in Chromium and WebKit at
+     1440×900, 2026-09-26). The spring belongs to the timed variant, where the
+     overshoot is a settle the reader sees once and cannot scrub. */
+  it.each(['reveal', 'reveal-clip'])('%s moves on an easing that cannot overshoot', (name) => {
+    const animation = atRuleDecl('utility', name, 'animation') ?? '';
+    expect(animation, `${name} scrubs the spring's overshoot with the scroll`).not.toContain(
+      '--ease-spring',
+    );
+    const movement = animation.split(',').find((track) => !track.includes('site-reveal-fade'));
+    expect(movement, `${name} runs no movement track`).toBeDefined();
+    expect(movement).toContain('var(--ease-out-soft)');
+  });
+
+  it('keeps the spring on the timed hero variant, where the overshoot is a settle', () => {
+    expect(atRuleDecl('utility', 'reveal-load', 'animation')).toContain('var(--ease-spring)');
+  });
 
   it.each(['reveal', 'reveal-clip'])(
     '%s gives the fade the same scroll range as the movement, by declaring one range for both',

@@ -13,6 +13,16 @@ import { useEffect, useRef } from 'react';
    33ms. 30fps is deliberate — for motion this slow 60 buys nothing visible
    and doubles the work done next to every other animation on the page.
 
+   One departure from wigin: movement is integrated over the clock, not
+   added per draw. wigin moves each point a fixed 0.07px every draw behind
+   a `t - last < 33` gate, and on a 60Hz display two frames are 33.3ms —
+   a third of a millisecond inside that gate. Any vsync jitter let one
+   draw through at 33ms and held the next to 50ms, and with a fixed step
+   per draw the field alternated between two speeds. Here the gate has a
+   few ms of slack (see FRAME_SLACK_MS) and each draw moves the points by
+   velocity × elapsed time, so a frame that arrives late or early moves
+   them exactly as far as the clock says. Verified in tests/constellation.
+
    No colour is written here. The two tokens are read off <html> and read
    AGAIN when data-theme changes, so IF a theme ever redefines --base-info
    or --base-accent the field follows with no reload and no second
@@ -25,7 +35,12 @@ const MIN_POINTS = 24;
 const MAX_POINTS = 60;
 const LINK_DISTANCE = 168;
 const FRAME_MS = 33;
-const SPEED = 0.07; // px per frame, per axis, at most
+/* A draw is due once FRAME_MS − FRAME_SLACK_MS have passed. Two 60Hz frames
+   are 33.3ms, three 120Hz frames 25ms and four 33.3ms, three 90Hz frames
+   33.3ms: with 4ms of slack every common refresh rate settles on the same
+   whole number of frames per draw instead of flipping between two. */
+const FRAME_SLACK_MS = 4;
+const SPEED = 2.1; // px per second, per axis, at most — wigin's 0.07px per draw at 30 draws/s
 const DPR_CAP = 2;
 const RESIZE_DEBOUNCE_MS = 120;
 
@@ -58,7 +73,10 @@ export function Constellation() {
     const points: Point[] = [];
     let gradient: CanvasGradient | string = '';
     let frame = 0;
-    let last = 0;
+    /* Timestamp of the last draw, in rAF time. `undefined` between `stop()`
+       and the first frame after `start()`, so a tab coming back from the
+       background does not integrate the whole time it was hidden. */
+    let last: number | undefined;
     let running = false;
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -80,11 +98,13 @@ export function Constellation() {
       gradient = g;
     };
 
-    const draw = () => {
+    /* `dt` is seconds since the last draw. The static draws — first paint,
+       resize, theme change, reduced motion — pass nothing and move nothing. */
+    const draw = (dt = 0) => {
       ctx.clearRect(0, 0, w, h);
       for (const p of points) {
-        p.x += p.vx;
-        p.y += p.vy;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
         if (p.x < 0 || p.x > w) p.vx = -p.vx;
         if (p.y < 0 || p.y > h) p.vy = -p.vy;
       }
@@ -160,9 +180,15 @@ export function Constellation() {
        separate copy the spy never sees. In a browser they are the same function. */
     const tick = (t: number) => {
       frame = window.requestAnimationFrame(tick);
-      if (t - last < FRAME_MS) return;
+      if (last === undefined) {
+        // First frame after start(): a reference time, nothing to integrate.
+        last = t;
+        return;
+      }
+      const elapsed = t - last;
+      if (elapsed < FRAME_MS - FRAME_SLACK_MS) return;
       last = t;
-      draw();
+      draw(elapsed / 1000);
     };
     const start = () => {
       // `!w || !h` covers the frame before the first `resize()` measurement
@@ -174,6 +200,7 @@ export function Constellation() {
     };
     const stop = () => {
       running = false;
+      last = undefined;
       window.cancelAnimationFrame(frame);
     };
 

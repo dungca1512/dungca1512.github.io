@@ -7,16 +7,22 @@
 
 /* Opacity and movement are two animations, not one, because they need
    different timing functions and a single @keyframes block can only carry
-   one. The movement keeps the spring — the overshoot past the resting
-   position is the character of the thing. Opacity cannot have it:
-   `cubic-bezier(0.34, 1.56, 0.64, 1)` crosses y=1 at about t=0.35 and keeps
-   climbing, and opacity clamps at 1, so the fade was finished inside the
-   first third of its range no matter where the range was set. Measured in
-   Chrome at a 900px viewport: the element stood at full opacity while its
-   top edge was still 82% of the way down the screen — in the bottom margin,
-   below anything being read, so the page looked like it had no reveal at
-   all. The fade on its own `linear` track, over the SAME range, reaches
-   half at 77% of viewport height and full at 58%. */
+   one. On the scroll timeline a timing function is not a speed — it is the
+   map from scroll position to a state on screen, and the reader scrubs it
+   in both directions — so neither track may overshoot. The movement ran on
+   `--ease-spring` until 2026-09-26: measured in Chromium and WebKit at
+   1440×900, the element slid 3.1px past its resting place, drifted back
+   over roughly 200px of scroll, and replayed that wobble in reverse on
+   every scroll-up. It now settles on `--ease-out-soft`; the spring is kept
+   for `reveal-load` below, where a wall clock plays it once, forward.
+   Opacity is linear for a different reason: an ease-out front-loads it,
+   and the spring crossed y=1 at about t=0.35, so the fade was finished
+   inside the first third of its range no matter where the range was set.
+   Measured in Chrome at a 900px viewport: the element stood at full
+   opacity while its top edge was still 82% of the way down the screen —
+   in the bottom margin, below anything being read, so the page looked
+   like it had no reveal at all. The fade on its own `linear` track, over
+   the SAME range, reaches half at 77% of viewport height and full at 58%. */
 @keyframes site-reveal-fade {
   from {
     opacity: 0;
@@ -109,7 +115,7 @@
 @utility reveal {
   animation:
     site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-in var(--duration-slow) var(--ease-spring) both;
+    site-reveal-in var(--duration-slow) var(--ease-out-soft) both;
   animation-timeline: view();
   animation-range: cover 4vh cover 42vh;
 }
@@ -124,9 +130,10 @@
 
 /* For content that is ALREADY in the viewport at load — the hero. A
    scroll-driven animation on it would never play, because it never enters.
-   These run on a wall clock, where the easing is read as speed rather than
-   as a position on screen, so the split is kept only so both variants play
-   the same keyframes. */
+   These run on a wall clock, where the easing IS a speed: the spring's
+   overshoot plays once, forward, as a settle the reader cannot scrub back
+   and forth. That is why the movement keeps `--ease-spring` here and
+   nowhere on the scroll timeline (see the note above the keyframes). */
 @utility reveal-load {
   animation:
     site-reveal-fade var(--duration-slow) linear both,
