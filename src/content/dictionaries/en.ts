@@ -3,7 +3,7 @@ import type { Dictionary } from './vi';
 /** English half of the chrome dictionary. See vi.ts for the full sourcing
  *  breakdown. Six keys have no bilingual source in `data.js` because they are
  *  interface chrome rather than anything the owner wrote: `nav.skipToContent`,
- *  `nav.toggleTheme`, `common.demo` and `notFound.{title,back}` carry their
+ *  `nav.theme`, `common.demo` and `notFound.{title,back}` carry their
  *  conventional English wording (controller ruling R25 — "no invented content"
  *  governs claims about the owner, not the words on a skip link).
  *  `meta.description` IS a claim, so it is not written here either: it is
@@ -27,7 +27,7 @@ const en: Dictionary = {
     analytics: 'Data',
     writing: 'Notes',
     contact: 'Contact',
-    toggleTheme: 'Toggle light and dark theme',
+    theme: { label: 'Theme', dark: 'Dark', light: 'Light', system: 'System' },
   },
   common: {
     hireMe: 'Hire Me',

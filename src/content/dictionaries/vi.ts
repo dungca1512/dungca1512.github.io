@@ -38,7 +38,7 @@ const vi = {
     analytics: 'Dữ liệu',
     writing: 'Ghi chép',
     contact: 'Liên hệ',
-    toggleTheme: 'Đổi giao diện sáng/tối',
+    theme: { label: 'Giao diện', dark: 'Tối', light: 'Sáng', system: 'Theo hệ thống' },
   },
   common: {
     hireMe: 'Liên hệ hợp tác',

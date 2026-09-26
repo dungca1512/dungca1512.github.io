@@ -437,18 +437,28 @@
   }
 }
 
-/* Both theme icons sit in the DOM and CSS picks one. Doing it in React state
- * means the icon is wrong until hydration, which is visible. */
-@utility theme-light-only {
-  display: block;
-  [data-theme='dark'] & {
-    display: none;
+/* All three theme icons sit in the DOM and CSS picks one, by the visitor's
+ * choice (data-theme-pref), not by the painted theme: on `system` the icon
+ * is the monitor whichever way the OS points. Doing it in React state means
+ * the icon is wrong until hydration, which is visible. The layouts render
+ * data-theme-pref="system" on <html>, so there is always one to match. */
+@utility theme-pref-dark-only {
+  display: none;
+  [data-theme-pref='dark'] & {
+    display: block;
   }
 }
 
-@utility theme-dark-only {
+@utility theme-pref-light-only {
   display: none;
-  [data-theme='dark'] & {
+  [data-theme-pref='light'] & {
+    display: block;
+  }
+}
+
+@utility theme-pref-system-only {
+  display: none;
+  [data-theme-pref='system'] & {
     display: block;
   }
 }

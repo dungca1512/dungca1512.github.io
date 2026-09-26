@@ -31,7 +31,7 @@ export function MenuBar({ locale, dict }: { locale: Locale; dict: Dictionary }) 
 
         <div className="flex items-center gap-2">
           <LocaleSwitch locale={locale} />
-          <ThemeToggle label={dict.nav.toggleTheme} />
+          <ThemeToggle labels={dict.nav.theme} />
         </div>
       </nav>
     </header>

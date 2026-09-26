@@ -74,6 +74,7 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
       lang={BCP47[locale]}
       className="h-full antialiased"
       data-theme="dark"
+      data-theme-pref="system"
       suppressHydrationWarning
     >
       <head>
