@@ -81,6 +81,15 @@
     transform: none !important;
   }
 
+  /* The signal (motion/art.css) is a dash pattern that only reads as
+     packets while it moves. Stopped, it is a wire drawn as dots — a
+     broken-looking one. So it goes entirely, and the plain wire underneath
+     it, which was always there, is what remains. */
+  .art-signal {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
   /* The pinned Selected Work trio (sections/work.css). This is a SECOND line
      of defence and should never fire: that file gates its whole pin block on
      `(prefers-reduced-motion: no-preference)`, so a visitor who asked for

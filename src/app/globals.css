@@ -290,6 +290,9 @@
  * ──────────────────────────────────────────────────────────────────────── */
 @layer base {
   html {
+    /* Anchor links only. The wheel's own easing lives in
+     * components/motion/smooth-scroll.tsx, which scrolls with
+     * `behavior: 'instant'` precisely so this rule cannot ease its easing. */
     scroll-behavior: smooth;
     /* The sticky header is 4rem. Without this, an anchor lands with the
      * heading underneath it. */

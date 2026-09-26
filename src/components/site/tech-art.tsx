@@ -110,6 +110,23 @@ export function TechArt({ variant, accent, className, still, banner }: TechArtPr
 
 type PartProps = { still?: boolean };
 
+/* A packet stream laid over a wire. `d` MUST run from the outside world in
+   to the thing being fed: motion/art.css moves the dash pattern towards the
+   path's end, and tests/art-signal.test.tsx checks the chip's legs for it.
+   `--i` is the phase; the stylesheet turns it into a negative delay so the
+   packets on neighbouring wires are never in step. Runs on `still` art too
+   (see the stylesheet for why). */
+function Signal({ d, phase }: { d: string; phase: number }) {
+  return (
+    <path
+      d={d}
+      className="art-signal"
+      opacity="0.9"
+      style={{ '--i': phase } as React.CSSProperties}
+    />
+  );
+}
+
 /* Ten layouts, one per thing the projects actually do. They are
    drawn from the same vocabulary as the generated illustrations — service
    boxes, a terminal, a chip, discs for a database, a small graph — so the two
@@ -184,7 +201,9 @@ function ArtPipeline({ still }: PartProps) {
   return (
     <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
       <path d="M30 150 96 150 128 88 192 88 224 48 286 48" strokeWidth="3" opacity="0.85" />
+      <Signal d="M30 150 96 150 128 88 192 88 224 48 286 48" phase={0} />
       <path d="M30 172 112 172 144 122 208 122 240 78 286 78" strokeWidth="1.5" opacity="0.3" />
+      <Signal d="M30 172 112 172 144 122 208 122 240 78 286 78" phase={3} />
       {stops.map(([cx, cy], i) => (
         <circle
           key={cx}
@@ -244,6 +263,18 @@ function ArtChip({ still }: PartProps) {
           <line x1={116 + i * 24} y1="154" x2={116 + i * 24} y2="174" strokeWidth="2" />
           <line x1="110" y1={70 + i * 20} x2="88" y2={70 + i * 20} strokeWidth="2" />
           <line x1="210" y1={70 + i * 20} x2="232" y2={70 + i * 20} strokeWidth="2" />
+        </g>
+      ))}
+      {/* The stream: one packet path per leg, each drawn from the outer
+          end IN to the body's edge, and each with its own phase. The
+          phases are a small permutation rather than 0..15 in order so the
+          four legs on one side do not light up as a running sequence. */}
+      {legs.map((i) => (
+        <g key={`signal-${i}`}>
+          <Signal d={`M${116 + i * 24} 26V46`} phase={(i * 5) % 8} />
+          <Signal d={`M${116 + i * 24} 174V154`} phase={(i * 5 + 2) % 8} />
+          <Signal d={`M88 ${70 + i * 20}H110`} phase={(i * 5 + 4) % 8} />
+          <Signal d={`M232 ${70 + i * 20}H210`} phase={(i * 5 + 6) % 8} />
         </g>
       ))}
       <rect x="110" y="46" width="100" height="108" rx="10" strokeWidth="2.5" opacity="0.9" />
@@ -431,6 +462,9 @@ function ArtStream({ still }: PartProps) {
         strokeWidth="1.5"
         opacity="0.32"
       />
+      <Signal d="M178 56c30 0 24 22 52 22" phase={0} />
+      <Signal d="M178 100h52" phase={3} />
+      <Signal d="M178 144c30 0 24-22 52-22" phase={6} />
       <rect x="230" y="62" width="70" height="32" rx="8" strokeWidth="2.5" opacity="0.85" />
       <rect x="230" y="106" width="70" height="32" rx="8" strokeWidth="2.5" opacity="0.55" />
     </g>

@@ -264,7 +264,9 @@ Evidence handed to the owner before the PR:
 
 ## 7. Out of scope
 
-Lenis or any smooth-scroll; changes to `.reveal` timing (revisited on
+Lenis or any smooth-scroll (revisited on 2026-09-26: the owner asked for wheel
+inertia; a dependency-free easing of the wheel, and only the wheel, shipped —
+see the motion-system spec §3.3); changes to `.reveal` timing (revisited on
 2026-09-26 — see the table row and §4.2's note); the hero canvas; any of
 wigin's product micro-animations; dark-theme-only styling (both themes are
 kept); changes to the pinned Work trio.

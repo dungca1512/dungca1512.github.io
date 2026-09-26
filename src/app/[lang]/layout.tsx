@@ -10,6 +10,7 @@ import { SkipLink } from '@/components/site/skip-link';
 import { ThemeScript } from '@/components/site/theme-script';
 import { IntroCurtain } from '@/components/site/intro-curtain';
 import { Constellation } from '@/components/motion/constellation';
+import { SmoothScroll } from '@/components/motion/smooth-scroll';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ lang: locale }));
@@ -60,6 +61,8 @@ export default async function RootLayout({ children }: LayoutProps<'/[lang]'>) {
             one section, and a fixed element inside a transformed ancestor
             would be clipped to that ancestor instead of the viewport. */}
         <IntroCurtain />
+        {/* Renders nothing; installs the wheel's inertia on the window. */}
+        <SmoothScroll />
         {/* The page's ground. Fixed to the viewport and z-index -1, so it
             must be outside <main> and outside anything that establishes a
             containing block. aria-hidden: it is texture. The element itself

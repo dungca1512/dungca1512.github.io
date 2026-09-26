@@ -112,6 +112,30 @@ the only path now (no `@supports` fork), `reveal-load` keeps the hero on the sam
 and the scroll timeline remains where scroll position IS the effect: the header, the
 background drift, the pinned Work trio, the art parallax and shutter.
 
+> **Added 2026-09-26, the wheel's inertia.** A mouse wheel scrolls in steps and stops dead;
+> the owner asked for momentum that decays ("quán tính khi lướt để nó chạy chậm dần"). The
+> spec of 2026-09-21 ruled out Lenis and any smooth-scroll; what ships instead is
+> `components/motion/smooth-scroll.tsx`, ~100 lines and no dependency: each wheel notch is
+> added to a target, and every frame the real scroll position closes 10% of the remaining
+> distance (normalised to the frame's length, so 120Hz covers the same ground per
+> millisecond). The page is scrolled for real with `scrollTo({behavior: 'instant'})`, so
+> the observer, the view timelines, the sticky header and the scrollbar see an ordinary
+> scroll. It stands down for a trackpad (a heuristic on whole-number deltas and the
+> 120-unit `wheelDeltaY` grid, plus a half-second hold once a trackpad is seen), for a
+> coarse pointer, for reduced motion, for sideways and ctrl-wheel, for a nested scroller
+> with room, and the moment anything else moves the page. Verified in Chromium with a real
+> synthetic notch (27 → 100 over 0.75s) and in WebKit with a Safari-mouse-shaped event;
+> Playwright's WebKit wheel is trackpad-shaped (`wheelDeltaY` is −3× the delta), so the
+> stand-down path is what a plain WebKit run exercises.
+>
+> **Same day, the signal.** The drawn art's wires (chip legs, pipeline, stream feeds in
+> `site/tech-art.tsx`) carry a packet stream INTO the chip: a dashed overlay path per
+> wire, `4 14`, `stroke-dashoffset` running to −18 on a 1.2s linear loop, each wire at
+> its own negative delay. Drawn from the outside in, because the dash pattern moves
+> towards a path's end; tests/art-signal.test.tsx checks that geometry. The one paint
+> property animation on the page, kept small on purpose; gone (not frozen) under reduced
+> motion.
+
 ### 3.4 Effects to build
 
 | #   | Where        | What                                                | Technique                                | JS                       |
