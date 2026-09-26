@@ -11,9 +11,8 @@
    the wheel can be parked half-done between two flicks, and replays
    backwards on every scroll-up, so nothing ever ARRIVES. The observer path
    is now the only path, on every browser. Scroll-scrubbed effects survive
-   where the scroll position IS the effect — the pinned Work trio, the art
-   parallax and shutter, the blueprint drift at the bottom of this file, the
-   header.
+   where the scroll position IS the effect — the art parallax and shutter,
+   the blueprint drift at the bottom of this file, the header.
 
    Everything hidden is hidden under `.js` (set on <html> by theme-script.tsx
    before first paint). Without JS nothing would ever set data-inview, and an

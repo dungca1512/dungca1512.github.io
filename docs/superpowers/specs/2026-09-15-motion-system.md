@@ -110,7 +110,8 @@ parked half-done between two flicks of the wheel and replayed backwards on every
 scroll-up, so a reveal never _arrived_; that is what was asked to change. The observer is
 the only path now (no `@supports` fork), `reveal-load` keeps the hero on the same clock,
 and the scroll timeline remains where scroll position IS the effect: the header, the
-background drift, the pinned Work trio, the art parallax and shutter.
+background drift, the art parallax and shutter. (The pinned Work trio was on that list
+until later the same day; see the last note below.)
 
 > **Added 2026-09-26, the wheel's inertia.** A mouse wheel scrolls in steps and stops dead;
 > the owner asked for momentum that decays ("quán tính khi lướt để nó chạy chậm dần"). The
@@ -135,6 +136,18 @@ background drift, the pinned Work trio, the art parallax and shutter.
 > towards a path's end; tests/art-signal.test.tsx checks that geometry. The one paint
 > property animation on the page, kept small on purpose; gone (not frozen) under reduced
 > motion.
+
+> **Same day, the Work trio un-pinned.** Since 2026-09-20 the first three projects were held
+> `position: sticky` for 200dvh each while their picture, info panel and name were scrubbed
+> in by scroll position (`sections/work.css`, tests/work-pin.test.ts). The owner asked for it
+> to go — "đừng cho nó hiển thị dạng chạy dần chữ với hình hiện ra nữa, xấu quá": the text
+> sliding in and the picture fading up read as a page still loading. The section is back to
+> the layout it had before the pin: five ordinary cards in the grid (the lead two columns
+> wide, its measured outcome folded inside), the other four behind "Xem thêm 4 dự án", all
+> of them on the same 700ms observer reveal and 80ms stagger as every other list. The pin's
+> CSS, its reduced-motion reset, the `allProjects` dictionary line and its test file are
+> deleted rather than switched off; tests/work.test.tsx renders the section and asserts the
+> cards, the fold and the absence of any `pin-` class.
 
 ### 3.4 Effects to build
 

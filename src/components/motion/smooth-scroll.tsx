@@ -18,8 +18,9 @@ import { useEffect } from 'react';
 
    The page is scrolled for real, with `window.scrollTo`. Nothing here moves
    content with a transform, so IntersectionObserver (use-in-view.ts), the
-   view timelines behind the pinned Work trio and the parallax, the sticky
-   header and the scrollbar all see an ordinary scroll and need no changes.
+   view timelines behind the art parallax and the blueprint drift, the
+   sticky header and the scrollbar all see an ordinary scroll and need no
+   changes.
    `behavior: 'instant'`, because <html> carries `scroll-behavior: smooth`
    for anchor links and a smooth scrollTo would ease this easing.
 
