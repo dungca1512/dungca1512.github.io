@@ -96,6 +96,64 @@ page reads exactly the same, it is just static.
 load is already at 100% and never animates. The hero therefore needs a separate
 time-based `.reveal-load` variant. This is not a workaround, it is how the API works.
 
+**Reversed for the reveals and the drawings on 2026-09-26.** `.reveal`, `.reveal-clip`,
+the drawn underline and the Expertise hub links now fire once on entry
+(`IntersectionObserver`, `threshold .06`, `rootMargin -8%` on the bottom edge) and play a
+700ms transition on `--ease-out-quint`, which is wigin.ai's model measured token for
+token — see `2026-09-21-wigin-effects-design.md` §2. The one exception is the headline
+wipe (`.reveal-clip`), which plays its keyframes on `data-inview` instead of transitioning:
+Chromium's IntersectionObserver clips the target by its own `clip-path`, so a heading parked
+behind an empty mask never intersects. The hidden state is opacity and transform only. The
+hero underline gets a `-load` variant (`DrawnUnderline mode="load"`) for the same reason the
+hero text does. The scroll-scrubbed version could be
+parked half-done between two flicks of the wheel and replayed backwards on every
+scroll-up, so a reveal never _arrived_; that is what was asked to change. The observer is
+the only path now (no `@supports` fork), `reveal-load` keeps the hero on the same clock,
+and the scroll timeline remains where scroll position IS the effect: the header, the
+background drift, the art parallax and shutter. (The pinned Work trio was on that list
+until later the same day; see the last note below.)
+
+> **Added 2026-09-26, the wheel's inertia.** A mouse wheel scrolls in steps and stops dead;
+> the owner asked for momentum that decays ("quán tính khi lướt để nó chạy chậm dần"). The
+> spec of 2026-09-21 ruled out Lenis and any smooth-scroll; what ships instead is
+> `components/motion/smooth-scroll.tsx`, ~100 lines and no dependency: each wheel notch is
+> added to a target, and every frame the real scroll position closes 10% of the remaining
+> distance (normalised to the frame's length, so 120Hz covers the same ground per
+> millisecond). The page is scrolled for real with `scrollTo({behavior: 'instant'})`, so
+> the observer, the view timelines, the sticky header and the scrollbar see an ordinary
+> scroll. It stands down for a coarse pointer, for reduced motion, for sideways and
+> ctrl-wheel, for a nested scroller with room, and the moment anything else moves the
+> page. Verified in Chromium with a real synthetic notch (27 → 100 over 0.75s).
+>
+> **Same day, inertia on every device.** The first version also stood down for a trackpad,
+> guessing the device from whole-number deltas and the 120-unit `wheelDeltaY` grid. On
+> macOS that guess fails: trackpads, Magic Mice and smooth-wheel mice all send accelerated,
+> off-grid deltas, so on the owner's machine the inertia came and went. A throwaway lab page
+> (the built page plus a panel, never committed) offered three modes side by side: the
+> shipped heuristic, no smoothing, and inertia on every device. The owner chose the last.
+> The heuristic, its half-second trackpad hold and their tests are gone; every vertical
+> wheel event now feeds the same target at the same 0.1 per 60Hz frame.
+>
+> **Same day, the signal.** The drawn art's wires (chip legs, pipeline, stream feeds in
+> `site/tech-art.tsx`) carry a packet stream INTO the chip: a dashed overlay path per
+> wire, `4 14`, `stroke-dashoffset` running to −18 on a 1.2s linear loop, each wire at
+> its own negative delay. Drawn from the outside in, because the dash pattern moves
+> towards a path's end; tests/art-signal.test.tsx checks that geometry. The one paint
+> property animation on the page, kept small on purpose; gone (not frozen) under reduced
+> motion.
+
+> **Same day, the Work trio un-pinned.** Since 2026-09-20 the first three projects were held
+> `position: sticky` for 200dvh each while their picture, info panel and name were scrubbed
+> in by scroll position (`sections/work.css`, tests/work-pin.test.ts). The owner asked for it
+> to go — "đừng cho nó hiển thị dạng chạy dần chữ với hình hiện ra nữa, xấu quá": the text
+> sliding in and the picture fading up read as a page still loading. The section is back to
+> the layout it had before the pin: five ordinary cards in the grid (the lead two columns
+> wide, its measured outcome folded inside), the other four behind "Xem thêm 4 dự án", all
+> of them on the same 700ms observer reveal and 80ms stagger as every other list. The pin's
+> CSS, its reduced-motion reset, the `allProjects` dictionary line and its test file are
+> deleted rather than switched off; tests/work.test.tsx renders the section and asserts the
+> cards, the fold and the absence of any `pin-` class.
+
 ### 3.4 Effects to build
 
 | #   | Where        | What                                                | Technique                                | JS                       |

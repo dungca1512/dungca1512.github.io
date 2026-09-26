@@ -28,16 +28,16 @@ Read from the site's own bundles on 2026-09-21 (`page-bc551b8f9de1396d.js`,
 `689-72a8f72a9033f98c.js`, `00750f8f84d526f8.css`), not guessed from the
 screen.
 
-| Effect                      | How they do it                                                                                                                                                                                        | Verdict                                                                                               |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Smooth scroll               | Lenis `duration: 1.1`, exponential easing, driven from the GSAP ticker. Disabled on `(pointer: coarse)`. Modals and the careers list carry `data-lenis-prevent` to scroll natively.                   | **Not ported.** Violates constraint 3 outright, and would break the `animation-timeline` pin in Work. |
-| Fixed particle backdrop     | Full-viewport 2D canvas, `clamp(24, w·h/30000, 60)` particles, links under 168px, gradient blue→cyan, rAF gated to 33ms (~30fps), stops on `visibilitychange`, one static frame under reduced motion. | **Ported** (§3).                                                                                      |
-| Hero network canvas         | Second canvas, 28–64 particles, DPR capped at 2, follows `pointermove`, paused by IntersectionObserver.                                                                                               | Not ported: one backdrop is enough, and the hero already has its own composition.                     |
-| Enter reveals               | IntersectionObserver `threshold .06`, `rootMargin -8%`, adds `.in`; `transition opacity/transform .7s cubic-bezier(.22,1,.36,1)` from `translateY(26px)`.                                             | Not ported: `.reveal` already exists on `animation-timeline: view()`.                                 |
-| Hub SVG                     | GSAP ScrollTrigger draws three bezier links with `stroke-dashoffset` (`power2.out`, 1.1s, staggered 0.12s), then three cyan pulses loop `repeat: -1`, 2.4s, staggered 0.55s.                          | **Ported in CSS** (§4). No GSAP: the two tweens are one scroll-driven and one timed keyframe.         |
-| 3D tilt on the About photo  | `pointermove` → `rotateY(6·x) rotateX(−6·y)`, `.1s linear` while moving, `.4s` ease on leave; skipped under reduced motion.                                                                           | **Ported** (§5), on the case-study illustration.                                                      |
-| Decorative micro-animations | Caret blink, time belt, product float, redact shine, chart ping.                                                                                                                                      | Not ported: they mimic wigin's products, which this site does not have.                               |
-| Reduced motion              | `* { animation: none !important; transition: none !important }` plus per-effect guards.                                                                                                               | Already how `motion-reduced.css` works here.                                                          |
+| Effect                      | How they do it                                                                                                                                                                                        | Verdict                                                                                                                               |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Smooth scroll               | Lenis `duration: 1.1`, exponential easing, driven from the GSAP ticker. Disabled on `(pointer: coarse)`. Modals and the careers list carry `data-lenis-prevent` to scroll natively.                   | **Not ported.** Violates constraint 3 outright, and would break the `animation-timeline` pin in Work.                                 |
+| Fixed particle backdrop     | Full-viewport 2D canvas, `clamp(24, w·h/30000, 60)` particles, links under 168px, gradient blue→cyan, rAF gated to 33ms (~30fps), stops on `visibilitychange`, one static frame under reduced motion. | **Ported** (§3).                                                                                                                      |
+| Hero network canvas         | Second canvas, 28–64 particles, DPR capped at 2, follows `pointermove`, paused by IntersectionObserver.                                                                                               | Not ported: one backdrop is enough, and the hero already has its own composition.                                                     |
+| Enter reveals               | IntersectionObserver `threshold .06`, `rootMargin -8%`, adds `.in`; `transition opacity/transform .7s cubic-bezier(.22,1,.36,1)` from `translateY(26px)`.                                             | **Ported on 2026-09-26**, replacing the scroll-driven `.reveal`: same observer numbers, `translateY(26px)`, 0.7s, `--ease-out-quint`. |
+| Hub SVG                     | GSAP ScrollTrigger draws three bezier links with `stroke-dashoffset` (`power2.out`, 1.1s, staggered 0.12s), then three cyan pulses loop `repeat: -1`, 2.4s, staggered 0.55s.                          | **Ported in CSS** (§4). No GSAP: the two tweens are one scroll-driven and one timed keyframe.                                         |
+| 3D tilt on the About photo  | `pointermove` → `rotateY(6·x) rotateX(−6·y)`, `.1s linear` while moving, `.4s` ease on leave; skipped under reduced motion.                                                                           | **Ported** (§5), on the case-study illustration.                                                                                      |
+| Decorative micro-animations | Caret blink, time belt, product float, redact shine, chart ping.                                                                                                                                      | Not ported: they mimic wigin's products, which this site does not have.                                                               |
+| Reduced motion              | `* { animation: none !important; transition: none !important }` plus per-effect guards.                                                                                                               | Already how `motion-reduced.css` works here.                                                                                          |
 
 Nothing on wigin.ai is sticky or pinned except the header, and nothing uses CSS
 scroll-driven animation. Their "smooth" is Lenis. This spec keeps the parts
@@ -49,6 +49,23 @@ circuit board and remove the motif glyphs; put the hub in Expertise; build all
 of it as one small client island plus CSS, no libraries.
 
 ## 3. Constellation backdrop
+
+> **Extended 2026-09-26, the neural field.** The owner brought a picture — glowing
+> cyan-and-blue nodes of different sizes and brightnesses, thin links, a sense of depth
+> on a navy-black ground — and asked for "the neural bits that move by themselves". The
+> field below is still the one canvas and the one loop, with the same link rule and the
+> same clock-integrated motion; what changed is what a point IS. Every point now has a
+> depth `z` in [0, 1] that sets its radius (0.8–3px), its speed (45–100% of the cap)
+> and its brightness together, so big-bright-fast and small-dim-slow read as near and
+> far. Every point wears a halo, drawn as two pre-rendered 64px radial sprites (one per
+> token colour, blended by x so the field keeps its left-to-right gradient) at one
+> `drawImage` each — no per-frame gradient. Every point breathes on its own phase, one
+> in six deeper and wider (a "hot" node). A link between two far points is fainter
+> than one between two near ones. Density went from one point per 30,000px² to one per
+> 24,000 (28–72 points). The mask over the hero now lets 28% through at its centre so
+> the field is not cut out behind the headline. Tests in `tests/constellation.test.tsx`
+> are unchanged: the halo path is skipped where the context has no
+> `createRadialGradient` — which is the test DOM — so every count still holds.
 
 ### 3.1 Placement
 
@@ -172,6 +189,15 @@ path through a per-path `animation-range` shift, as Work does. Inside
 and (prefers-reduced-motion: no-preference)`, the same nesting and the same
 inversion as `work.css`: outside the guard the paths are simply drawn.
 
+> **Superseded 2026-09-26.** The draw is now what wigin's is: fired once on
+> entry. `hub.tsx`'s observer sets `data-drawn` the first time the grid
+> intersects (bottom margin −8%, as the reveals) and never clears it;
+> `.js .hub-link` parks `stroke-dashoffset: 1` with a
+> `stroke-dashoffset var(--duration-hero) var(--ease-out-quint)` transition
+> delayed `var(--i) * 0.12s`, and `.js .hub[data-drawn='true'] .hub-link`
+> releases it to 0. No keyframe, no scroll timeline, no `@supports` fork;
+> the media guard and the drawn-by-default picture outside it are unchanged.
+
 **Pulse**, timed. `.hub-pulse` has `stroke-dasharray: 0.12 1`,
 `@keyframes site-hub-pulse { from { stroke-dashoffset: 1.12 } to {
 stroke-dashoffset: -1 } }`, `2.4s linear infinite`, `animation-delay:
@@ -255,6 +281,58 @@ Evidence handed to the owner before the PR:
 
 ## 7. Out of scope
 
-Lenis or any smooth-scroll; changes to `.reveal` timing; the hero canvas;
-any of wigin's product micro-animations; dark-theme-only styling (both themes
-are kept); changes to the pinned Work trio.
+Lenis or any smooth-scroll (revisited on 2026-09-26: the owner asked for wheel
+inertia; a dependency-free easing of the wheel, and only the wheel, shipped —
+see the motion-system spec §3.3); changes to `.reveal` timing (revisited on
+2026-09-26 — see the table row and §4.2's note); the hero canvas; any of
+wigin's product micro-animations; dark-theme-only styling (both themes are
+kept); changes to the pinned Work trio (moot since 2026-09-26: the trio was un-pinned at
+the owner's request and the featured projects are plain cards again — motion-system spec
+§3.3, last note).
+
+## 8. Added 2026-09-26: the code window and the dark palette
+
+The same request as the neural field brought two more things from wigin.ai's hero.
+
+**The code window.** `src/components/motion/code-window.tsx` (`'use client'`). It
+spent one afternoon in the hero's right column and left it: the owner wants the
+portrait there exactly as it was, and the card now sits in the Expertise band's
+toolbox row, under the marquee and beside the capabilities illustration, where the
+column had an empty stretch to fill. A dark terminal card — three dots with a breathing
+"live" light, a row of tab pills, a monospace body — that types an API request one
+character at a time (24ms per character, jittered, a beat at every line end), waits
+the request's stated latency, streams the response in three-character chunks every
+28ms, holds for 3.2s, fades the body for 280ms, and moves to the next tab. Four
+snippets in `src/content/snippets.ts` (ASR, pronunciation scoring, embeddings, agentic
+RAG), illustrative, bilingual tab labels, JSON in one language. The server renders
+snippet 0 in full with no cursor; the client's first render is identical (`shown`
+starts at Infinity) so hydration reconciles nothing, and the reset to zero happens while
+the card is still below the fold, before the band's scroll reveal fades it in. The loop pauses on `visibilitychange` and when an
+IntersectionObserver reports the card off screen, and resumes from the same character.
+Under reduced motion the effect returns before scheduling anything, so the full snippet
+is the last frame; `motion-reduced.css` stops the live dot and the cursor. The card is
+`aria-hidden`: the lead paragraph beside it already says what the services are.
+
+The card's colours are `--site-code-*` tokens with one set per theme. It started
+dark in both, as the one place wigin's ground showed through the light page, and on
+the built page that read as a navy slab with a blue glow in a band of white cards.
+It now follows the theme: a white surface in the site's ink, blue and a darker teal
+on the light page (every text colour at AA on its palest ground, held by
+`tests/contrast.test.ts`), and wigin's navy, blue and cyan on the dark one. Frame in `src/styles/site/code-window.css`, placement
+in `sections/expertise.tsx`. Two layouts: `stack` (one body, the answer under the
+request) and `split`, used there, with the request typing in a left pane and the
+answer streaming into a right one; the panes sit side by side from 44rem of card
+width (a container query on the card) and one over the other below it.
+
+**The dark palette.** wigin's measured tokens are `#000` ground, `#0160fb` blue,
+`#02e7c9` cyan, `#f3f5f7` grey at 10%/18% for borders and 62% for muted text, and a
+radial glow `60% 60% at 50% 0%` of blue at 30% to cyan at 14%. The dark theme now uses
+their blue and cyan as `--base-info` and `--base-accent` (the light theme keeps its teal
+and mid blue), their grey for borders, and a navy rather than their black — three steps,
+`#060c17` / `#0d1726` / `#122034`, as background, surface and surface-muted — because a
+field of glowing points reads as depth on blue-black and as a screensaver on true
+black. Foreground `#eef2f7` (17.4:1), muted `#9aa7b8` (8.0:1). The glow hangs from the
+top of `<body>` in dark only, sized to one viewport. `tests/contrast.test.ts` now reads
+the dark pair out of the dark block and measures the inks there: accent 13.24:1, info
+6.18:1. The constellation's dark opacity went from 0.6 to 0.8 with the softer, depth-faded
+drawing.

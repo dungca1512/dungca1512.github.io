@@ -89,20 +89,35 @@ function resolveColour(name: string, source: string = css): string {
 // keeps measuring the OLD colour after someone re-tunes the palette, and stays
 // green while the shipped site fails AA. This file already learned that once
 // with the dark foreground; these four were the same mistake, unfixed.
-const ACCENT = readCustomProperty('--base-palette-accent-500');
-const INFO = readCustomProperty('--base-palette-blue-500');
+const ACCENT = resolveColour('--base-accent');
+const INFO = resolveColour('--base-info');
 const LIGHT_BG = resolveColour('--base-background');
 const DARK_BG = resolveColour('--base-background', darkThemeBlock());
+// Since 2026-09-26 the two accents FLIP with the theme (wigin's blue and cyan
+// on navy in the dark; the teal and mid blue stay on the light page), so the
+// dark ratios below have to be measured with the dark theme's own pair.
+// Resolved through the dark block first, then :root, like the background.
+const DARK_ACCENT = resolveColour('--base-accent', darkThemeBlock());
+const DARK_INFO = resolveColour('--base-info', darkThemeBlock());
 const MIX = 68;
 
 describe('the colours this file measures', () => {
-  it('reads four literal hex values out of globals.css', () => {
+  it('reads six literal hex values out of globals.css', () => {
     // If a rename makes one of the lookups above return something that is not
     // a colour, every ratio below becomes nonsense that still compares fine.
-    for (const [name, value] of Object.entries({ ACCENT, INFO, LIGHT_BG, DARK_BG })) {
+    for (const [name, value] of Object.entries({
+      ACCENT,
+      INFO,
+      LIGHT_BG,
+      DARK_BG,
+      DARK_ACCENT,
+      DARK_INFO,
+    })) {
       expect(value, `${name} did not resolve to a hex literal`).toMatch(/^#[0-9a-fA-F]{3,8}$/);
     }
     expect(LIGHT_BG).not.toBe(DARK_BG);
+    expect(DARK_ACCENT).not.toBe(ACCENT);
+    expect(DARK_INFO).not.toBe(INFO);
   });
 });
 // Read straight out of globals.css's Step C block rather than hardcoded, so
@@ -113,17 +128,22 @@ describe('the accent colours', () => {
   it('fail AA when used raw — which is why the ink layer exists', () => {
     expect(ratio(ACCENT, LIGHT_BG)).toBeLessThan(4.5);
     expect(ratio(INFO, LIGHT_BG)).toBeLessThan(4.5);
+    // The dark blue is the one raw accent that fails in its own theme too;
+    // wigin's cyan is bright enough to pass raw on navy, and is measured
+    // anyway below once inked.
+    expect(ratio(DARK_INFO, DARK_BG)).toBeLessThan(4.5);
   });
 
   it('pass AA once mixed 68% with the foreground, in BOTH themes', () => {
     expect(ratio(mix(ACCENT, '#000', MIX), LIGHT_BG)).toBeGreaterThanOrEqual(4.5);
     expect(ratio(mix(INFO, '#000', MIX), LIGHT_BG)).toBeGreaterThanOrEqual(4.5);
-    // The dark theme's foreground is #ededed, not pure white — read out of
-    // globals.css above rather than hardcoded. Measured: 9.14:1 and 7.31:1.
-    expect(ratio(mix(ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(9.14, 1);
-    expect(ratio(mix(INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(7.31, 1);
-    expect(ratio(mix(ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(mix(INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
+    // The dark theme's foreground is off-white, not pure white — read out of
+    // globals.css above rather than hardcoded. Measured with the dark pair on
+    // the navy ground: 13.24:1 and 6.18:1.
+    expect(ratio(mix(DARK_ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(13.24, 1);
+    expect(ratio(mix(DARK_INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeCloseTo(6.18, 1);
+    expect(ratio(mix(DARK_ACCENT, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(mix(DARK_INFO, DARK_FOREGROUND, MIX), DARK_BG)).toBeGreaterThanOrEqual(4.5);
   });
 });
 
@@ -176,5 +196,61 @@ describe('globals.css', () => {
 
   it('redirects the brand hue to blue in both themes', () => {
     expect(css).toMatch(/--base-palette-brand-500:\s*var\(--base-palette-blue-500\)/);
+  });
+});
+
+/* The code window's text sits on four grounds: the card, its deeper
+ * bottom, the tinted header strip, and the response pane (6% of the glow
+ * over the card). Each theme declares its own set, in the globals.css
+ * section headed "The code window", so each is read from its own block
+ * there and every text colour is held to AA against the least favourable
+ * of the four. */
+describe('the code window, in both themes', () => {
+  const blocks = [
+    ...css.matchAll(/(:root|\[data-theme='dark'\])\s*\{([^}]*--site-code-text[^}]*)\}/g),
+  ];
+  const light = blocks.find((m) => m[1] === ':root')?.[2];
+  const dark = blocks.find((m) => m[1] !== ':root')?.[2];
+  const TEXT = ['--site-code-text', '--site-code-string', '--site-code-key', '--site-code-muted'];
+
+  /** A code token's colour: a literal in its own block, or a palette entry. */
+  const colour = (name: string, block: string) => {
+    let value = readCustomProperty(name, block);
+    const ref = value.match(/^var\(\s*(--[\w-]+)\s*\)$/);
+    if (ref) value = resolveColour(ref[1]);
+    expect(value, `${name} did not resolve to a hex literal`).toMatch(/^#[0-9a-fA-F]{3,8}$/);
+    return value;
+  };
+
+  const grounds = (block: string) => {
+    const ground = colour('--site-code-ground', block);
+    const glow = colour('--site-code-glow', block);
+    const top = readCustomProperty('--site-code-ground-top', block).match(/(\d+)%/);
+    expect(top, 'the header tint is not a percentage of the glow').not.toBeNull();
+    return {
+      ground,
+      deep: colour('--site-code-ground-deep', block),
+      top: mix(glow, ground, Number(top![1])),
+      response: mix(glow, colour('--site-code-ground-deep', block), 6),
+    };
+  };
+
+  it('declares one set per theme, and they differ', () => {
+    expect(light, 'no light code-window block').toBeDefined();
+    expect(dark, 'no dark code-window block').toBeDefined();
+    expect(colour('--site-code-ground', light!)).not.toBe(colour('--site-code-ground', dark!));
+  });
+
+  it.each([
+    ['light', () => light!],
+    ['dark', () => dark!],
+  ])('sets every text colour at AA on every ground, %s', (_theme, read) => {
+    const block = read();
+    for (const [where, ground] of Object.entries(grounds(block))) {
+      for (const name of [...TEXT, '--site-code-accent']) {
+        const r = ratio(colour(name, block), ground);
+        expect(r, `${name} on the ${where} ground: ${r.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 });

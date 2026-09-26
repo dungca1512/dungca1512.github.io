@@ -1,81 +1,72 @@
-/* Reveal runs on `animation-timeline: view()` — the browser drives it from
-   scroll position with no JS at all. Where that is missing, ONE
-   IntersectionObserver sets data-inview and a transition takes over. The
-   feature-query guard below (see the first `@supports` block) makes the two
-   mutually exclusive by construction, so they can never both be running on
-   the same element. */
+/* On-enter reveals, wigin.ai's model (measured 2026-09-26). An element is
+   held hidden; ONE IntersectionObserver per section (use-in-view.ts) marks it
+   `data-inview` the first time it crosses a line about 90% of the way down
+   the viewport; a 700ms transition then plays it in, once, on a clock. The
+   reader's wheel has no say in how far it has got.
 
-/* Opacity and movement are two animations, not one, because they need
-   different timing functions and a single @keyframes block can only carry
-   one. The movement keeps the spring — the overshoot past the resting
-   position is the character of the thing. Opacity cannot have it:
-   `cubic-bezier(0.34, 1.56, 0.64, 1)` crosses y=1 at about t=0.35 and keeps
-   climbing, and opacity clamps at 1, so the fade was finished inside the
-   first third of its range no matter where the range was set. Measured in
-   Chrome at a 900px viewport: the element stood at full opacity while its
-   top edge was still 82% of the way down the screen — in the bottom margin,
-   below anything being read, so the page looked like it had no reveal at
-   all. The fade on its own `linear` track, over the SAME range, reaches
-   half at 77% of viewport height and full at 58%. */
+   Until 2026-09-26 this file drove the same reveals from scroll position
+   (a view timeline) and kept the observer only as a feature-test fallback
+   for browsers without one. Measured against wigin's, the scrubbed version
+   lost on exactly the thing that was asked for: a reveal that moves with
+   the wheel can be parked half-done between two flicks, and replays
+   backwards on every scroll-up, so nothing ever ARRIVES. The observer path
+   is now the only path, on every browser. Scroll-scrubbed effects survive
+   where the scroll position IS the effect — the art parallax and shutter,
+   the blueprint drift at the bottom of this file, the header.
+
+   Everything hidden is hidden under `.js` (set on <html> by theme-script.tsx
+   before first paint). Without JS nothing would ever set data-inview, and an
+   ungated rule would leave the whole page at opacity 0. */
+
+/* ── The clock-driven keyframes: hero only ──────────────────────────────────
+   Content that is already on screen at load never enters, so it cannot be
+   observed in. `reveal-load` / `reveal-clip-load` below play the same
+   picture as keyframes, once, from first paint. Opacity and movement are two
+   @keyframes because one block carries one timing function, and the two
+   have not always wanted the same one. */
 @keyframes site-reveal-fade {
   from {
     opacity: 0;
   }
 }
 
-/* The travel is horizontal: content arrives from the right and settles
-   leftward into place. It used to rise from below, and the reason to change it
-   is not only taste — a page that is one tall column of stacked bands already
-   moves the reader downward, and a reveal that also moves downward adds no
-   information to the one axis the reader is already on. Coming in across that
-   axis marks the arrival as its own event.
-
-   2rem, not the 1.25rem the vertical version used. Horizontal travel reads as
-   smaller than the same distance vertically here, because it is measured
-   against a line of text that is itself hundreds of pixels wide, where the
-   vertical version was measured against a line-height.
-
-   Everything that translates on X needs the `overflow-x: clip` on `body` (see
-   globals.css). Without it, the first frame of every reveal on the page sits
-   2rem past the right edge and the document grows a horizontal scrollbar. */
+/* 26px, measured on wigin. A rise, not the sideways 2rem the scroll-driven
+   version used: that direction was chosen for a scrubbed reveal, where a
+   move across the scroll axis at least read as its own event while the
+   reader dragged it. Played once on a clock it has no scroll to compete
+   with, and the rise is what the reference does. (The sideways version also
+   needed `overflow-x: clip` on <body>; a rise never leaves the document.) */
 @keyframes site-reveal-in {
   from {
-    transform: translateX(2rem);
+    transform: translateY(26px);
   }
 }
 
-/* The headline's wipe turns with it, from bottom-up to left-to-right — the
-   direction the words are read in.
-
-   The mask lives in the element's own coordinate space, so it travels with the
-   translate rather than against it. The two are not fighting: the mask edge
-   crosses the element's full width (hundreds of px) over the same range the
-   element moves 1.25rem, so the wipe dominates by more than an order of
-   magnitude and the leftward drift reads as the block settling underneath it.
-
-   Keeping this one shorter than the plain reveal's 2rem is deliberate. It runs
-   on the largest type on the page, where the same distance covers a smaller
-   fraction of the glyphs and so reads as a bigger move.
+/* The headline's wipe runs left to right — the direction the words are read
+   in — over a smaller rise than the plain reveal: it runs on the largest
+   type on the page, where the same distance reads as a bigger move.
 
    BOTH ends are written out, and that is load-bearing rather than tidiness.
    This block used to declare `from` alone, which makes the `to` frame the
-   element's own computed `clip-path` — `none`. `none` is not a basic shape, so
-   there is nothing to interpolate towards and CSS falls back to DISCRETE
+   element's own computed `clip-path` — `none`. `none` is not a basic shape,
+   so there is nothing to interpolate towards and CSS falls back to DISCRETE
    interpolation: the mask does not sweep, it flips, in one frame, at the
    halfway point of the eased curve. Measured on the built page before this
-   change: at 22.5% of the scroll range the heading's computed clip-path was
-   already `none`. The wipe this file has described since it was written was
+   was fixed: at 22.5% of the range the heading's computed clip-path was
+   already `none`. The wipe this file had described since it was written was
    never running; the fade underneath it was hiding the snap.
 
    The final frame bleeds 0.4em outside the box instead of resting at
    `inset(0 0 0 0)`, because the animation is filled `both` and therefore
    leaves that frame in place for good. The headings are Vietnamese, set at
    `leading-[1.05]` — stacked diacritics (ề, ữ, ạ) reach past the border box,
-   and an exact-fit final mask would shave them permanently. */
+   and an exact-fit final mask would shave them permanently. `reveal-clip`
+   below plays this same block once its observer fires, so the scroll wipe
+   and the hero wipe are one set of frames. */
 @keyframes site-reveal-clip {
   from {
     clip-path: inset(-0.4em 100% -0.4em -0.4em);
-    transform: translateX(1.25rem);
+    transform: translateY(1rem);
   }
   to {
     clip-path: inset(-0.4em -0.4em -0.4em -0.4em);
@@ -88,131 +79,150 @@
   }
 }
 
-/* The end of the range is a LENGTH into `cover`, not a percentage of it.
-   A percentage is measured against the cover range's own size — viewport
-   height PLUS the element's height — so the same `cover 26%` finished at a
-   different place on screen for a one-line paragraph than for a tall card,
-   and a length makes the travel distance the same for both.
+/* ── The scroll reveals ─────────────────────────────────────────────────────
+   700ms on `cubic-bezier(0.22, 1, 0.36, 1)` — wigin's `transition: opacity
+   .7s var(--ease), transform .7s var(--ease)`, token for token. The curve
+   lands without overshoot; `--ease-spring` is gone from every reveal and
+   lives on only in `pop-on-hover`, where a hover is a settle worth having.
 
-   The range is also deliberately short, and stretching it is the wrong way
-   to make a reveal last longer on screen. An element in the page's last
-   band has only so much scroll left underneath it, and a range the page
-   cannot finish leaves it parked part-way with nowhere left to go: at
-   `cover 22vh cover 85vh` the LinkedIn contact row sat at opacity 0.10 at
-   maximum scroll, permanently. Timing, not distance, is what puts a reveal
-   where it can be seen.
-
-   One `animation-timeline` and one `animation-range` cover two animations:
-   CSS repeats a short animation-* list until it matches the number of
-   animation names, so both tracks take the same timeline and the same
-   range, and there is no second copy to drift out of step. */
+   LONGHANDS, NEVER THE `transition` SHORTHAND. `.js .reveal` weighs (0,2,0)
+   and `.stagger > *` (0,1,0); the shorthand resets `transition-delay` to 0s
+   at the higher weight, and every staggered list on the page would arrive
+   all at once with nothing in the build to say why. The delay is left to
+   `stagger` below and to inline styles (split-lines.tsx). */
 @utility reveal {
-  animation:
-    site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-in var(--duration-slow) var(--ease-spring) both;
-  animation-timeline: view();
-  animation-range: cover 4vh cover 42vh;
-}
-
-@utility reveal-clip {
-  animation:
-    site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
-  animation-timeline: view();
-  animation-range: cover 5vh cover 46vh;
-}
-
-/* For content that is ALREADY in the viewport at load — the hero. A
-   scroll-driven animation on it would never play, because it never enters.
-   These run on a wall clock, where the easing is read as speed rather than
-   as a position on screen, so the split is kept only so both variants play
-   the same keyframes. */
-@utility reveal-load {
-  animation:
-    site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-in var(--duration-slow) var(--ease-spring) both;
-}
-
-@utility reveal-clip-load {
-  animation:
-    site-reveal-fade var(--duration-slow) linear both,
-    site-reveal-clip var(--duration-slow) var(--ease-out-soft) both;
-}
-
-@supports not (animation-timeline: view()) {
-  /* `.js` matters: without JS nothing sets data-inview, and this rule would
-     leave every revealing element at opacity 0 forever. */
-  .js .reveal,
-  .js .reveal-clip {
-    animation: none;
+  .js & {
     opacity: 0;
-    transform: translateX(2rem);
-    transition:
-      opacity var(--duration-slow) var(--ease-out-soft),
-      transform var(--duration-slow) var(--ease-out-soft);
+    transform: translateY(26px);
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-hero);
+    transition-timing-function: var(--ease-out-quint);
   }
 
-  .js .reveal[data-inview='true'],
-  .js .reveal-clip[data-inview='true'] {
+  .js &[data-inview='true'] {
     opacity: 1;
     transform: none;
   }
 }
 
+/* The headline wipe: keyframes released by the observer, NOT a transition,
+   and the hidden state carries no clip-path. Measured in Chrome 154 on
+   2026-09-26: IntersectionObserver clips the target by its own `clip-path`,
+   so a heading parked at `inset(… 100% …)` has an intersection width of 0
+   and never fires — every section heading on the page stayed hidden. (WebKit
+   ignores clip-path there, which is why the transition version passed in
+   Safari.) So the mask lives only inside `site-reveal-clip`, which starts the
+   moment `data-inview` lands, and the parked state is opacity 0 plus the
+   same 1rem rise the keyframe begins from. `opacity: 1` and `transform:
+   none` on the shown rule are what the keyframes' implicit `to` frames
+   resolve to: without them the fade would run from 0 to 0.
+
+   Longhands again, for the same reason as the transition longhands above:
+   the `animation` shorthand at (0,3,0) would reset `animation-delay` over
+   `.stagger > *`. `both` keeps the last frame, which is the resting one. */
+@utility reveal-clip {
+  .js & {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  .js &[data-inview='true'] {
+    opacity: 1;
+    transform: none;
+    animation-name: site-reveal-fade, site-reveal-clip;
+    animation-duration: var(--duration-hero), var(--duration-hero);
+    animation-timing-function: var(--ease-out-quint), var(--ease-out-quint);
+    animation-fill-mode: both, both;
+  }
+}
+
+/* For content that is ALREADY in the viewport at load — the hero. Same
+   clock, same curve, played from first paint rather than from an observer. */
+@utility reveal-load {
+  animation:
+    site-reveal-fade var(--duration-hero) var(--ease-out-quint) both,
+    site-reveal-in var(--duration-hero) var(--ease-out-quint) both;
+}
+
+@utility reveal-clip-load {
+  animation:
+    site-reveal-fade var(--duration-hero) var(--ease-out-quint) both,
+    site-reveal-clip var(--duration-hero) var(--ease-out-quint) both;
+}
+
 /* The headline underline draws itself on: `stroke-dashoffset` runs from the
-   full path length down to 0 as the element scrolls through view.
-   `stroke-dasharray` is set to the SAME value and stays static — the
-   keyframe only ever touches the offset — so at the animation's start the
-   single dash sits shifted entirely behind the path's origin (0% visible),
-   and at its end (offset 0) that same dash covers the whole path (100%
-   visible). The path (`M4 16C88 6 176 4 264 8c88 4 176 12 264 8 36-3 72-8
-   108-14`, in the `0 0 640 24` viewBox drawn-underline.tsx uses) measures
-   633.58 user units via `getTotalLength()`; 660 comfortably exceeds that so
-   a sub-pixel measurement difference across browsers, or the stretch from
-   `preserveAspectRatio="none"`, can never leave a sliver of the tail
+   full path length down to 0 once the underline's <svg> is observed in.
+   `stroke-dasharray` is set to the SAME value and stays static, so at the
+   parked offset the single dash sits shifted entirely behind the path's
+   origin (0% visible), and at offset 0 that same dash covers the whole path
+   (100% visible). The path (`M4 16C88 6 176 4 264 8c88 4 176 12 264 8 36-3
+   72-8 108-14`, in the `0 0 640 24` viewBox drawn-underline.tsx uses)
+   measures 633.58 user units via `getTotalLength()`; 660 comfortably exceeds
+   that so a sub-pixel measurement difference across browsers, or the stretch
+   from `preserveAspectRatio="none"`, can never leave a sliver of the tail
    undrawn. (That stretch does mean the drawing does not progress at a
    constant rate across the headline's on-screen width — the path's curviest
    third draws at a different apparent speed than its straighter ends once
    it is stretched non-uniformly to the headline's box. Purely cosmetic: the
-   dash math that makes the animation start empty and end whole is
-   unaffected, because it operates in the path's own, unstretched,
-   coordinate space.) */
-@keyframes site-draw-underline {
+   dash math that makes the drawing start empty and end whole is unaffected,
+   because it operates in the path's own, unstretched, coordinate space.)
+
+   The ungated rule sets only the dash. `stroke-dashoffset` defaults to 0 —
+   drawn — so a JS-less visitor, who never gets data-inview, sees the line. */
+.drawn-line path {
+  stroke-dasharray: 660;
+}
+
+.js .drawn-line path {
+  stroke-dashoffset: 660;
+  transition: stroke-dashoffset var(--duration-hero) var(--ease-out-quint);
+}
+
+.js .drawn-line[data-inview='true'] path {
+  stroke-dashoffset: 0;
+}
+
+/* The hero's underline, like the hero's text, is on screen at load and sits
+   outside every RevealScope, so nothing would ever mark it: measured on the
+   built page, it stayed parked at the full dash for good. `mode="load"` on
+   DrawnUnderline adds this class and the stroke draws on the same clock as
+   `reveal-load`, a beat after the words start (`--duration-base`, 250ms) so
+   pen and type do not set off on the same millisecond.
+
+   Both ends written out, and here it matters more than tidiness: under
+   `.js` the element's own offset is the parked 660, so a `from`-only block
+   would animate from 660 to 660. `both` keeps the last frame, which is what
+   leaves the line drawn once the keyframes end. No `.js` gate, as with
+   `reveal-load`: without JS it plays from the ungated 0 to 0, a no-op. */
+@keyframes site-underline-load {
   from {
     stroke-dashoffset: 660;
   }
-}
-
-.drawn-line path {
-  stroke-dasharray: 660;
-  animation: site-draw-underline var(--duration-slow) linear both;
-  animation-timeline: view();
-  animation-range: cover 5vh cover 46vh;
-}
-
-@supports not (animation-timeline: view()) {
-  .js .drawn-line path {
-    animation: none;
-    stroke-dashoffset: 660;
-    transition: stroke-dashoffset var(--duration-slow) var(--ease-out-soft);
-  }
-
-  .js .drawn-line[data-inview='true'] path {
+  to {
     stroke-dashoffset: 0;
   }
 }
 
-/* Child n arrives after child n-1. Capped at eight steps: past that the last
-   item is still waiting when the reader has moved on. */
+.drawn-line-load path {
+  animation: site-underline-load var(--duration-hero) var(--ease-out-quint) var(--duration-base)
+    both;
+}
+
+/* Child n arrives after child n-1. 80ms is wigin's list stagger (`.08s` per
+   item); it was 60ms while the reveal ran on the scroll timeline. Capped at
+   eight steps in practice: past that the last item is still waiting when
+   the reader has moved on. */
 @utility stagger {
   & > * {
-    animation-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
-    transition-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
+    animation-delay: calc(var(--stagger-step, 80ms) * var(--i, 0));
+    transition-delay: calc(var(--stagger-step, 80ms) * var(--i, 0));
   }
 }
 
 /* A very slow drifting grid behind a band. The colour is the border token
-   thinned out, so it follows the theme. */
+   thinned out, so it follows the theme. Still scroll-driven, on purpose:
+   a drift that is a function of where the reader is on the page is the
+   effect, and it has no "arrival" to play. */
 @utility blueprint {
   position: relative;
   isolation: isolate;

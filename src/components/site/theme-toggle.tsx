@@ -9,10 +9,9 @@ export function ThemeToggle({ label }: { label: string }) {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     try {
-      // Store 'light' rather than removing the key. Today an absent key is
-      // treated as light too, so this is a no-op either way — but writing it
-      // is what keeps the toggle correct if a prefers-color-scheme branch is
-      // ever added to the pre-paint script, and it costs nothing now.
+      // Store 'light' rather than removing the key: an absent key means
+      // dark (the default, see theme-script.tsx), so removing it would put a
+      // visitor who chose light back on dark at the next load.
       localStorage.setItem('portfolio-theme', next);
     } catch {
       // Private mode, or storage disabled. The theme still switches for this

@@ -1,0 +1,215 @@
+/* ─── The code window ──────────────────────────────────────────────────────
+   Goes with src/components/motion/code-window.tsx, which types the text.
+   What is decided here is the frame: a terminal card that follows the
+   theme, a white surface in the light one and wigin's navy in the dark.
+   The `--site-code-*` tokens in globals.css carry both sets, and say why
+   the card stopped being dark on the light page. Every colour is a token,
+   so the gate in scripts/check-no-hardcoded-colors.mjs has nothing to
+   find here. */
+
+.code-window {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--base-radius-lg);
+  border: 1px solid var(--site-code-border);
+  color: var(--site-code-text);
+  background: linear-gradient(
+      180deg,
+      var(--site-code-ground-top) 0,
+      var(--site-code-ground) 5rem,
+      var(--site-code-ground-deep) 100%
+    )
+    padding-box;
+  /* Per theme, in globals.css: a soft lift on the light page, a blue cast
+     and a glass edge on the navy one. */
+  box-shadow: var(--site-code-shadow);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* The `split` layout below answers to the card's own width. Safe here:
+     the card is always `width: 100%` of its parent, so nothing about its
+     width depends on its content. */
+  container-type: inline-size;
+}
+
+.code-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--site-code-border);
+}
+
+.code-window-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--site-code-text) 20%, transparent);
+}
+
+/* The first dot is the "live" light. It breathes on a slow clock so the
+   card reads as connected before the first character is typed. */
+.code-window-dot[data-live='true'] {
+  background: var(--site-code-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--site-code-accent) 60%, transparent);
+  animation: code-window-live 2.4s var(--ease-out-soft) infinite;
+}
+
+@keyframes code-window-live {
+  to {
+    box-shadow: 0 0 0 0.55rem color-mix(in srgb, var(--site-code-accent) 0%, transparent);
+  }
+}
+
+.code-window-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.6rem 0.9rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--site-code-border);
+  /* The row is allowed to run off the right edge on a narrow card; a fade
+     says so, where a hard cut would look like a layout fault. */
+  mask-image: linear-gradient(to right, black 82%, transparent);
+}
+
+.code-window-tab {
+  flex: none;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--site-code-border);
+  font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--site-code-muted);
+  transition:
+    color var(--duration-slow) var(--ease-out-soft),
+    background-color var(--duration-slow) var(--ease-out-soft),
+    border-color var(--duration-slow) var(--ease-out-soft);
+}
+
+.code-window-tab[data-active='true'] {
+  color: var(--site-code-text);
+  background: var(--site-code-tab-active);
+  border-color: color-mix(in srgb, var(--site-code-accent) 55%, transparent);
+}
+
+.code-window-body {
+  margin: 0;
+  padding: 1.25rem 1.3rem 1.4rem;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  /* Eleven lines: the tallest snippet in content/snippets.ts. Reserved so
+     the card does not grow and shrink as one snippet is replaced by a
+     shorter one, and the band around it does not shift. */
+  min-height: calc(11 * 1.65em + 2.65rem);
+  transition: opacity var(--duration-base) var(--ease-out-soft);
+}
+
+/* The switch between tabs: the body fades out on the last phase and comes
+   back with the first character of the next request. */
+.code-window[data-phase='switching'] .code-window-body {
+  opacity: 0;
+}
+
+.code-window-kw,
+.code-window-ok {
+  color: var(--site-code-accent);
+  font-weight: 700;
+}
+
+.code-window-path,
+.code-window-str {
+  color: var(--site-code-string);
+}
+
+.code-window-key {
+  color: var(--site-code-key);
+}
+
+.code-window-num {
+  color: var(--site-code-accent);
+}
+
+.code-window-muted {
+  color: var(--site-code-muted);
+}
+
+/* A block cursor, solid while text is arriving, blinking while it waits. */
+.code-window-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 0.12em;
+  vertical-align: -0.18em;
+  border-radius: 1px;
+  background: var(--site-code-accent);
+}
+
+.code-window-cursor[data-blink='true'] {
+  animation: code-window-blink 1s steps(2, start) infinite;
+}
+
+@keyframes code-window-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ─── The split layout ────────────────────────────────────────────────────
+   Request in one pane, response in the other, like an API client. One pane
+   over the other by default; side by side from 44rem of CARD width, where
+   each pane still holds the longest snippet line (36 characters, content/
+   snippets.ts) without wrapping. A container query rather than a media
+   query because the card's width is set by the column it sits in, and the
+   same viewport gives different columns in different bands. */
+.code-window-split {
+  display: grid;
+}
+
+.code-window-pane + .code-window-pane {
+  border-top: 1px solid var(--site-code-border);
+}
+
+.code-window-pane-label {
+  margin: 0;
+  padding: 0.9rem 1.3rem 0;
+  font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--site-code-muted);
+}
+
+.code-window[data-layout='split'] .code-window-body {
+  padding-top: 0.7rem;
+  /* Six lines: the tallest request. The response pane is at most three,
+     and side by side the grid row stretches it to match; stacked, it keeps
+     its own reservation so the card does not grow as the answer lands. */
+  min-height: calc(6 * 1.65em + 2.1rem);
+}
+
+.code-window-pane[data-pane='response'] .code-window-body {
+  min-height: calc(3 * 1.65em + 2.1rem);
+}
+
+/* The response pane's ground carries a little more of the glow, so the two
+   halves read as the two ends of a call rather than as one box cut in two. */
+.code-window-pane[data-pane='response'] {
+  background: color-mix(in srgb, var(--site-code-glow) 6%, transparent);
+}
+
+@container (min-width: 44rem) {
+  .code-window-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .code-window-pane + .code-window-pane {
+    border-top: 0;
+    border-left: 1px solid var(--site-code-border);
+  }
+}

@@ -188,6 +188,42 @@ describe('Constellation', () => {
     vi.useRealTimers();
   });
 
+  /* Movement is integrated over the clock, not counted in draws. The old
+     loop added a fixed 0.07px per draw behind a `t - last < 33` gate, and on
+     a 60Hz display two frames are 33.3ms — a third of a millisecond inside
+     the gate. Any vsync jitter let one draw through at 33ms and held the
+     next to 50ms, so the field alternated between two speeds: the unevenness
+     the eye reads as "not smooth". Two invariants: one draw 66ms after the
+     last moves a point exactly as far as two draws 33ms apart, and a
+     two-frame gap that lands a hair short of 33ms still draws. */
+  it('moves the field by elapsed time and tolerates a slightly short frame pair', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.75); // velocity +0.5·SPEED, far from any edge
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      frames.push(cb);
+      return frames.length;
+    });
+    render(<Constellation />);
+    const tick = (t: number) => frames[frames.length - 1]!(t);
+    const lastX = () => ctx.arc.mock.calls[ctx.arc.mock.calls.length - 1]![0] as number;
+    const draws = () => ctx.clearRect.mock.calls.length;
+
+    tick(1000); // the first frame after start only sets the reference time
+    const x0 = lastX();
+    const d0 = draws();
+    tick(1010); // 10ms on: under the gate, nothing drawn
+    expect(draws()).toBe(d0);
+    tick(1033);
+    const step = lastX() - x0;
+    expect(step).toBeGreaterThan(0);
+    tick(1066);
+    expect(lastX() - x0).toBeCloseTo(2 * step, 6);
+    tick(1132); // one draw across twice the gap
+    expect(lastX() - x0).toBeCloseTo(4 * step, 6);
+    tick(1164); // 32ms: a 60Hz frame pair that arrived a hair early
+    expect(draws()).toBe(d0 + 4);
+  });
+
   it('cancels the frame and stops listening on unmount', () => {
     const remove = vi.spyOn(window, 'removeEventListener');
     const { unmount } = render(<Constellation />);

@@ -65,7 +65,12 @@ function pageSections(): string[] {
 
 /* The three ways a band can carry art. All three are pictures to a reader;
    only the first is a file on disk. */
-const ART_MARKERS = ['<Illustration', '<TechArt', '<MetricGlyph'];
+// `<CodeWindow` counts as art since 2026-09-26: the terminal that types a
+// request and its answer (components/motion/code-window.tsx) is a picture in
+// every sense this test cares about — a drawn, decorative, aria-hidden thing
+// that keeps a band from being a column of text alone. It sits in the
+// Expertise band's toolbox row; the hero passes on its portrait alone.
+const ART_MARKERS = ['<Illustration', '<TechArt', '<MetricGlyph', '<CodeWindow'];
 
 describe('every band on the page carries art', () => {
   const sections = pageSections();
@@ -169,6 +174,7 @@ const EFFECTS = [
   { klass: 'art-parallax', css: ART_CSS },
   { klass: 'art-drift', css: ART_CSS },
   { klass: 'art-pulse', css: ART_CSS },
+  { klass: 'art-signal', css: ART_CSS },
 ] as const;
 
 describe('picture motion', () => {
@@ -249,6 +255,8 @@ describe('parallax and the class it must not share an element with', () => {
           call: m[0],
         })),
       );
+    // Seven: the hero's portrait is one of them, and it stays one — the code
+    // window was set beside it, not in its place.
     expect(calls.length, 'found no <Illustration> callers to check').toBeGreaterThanOrEqual(7);
     for (const { file, call } of calls) {
       expect(call, `${file} renders art with no parallax`).toContain('parallax');
@@ -257,10 +265,12 @@ describe('parallax and the class it must not share an element with', () => {
 
   it('is only asked for where the frame clips, since it oversizes the picture', () => {
     for (const file of sourceFiles()) {
-      const source = read(file);
+      // Comments out BEFORE the word is looked for: smooth-scroll.tsx names
+      // the parallax in prose and renders nothing at all.
+      const source = stripComments(read(file));
       if (!source.includes('parallax')) continue;
       if (file.endsWith('illustration.tsx')) continue; // the component, not a caller
-      const call = /<Illustration[\s\S]*?\/>/.exec(stripComments(source))![0];
+      const call = /<Illustration[\s\S]*?\/>/.exec(source)![0];
       const clips =
         /className="[^"]*overflow-hidden/.test(call) || /className="[^"]*hero-portrait/.test(call); // clips in sections/hero.css
       expect(clips, `${file} parallaxes a picture inside a frame that does not clip`).toBe(true);

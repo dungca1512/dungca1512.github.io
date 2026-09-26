@@ -37,6 +37,17 @@
   --base-palette-green-200: #95f1d5;
   --base-palette-yellow-400: #ffb319;
   --base-palette-yellow-100: #fff1d6;
+  /* The dark theme's ground and its two lights, after wigin.ai (measured
+     2026-09-26: `--c-black #000`, `--c-blue #0160fb`, `--c-cyan #02e7c9`).
+     Their black is lifted to a navy here — three steps of it, the same
+     four-point spacing the neutral ramp keeps — because a canvas of glowing
+     points reads as depth on a blue-black and as a screensaver on a true
+     black. The blue and cyan are theirs to the digit. */
+  --base-palette-navy-950: #060c17;
+  --base-palette-navy-900: #0d1726;
+  --base-palette-navy-850: #122034;
+  --base-palette-blue-600: #0160fb;
+  --base-palette-cyan-500: #02e7c9;
 
   --base-radius-xs: 4px;
   --base-radius-sm: 8px;
@@ -86,21 +97,29 @@
 
 /* Step C — semantic tokens, DARK (under `[data-theme='dark']`).
  *
- * Only the tokens that must flip appear here. The accents keep their hue;
- * the ink layer below is what makes them legible, in both directions. */
+ * Only the tokens that must flip appear here. Since 2026-09-26 that includes
+ * the two accents: the light theme keeps its teal and its mid blue, and the
+ * dark theme takes wigin's electric blue and cyan, which on a navy ground
+ * are the whole point of the picture and on white would be neon. The ink
+ * layer below is what keeps both pairs legible as text (measured: ink-accent
+ * 13.24:1 and ink-info 6.18:1 on this background). */
 [data-theme='dark'] {
-  --base-background: var(--base-palette-neutral-950); /* #0b0b0b */
+  --base-background: var(--base-palette-navy-950);
   /* A shadow cannot lift anything off near-black, so the lift comes from the
      surface being lighter than what it sits on — the same four-point distance
      --surface-muted keeps from --background at the light end. */
-  --base-surface: #191919;
-  --base-surface-muted: var(--base-palette-neutral-850);
+  --base-surface: var(--base-palette-navy-900);
+  --base-surface-muted: var(--base-palette-navy-850);
   /* NOT neutral-0: a pure-white surface colour used as ink on near-black lands
-     at 18:1 and glares. Pulled down two steps. */
-  --base-foreground: #ededed;
-  --base-muted-foreground: #9aa0a6; /* 6.1:1 on the dark background */
-  --base-border: #ffffff1c; /* ~11% white */
-  --base-border-soft: #ffffff12;
+     at 18:1 and glares. Pulled down two steps, and a hair towards blue so it
+     sits in the navy rather than on it. 17.41:1 on the background. */
+  --base-foreground: #eef2f7;
+  --base-muted-foreground: #9aa7b8; /* 8.01:1 on the background, 6.70:1 on surface-muted */
+  /* wigin's borders are their grey at 10% and 18%; these are the same grey. */
+  --base-border: #f3f5f71a;
+  --base-border-soft: #f3f5f710;
+  --base-accent: var(--base-palette-cyan-500);
+  --base-info: var(--base-palette-blue-600);
 }
 
 /* Step D — the brand override (BOTH selectors, one rule). Verbatim from spec
@@ -124,6 +143,61 @@
    * the brand colour instead, since --base-primary already resolves to the
    * same blue in both themes via the override above. */
   --base-ring: var(--base-primary);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * The code window (styles/site/code-window.css). It follows the theme.
+ *
+ * It used to be dark in both, on the argument that a light terminal reads
+ * as a text box. On the light page that made it a navy slab with a blue
+ * glow under it, the one dark object in a band of white cards and black
+ * ink, and it looked pasted on rather than placed. So the light card is a
+ * white surface like its neighbours, set in the site's own ink and blues,
+ * and the dark card keeps wigin's navy, blue and cyan.
+ *
+ * The light text colours are measured against the palest ground they sit
+ * on, the response pane (white with 6% of the glow): text 14.4:1, string
+ * 10.1:1, key 5.6:1, muted 5.1:1, accent 4.6:1. The site's own teal is
+ * 2.6:1 there, which is why the accent is a darker teal of the same hue.
+ * tests/contrast.test.ts holds both themes to AA.
+ * ──────────────────────────────────────────────────────────────────────── */
+:root {
+  --site-code-ground: var(--base-palette-neutral-0);
+  --site-code-ground-deep: #f6f8fb;
+  --site-code-ground-top: color-mix(in srgb, var(--site-code-glow) 6%, var(--site-code-ground));
+  --site-code-border: #0d17261f;
+  --site-code-text: #16202e;
+  --site-code-muted: #5a6679;
+  --site-code-key: #1d5fae;
+  --site-code-string: #2c3a4f;
+  --site-code-accent: #0b7a70;
+  --site-code-glow: var(--base-palette-blue-500);
+  --site-code-tab-active: color-mix(in srgb, var(--site-code-glow) 12%, var(--site-code-ground));
+  /* A lift, not a glow: the page's own raised shadow, with a little of the
+     blue in its long tail so it belongs to the card above it. */
+  --site-code-shadow:
+    0 24px 56px -32px color-mix(in srgb, var(--site-code-glow) 30%, transparent),
+    0 2px 6px -2px #0d172614;
+}
+
+[data-theme='dark'] {
+  --site-code-ground: var(--base-palette-navy-900);
+  --site-code-ground-deep: var(--base-palette-navy-950);
+  --site-code-ground-top: color-mix(in srgb, var(--site-code-glow) 14%, var(--site-code-ground));
+  --site-code-border: #f3f5f71f;
+  --site-code-text: #eef2f7;
+  --site-code-muted: #8a98ad; /* 6.5:1 on the ground */
+  --site-code-key: #8fc0ff;
+  --site-code-string: #dbe4f0;
+  --site-code-accent: var(--base-palette-cyan-500);
+  --site-code-glow: var(--base-palette-blue-600);
+  --site-code-tab-active: color-mix(in srgb, var(--site-code-glow) 30%, transparent);
+  /* The blue cast under the card is what lifts it off a navy page, where a
+     grey shadow would vanish; the one-pixel light edge along the top is
+     what makes it read as glass rather than paint. */
+  --site-code-shadow:
+    0 32px 80px -28px color-mix(in srgb, var(--site-code-glow) 55%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, var(--site-code-text) 9%, transparent);
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -240,6 +314,10 @@
 
   --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* wigin.ai's reveal curve, measured 2026-09-26: a quint-ish ease-out that
+   * lands with no overshoot. Every on-enter reveal and drawing runs on it
+   * (styles/motion.css, sections/expertise.css). */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* The section head goes two-column here. Not one of Tailwind's defaults,
    * because the break is set by the headline's measure, not by device width. */
@@ -286,6 +364,9 @@
  * ──────────────────────────────────────────────────────────────────────── */
 @layer base {
   html {
+    /* Anchor links only. The wheel's own easing lives in
+     * components/motion/smooth-scroll.tsx, which scrolls with
+     * `behavior: 'instant'` precisely so this rule cannot ease its easing. */
     scroll-behavior: smooth;
     /* The sticky header is 4rem. Without this, an anchor lands with the
      * heading underneath it. */
@@ -301,20 +382,14 @@
   }
 
   body {
-    /* The reveal animations start 2rem to the RIGHT of where they rest (see
-       styles/motion.css). Every revealing element on the page therefore spends
-       its first frame past the right edge of the document, and without this the
-       document grows to fit them: a horizontal scrollbar, and a page a reader
-       can drag sideways into empty margin.
-
-       `clip`, not `hidden`. They clip the same, but `overflow: hidden` makes
-       the element a SCROLL CONTAINER, and that would be a real bug here rather
-       than a stylistic difference — a scroll container on <body> takes the
-       sticky header out of the viewport's scroll context and breaks
-       `scroll-behavior: smooth` on <html> above. `clip` creates no scroll
-       container at all, which is exactly the "cut this off and change nothing
-       else" this needs. */
-    overflow-x: clip;
+    /* No `overflow-x: clip` here any more. It arrived with the sideways
+       reveal (2rem in from the right, 2026-09-2x) because every first frame
+       sat past the right edge; the reveal rises now (styles/motion.css) and
+       never leaves the document. Anything that overflows sideways from here
+       on is a real bug to find, not one silently cut off. If it ever has to
+       come back: `clip`, never `hidden` — `hidden` makes <body> a scroll
+       container, which takes the sticky header out of the viewport's scroll
+       context and breaks `scroll-behavior: smooth` on <html>. */
     font-family: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
     background-color: var(--base-background);
     color: var(--base-foreground);
@@ -322,6 +397,22 @@
     font-feature-settings:
       'ss01' 1,
       'cv11' 1;
+  }
+
+  /* wigin's `--grad-glow`, measured 2026-09-26: a radial wash of blue then
+     cyan hanging from the top edge, which is what makes their black read as
+     lit from above rather than as a void. Sized to one viewport and not
+     repeated, so it belongs to the hero and the page below it is plain navy.
+     Dark only; on white the same wash is a stain. */
+  [data-theme='dark'] body {
+    background-image: radial-gradient(
+      60% 40% at 50% 0%,
+      color-mix(in srgb, var(--base-palette-blue-600) 26%, transparent),
+      color-mix(in srgb, var(--base-palette-cyan-500) 10%, transparent) 45%,
+      transparent 72%
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100vh;
   }
 
   h1,
@@ -380,4 +471,5 @@
 @import '../styles/site/illustration.css';
 @import '../styles/motion/art.css';
 @import '../styles/site/tech-art.css';
+@import '../styles/site/code-window.css';
 @import '../styles/motion/marquee.css';

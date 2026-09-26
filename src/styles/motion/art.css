@@ -159,3 +159,41 @@
 .art-pulse-late {
   animation-delay: 2.2s;
 }
+
+/* ── The signal ─────────────────────────────────────────────────────────
+   Packets running along the wires and INTO the chip (tech-art.tsx: the
+   chip's legs, the pipeline, the stream's feeds). Asked for on 2026-09-26:
+   the art should look like it is receiving data, continuously, not sitting
+   there with a pulse in the middle.
+
+   A second <path> over each wire, dashed 4 on 14: a short packet, a long
+   gap, so the wire reads as a wire with something on it rather than as a
+   dotted line. `stroke-dashoffset` runs to MINUS one period (4 + 14 = 18),
+   which moves the pattern towards the path's end — so every signal path in
+   tech-art.tsx is drawn from the outside world in to the chip's edge, and
+   that direction is tested. One period per cycle means the loop closes on
+   itself with no visible jump. Linear: a packet on a wire does not ease.
+
+   The delay is NEGATIVE and per leg (`--i` from the markup), so at first
+   paint every wire is already mid-stream at a different phase, instead of
+   sixteen packets setting off together from the same edge.
+
+   This is the one picture effect that is not `transform` or `clip-path`:
+   `stroke-dashoffset` is a paint property, so each visible signal repaints
+   its own small SVG every frame. Measured before it was allowed: the paths
+   are a few hundred units long in a card-sized frame, and the repaint is
+   a fraction of a millisecond per card. Kept on `still` art on purpose —
+   the drift that `still` removes was the whole picture swaying next to
+   text; the signal stays inside its own wires. */
+@keyframes site-art-signal {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.art-signal {
+  stroke-dasharray: 4 14;
+  stroke-width: 2;
+  animation: site-art-signal 1.2s linear infinite;
+  animation-delay: calc(var(--i, 0) * -0.15s);
+}

@@ -1,7 +1,10 @@
-/* NOT `animation: none` on its own. These animations are filled `both`, so
-   removing the animation parks the element on its FIRST frame — opacity 0 —
-   and the content disappears for exactly the people who asked for less motion.
-   Every reset below has to land on the LAST frame instead. */
+/* NOT `animation: none` (or `transition: none`) on its own. The hero
+   animations are filled `both`, so removing the animation parks the element
+   on its FIRST frame — opacity 0 — and the scroll reveals are held hidden
+   under `.js` until a transition plays them in, so removing the transition
+   alone leaves them hidden too. Either way the content disappears for
+   exactly the people who asked for less motion. Every reset below has to
+   land on the LAST frame instead. */
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
@@ -33,16 +36,15 @@
   }
 
   /* The drawn underline is an exception: the stroke IS the graphic. Drop the
-     animation but hand back the dash values, or the line vanishes. */
+     transition but hand back the dash values, or the line vanishes. All
+     three `!important`: the `.js .drawn-line path` rule in motion.css is
+     (0,2,1) against this reset's (0,1,1), and without the flag it would
+     keep the offset parked at the full path length — an underline that
+     never draws, for exactly the people who asked for less motion. */
   .drawn-line path {
+    transition: none !important;
+    /* The hero's `.drawn-line-load` variant runs keyframes instead. */
     animation: none !important;
-    /* Every other declaration in this file is !important; these two were
-       not, which let an old-browser `.js .drawn-line path` fallback rule
-       ((0,2,1), see motion.css) outrank this reset ((0,1,1)) on
-       `stroke-dashoffset` — the underline still ended up visible, but only
-       because `stroke-dasharray: none` happened to win its own tie and
-       made the pinned offset irrelevant. Matching the file's own
-       convention removes that accident. */
     stroke-dasharray: none !important;
     stroke-dashoffset: 0 !important;
   }
@@ -79,58 +81,47 @@
     transform: none !important;
   }
 
-  /* The pinned Selected Work trio (sections/work.css). This is a SECOND line
-     of defence and should never fire: that file gates its whole pin block on
-     `(prefers-reduced-motion: no-preference)`, so a visitor who asked for
-     less motion is handed the static card and no keyframe is ever attached.
-
-     It is kept because the guarantee it backs is the one this file exists
-     for, and because a gate in another file is one edit away from being
-     widened by someone who does not know it was load-bearing. If that
-     happens, these rules still hold: no pin, no 200dvh of empty stage to
-     fall through, and every layer at rest and fully visible.
-
-     `transform: none` IS the landing this file asks for, even though it is
-     not the pin animation's last keyframe. The last frame belongs to a
-     layout — art absolutely filling a sticky card, name overlaid at 3.5rem —
-     that the reduced-motion visitor never sees. Their resting state is the
-     static card in document order, and `none` is that card's own frame. */
-  .pin-stage {
-    height: auto !important;
-    view-timeline-name: none !important;
-  }
-
-  .pin-card {
-    position: static !important;
-    height: auto !important;
-  }
-
-  .pin-art,
-  .pin-panel,
-  .pin-name {
+  /* The signal (motion/art.css) is a dash pattern that only reads as
+     packets while it moves. Stopped, it is a wire drawn as dots — a
+     broken-looking one. So it goes entirely, and the plain wire underneath
+     it, which was always there, is what remains. */
+  .art-signal {
     animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+    opacity: 0 !important;
   }
 
-  /* The hub in Expertise (sections/expertise.css). The link's last frame is
-     the whole line; the pulse's is off the end of the path, so it goes. */
+  /* The hub in Expertise (sections/expertise.css). Its motion block is
+     already gated on `no-preference`, so like the pin above this is a
+     second line, for a preference toggled after load. The link's resting
+     state is the whole line; the pulse's is off the end of the path, so it
+     goes. */
   .hub-link {
-    animation: none !important;
+    transition: none !important;
     stroke-dashoffset: 0 !important;
   }
 
   .hub-pulse {
     animation: none !important;
     opacity: 0 !important;
-    /* The `@supports` block gives it a transition on opacity (see
-       expertise.css); reset it too or a preference toggled after the pulse
-       last faded in would animate it back out instead of landing instantly. */
+    /* The media block gives it a transition on opacity (see expertise.css);
+       reset it too or a preference toggled after the pulse last faded in
+       would animate it back out instead of landing instantly. */
     transition: none !important;
   }
 
   .pop-on-hover {
     transition: none !important;
+  }
+
+  /* The code window (site/code-window.css). Its typing never starts under
+     reduced motion — the component checks the query and shows the whole
+     snippet — so what is left to stop is the CSS: the live dot's ring and
+     the cursor's blink. The cursor is not rendered in that state at all, so
+     its line is the second one, for a preference toggled after load. The
+     tab's colour transition stays: a colour change is not motion. */
+  .code-window-dot[data-live='true'],
+  .code-window-cursor {
+    animation: none !important;
   }
 
   /* The tilt never attaches its listeners under reduced motion, so this is

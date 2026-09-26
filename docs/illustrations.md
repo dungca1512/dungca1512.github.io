@@ -5,17 +5,21 @@ Seven names — `hero`, `expertise`, `work`, `experience`, `capabilities`,
 `public/images/illustrations/`. `src/components/site/illustration.tsx` emits the
 `<picture>` that offers avif, then webp, then the jpg.
 
-A visitor on a modern browser downloads the avif set: **113 KB for all seven**.
+A visitor on a modern browser downloads the avif set: **146 KB for all seven**.
+The avif and webp files carry alpha — the generated ground is keyed out, so
+the art sits on the page in either theme with no plate behind it (see
+[The ground is keyed out](#the-ground-is-keyed-out)). The alpha plane is what
+took the set from 113 KB to this.
 
 | Name           | avif KB | webp KB | jpg KB |
 | -------------- | ------- | ------- | ------ |
-| `hero`         | 26.8    | 35.3    | 34.3   |
-| `expertise`    | 10.7    | 15.5    | 22.0   |
-| `work`         | 12.8    | 18.1    | 21.4   |
-| `experience`   | 13.9    | 22.5    | 25.3   |
-| `capabilities` | 23.6    | 34.0    | 37.1   |
-| `writing`      | 14.0    | 22.5    | 24.9   |
-| `contact`      | 11.6    | 16.9    | 20.4   |
+| `hero`         | 28.9    | 38.1    | 34.3   |
+| `expertise`    | 13.1    | 15.1    | 22.0   |
+| `work`         | 16.3    | 17.6    | 21.4   |
+| `experience`   | 22.6    | 25.6    | 25.3   |
+| `capabilities` | 30.0    | 36.6    | 37.1   |
+| `writing`      | 17.5    | 23.1    | 24.9   |
+| `contact`      | 17.5    | 20.2    | 20.4   |
 
 ---
 
@@ -91,11 +95,45 @@ assert none of them contradicts the background.
 
 `scripts/compress-illustrations.sh`, per name:
 
-| Output  | Width                   | Encoder                    |
-| ------- | ----------------------- | -------------------------- |
-| `.avif` | 832, or 1280 for `hero` | `avifenc -q 54 --speed 4`  |
-| `.webp` | 832, or 1280 for `hero` | `cwebp -q <quality> -m 6`  |
-| `.jpg`  | 640, or 832 for `hero`  | Pillow, quality from table |
+| Output  | Width                   | Encoder                                          |
+| ------- | ----------------------- | ------------------------------------------------ |
+| `.avif` | 832, or 1280 for `hero` | `avifenc -q 54 --qalpha <alpha q> --speed 4`     |
+| `.webp` | 832, or 1280 for `hero` | `cwebp -q <quality> -alpha_q <alpha q> -m 6`     |
+| `.jpg`  | 640, or 832 for `hero`  | Pillow, quality from table, ground kept (opaque) |
+
+Both modern formats encode from a keyed RGBA PNG that
+`scripts/key-ground.py` writes; the jpg is resized straight from the source.
+
+### The ground is keyed out
+
+The art is generated on a flat ground and used to ship with it, so every
+picture was a plate: a pale square on the light page and — after the dark
+theme's `invert(1) hue-rotate(180deg)` — a dark square on the navy one.
+`scripts/key-ground.py` turns that ground into transparency:
+
+- **Grey pixels** — ink, its anti-aliasing, the pale fills — become the ink
+  colour (black on a light ground, white on `contact`'s dark one) at the alpha
+  that reproduces their lightness over the ground. The colour plane is one
+  flat value under all the line work. An exact per-pixel unmix of every grey
+  was tried first: it amplifies the generator's noise into the colour plane
+  and measured 3–5× over the ceiling.
+- **Coloured pixels** — the blue, teal and amber fills — are unmixed exactly
+  and pushed towards solid by their chroma, so a fill stays a fill.
+- **Within a few levels of the ground** is fully transparent. The ground
+  wanders over about five levels, and that wander must not ship as a haze.
+
+Over the ground it was drawn on, the keyed art composites back to the source
+within a few levels. That is the check to repeat after changing the script.
+
+Alpha is quantised (`ALPHA_Q=50`, `hero` at 40 via `alpha_q_for`). Lossless
+alpha cost 5–10 KB more per file and put `hero` over the ceiling. `hero`'s webp
+is nearly all alpha — its colour plane is one flat ink — so the alpha, not
+`quality_for`, is its lever: at 50 it measured 206 bytes under the ceiling.
+
+The jpg cannot carry alpha and keeps its ground. It is reached only by a
+browser with neither AVIF nor WebP (below), for whom the plate is the old look.
+`tests/illustrations.test.ts` reads the avif and webp containers and fails if
+either loses its alpha.
 
 ### Why those widths
 
@@ -144,9 +182,9 @@ the smaller fallback is mild softness, for a share of visitors near zero.
 
 ### Why Pillow
 
-The resize-and-encode-to-jpg step runs through Python + Pillow, not ImageMagick:
-the machine these were made on has no `magick`, and Pillow is a
-`pip install pillow` away on any platform. The script checks for `python3`,
+The resize, key and jpg steps run through Python + Pillow (and numpy, for the
+key), not ImageMagick: the machine these were made on has no `magick`, and both
+are a `pip install pillow numpy` away on any platform. The script checks for `python3`,
 `cwebp` and `avifenc` up front and fails by name if one is missing.
 
 ## Where each one is placed

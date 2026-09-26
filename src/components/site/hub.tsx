@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { IN_VIEW_ROOT_MARGIN } from '@/components/motion/use-in-view';
 import { NeuralNet } from './glyphs';
 
 /* ─── The hub ──────────────────────────────────────────────────────────────
@@ -10,11 +11,13 @@ import { NeuralNet } from './glyphs';
 
    Borrowed from wigin.ai's solutions hub, measured on 2026-09-21, minus the
    two libraries they build it with. Their draw is a GSAP ScrollTrigger tween
-   — here it is `animation-timeline: view()`, the same mechanism as every
-   reveal on this page. Their pulse is a GSAP `repeat: -1` — here a CSS
-   keyframe, and the only JavaScript left is the observer below that pauses
-   it off screen, so a looping animation is never running for a section
-   nobody is looking at.
+   fired once on entry — here it is a `stroke-dashoffset` transition that the
+   observer below releases once, by setting `data-drawn`, the same model as
+   every reveal on this page since 2026-09-26 (it was scroll-scrubbed on
+   `animation-timeline: view()` before that). Their pulse is a GSAP
+   `repeat: -1` — here a CSS keyframe that the same observer pauses off
+   screen through `data-inview`, so a looping animation is never running for
+   a section nobody is looking at.
 
    The paths live in a 100×100 box stretched to the grid with
    `preserveAspectRatio="none"`, so one set of coordinates fits every grid
@@ -37,18 +40,23 @@ export const HUB_LINKS: readonly string[] = [
 export function Hub({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  /* Not use-in-view.ts: that hook is a FALLBACK that attaches nothing where
-     `animation-timeline` is supported, and this gate has to work everywhere
-     the pulse runs, which is every browser. threshold 0: any pixel on
-     screen is enough for a decoration to be worth animating. */
+  /* Not use-in-view.ts: that hook is one-way, and the pulse's gate has to
+     toggle both ways. One observer serves both attributes. Its bottom margin
+     is the reveals' own, so the links start drawing on the line the cards
+     arrive on; threshold 0 rather than the reveals' 6%, because the grid is
+     tall and any pixel on screen is enough for a decoration to be worth
+     animating. */
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(
       (entries) => {
-        el.dataset.inview = entries[0]?.isIntersecting ? 'true' : 'false';
+        const inview = entries[0]?.isIntersecting ?? false;
+        el.dataset.inview = inview ? 'true' : 'false';
+        // The draw is a one-way trip, like every reveal: set once, kept.
+        if (inview) el.dataset.drawn = 'true';
       },
-      { threshold: 0 },
+      { threshold: 0, rootMargin: IN_VIEW_ROOT_MARGIN },
     );
     io.observe(el);
     return () => io.disconnect();

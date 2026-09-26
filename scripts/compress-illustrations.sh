@@ -2,6 +2,10 @@
 # Three formats per image: avif for browsers that take it, webp for the rest,
 # jpg as the floor. <picture> picks; see src/components/site/illustration.tsx.
 #
+# avif and webp carry ALPHA: scripts/key-ground.py lifts the generated ground
+# off first, so the art sits on the page - light or dark - with no plate
+# behind it. The jpg cannot, and keeps its ground; see below for who gets it.
+#
 # WIDTH is per name, because the page displays these at wildly different
 # sizes. Measured in Chrome at a 1920px viewport, against the built site:
 #
@@ -19,15 +23,14 @@
 # neither AVIF nor WebP - pre-2020 Safari, IE - and JPEG is the worst of the
 # three formats at exactly what these images are made of: thin dark lines on
 # a near-white field. The <img> carries explicit width/height and the CSS
-# sizes the box, so the only consequence is mild softness, for a share of
-# visitors near zero. That is the trade this repo takes over moving a budget.
+# sizes the box, so the only consequence is mild softness, and the old
+# ground showing as a plate, for a share of visitors near zero. That is the
+# trade this repo takes over moving a budget.
 #
-# The resize-and-encode-to-jpg step runs through Python + Pillow rather than
-# ImageMagick. The machine that produced these files has no ImageMagick and
+# The resize, key and jpg steps run through Python + Pillow (and numpy, for
+# the key) rather than ImageMagick. The machine that produced these files has no ImageMagick and
 # Pillow was already there; Pillow is a `pip install pillow` away on any
-# platform, which is a softer dependency than a system image toolchain. The
-# output is the same: a baseline-progressive JPEG with every metadata chunk
-# dropped.
+# platform, which is a softer dependency than a system image toolchain.
 set -euo pipefail
 
 SRC="raw"
@@ -35,6 +38,7 @@ OUT="public/images/illustrations"
 WIDTH=832
 JPG_WIDTH=640
 QUALITY=72
+ALPHA_Q=50
 CEILING=40960
 
 # Per-image overrides, for anything the defaults do not suit. Lowering a
@@ -69,6 +73,17 @@ quality_for() {
   esac
 }
 
+alpha_q_for() {
+  case "$1" in
+    # hero is the widest encode and the one whose webp is almost all alpha:
+    # at the default it measured 206 bytes under the ceiling, which is no
+    # margin at all. Its colour plane is one flat ink, so lowering its
+    # colour quality buys nothing; the alpha is the lever.
+    hero) echo 40 ;;
+    *) echo "$ALPHA_Q" ;;
+  esac
+}
+
 for tool in python3 cwebp avifenc; do
   command -v "$tool" >/dev/null || { echo "missing required tool: $tool" >&2; exit 1; }
 done
@@ -81,19 +96,12 @@ for file in "$SRC"/*.png; do
   q=$(quality_for "$name")
   w=$(width_for "$name")
   jw=$(jpg_width_for "$name")
+  aq=$(alpha_q_for "$name")
 
-  # Two intermediates: the full-width one the modern formats encode from, and
-  # the narrower one that becomes the shipped jpg.
-  python3 - "$file" "$OUT/$name.full.jpg" "$w" 95 <<'PY'
-import sys
-from PIL import Image
-src, dst, width, quality = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
-im = Image.open(src).convert('RGB')
-if im.width != width:
-    im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
-# No exif=, no icc_profile=: dropping them is the point.
-im.save(dst, 'JPEG', quality=quality, optimize=True)
-PY
+  # Two outputs from the source: the keyed full-width PNG the modern formats
+  # encode from (alpha intact - a jpg intermediate would drop it), and the
+  # narrower jpg that ships as is.
+  python3 scripts/key-ground.py "$file" "$OUT/$name.full.png" "$w"
 
   python3 - "$file" "$OUT/$name.jpg" "$jw" "$q" <<'PY'
 import sys
@@ -105,9 +113,12 @@ if im.width != width:
 im.save(dst, 'JPEG', quality=quality, optimize=True, progressive=True)
 PY
 
-  cwebp -quiet -q "$q" -m 6 "$OUT/$name.full.jpg" -o "$OUT/$name.webp"
-  avifenc -q 54 --speed 4 "$OUT/$name.full.jpg" "$OUT/$name.avif" >/dev/null
-  rm -f "$OUT/$name.full.jpg"
+  # Alpha is quantised in both (-alpha_q, --qalpha), at the level where the
+  # anti-aliased line edges still read clean over both grounds. Lossless
+  # alpha measured 5-10KB more per file, and the hero over the ceiling.
+  cwebp -quiet -q "$q" -alpha_q "$aq" -m 6 "$OUT/$name.full.png" -o "$OUT/$name.webp"
+  avifenc -q 54 --qalpha "$aq" --speed 4 "$OUT/$name.full.png" "$OUT/$name.avif" >/dev/null
+  rm -f "$OUT/$name.full.png"
 
   for ext in jpg webp avif; do
     size=$(wc -c < "$OUT/$name.$ext")

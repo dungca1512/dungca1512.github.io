@@ -53,12 +53,6 @@ const vi = {
        call site from the list's own length — a hardcoded "4" here goes stale
        the moment a project is added or dropped, and nothing would say so. */
     moreProjects: 'Xem thêm {count} dự án',
-    /* The pinned trio above this fold is a highlight reel, not a subset that
-       has been removed from the list — the grid below still holds all nine,
-       including the flagship and the measured outcome folded inside it. So
-       the label says "all", not "more": "Xem thêm 9 dự án" would promise nine
-       the reader has not seen, and three of them they just scrolled past. */
-    allProjects: 'Tất cả {count} dự án',
     caseStudyDetail: 'Xem chi tiết: bài toán, kiến trúc, đánh đổi và kết quả',
     measuredOutcome: 'Kết quả đo được',
     /* `{names}` carries the companies into the summary line on purpose. A

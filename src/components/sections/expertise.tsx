@@ -3,6 +3,7 @@ import { Illustration } from '@/components/site/illustration';
 import { Disclosure } from '@/components/site/disclosure';
 import { Hub } from '@/components/site/hub';
 import { ScrollMarquee } from '@/components/motion/scroll-marquee';
+import { CodeWindow } from '@/components/motion/code-window';
 import { EXPERTISE, FOCUS } from '@/content/expertise';
 import { SKILL_GROUPS, PLAYBOOK } from '@/content/capabilities';
 import { getDictionary, getLocale } from '@/content/dictionaries';
@@ -105,7 +106,15 @@ export async function Expertise() {
           comes with it — the band is gone, the picture is not, and this half of
           the section is the one it was drawn for. */}
       <div className="wide:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] wide:items-center mt-24 grid gap-10">
-        <div>
+        {/* `min-w-0` is load-bearing below `wide`. A grid item's automatic
+            minimum is its min-content, and this item's min-content is the
+            marquee's `w-max` track — measured at 8857px. On the single auto
+            column of a phone that became the column's width, the picture
+            beside it filled the same column, and <body>'s old `overflow-x:
+            clip` only hid the scrollbar: iPhone visitors saw a 9389px-wide
+            illustration cut to the screen. `minmax(0,1fr)` above does the
+            same job from `wide` up; this does it everywhere else. */}
+        <div className="min-w-0">
           <h3 className="reveal text-2xl font-semibold tracking-tight sm:text-3xl">
             {dict.sections.expertise.toolbox}
           </h3>
@@ -113,6 +122,14 @@ export async function Expertise() {
               screen reader reads this list once — and the cards below carry the
               same names as real content anyway. */}
           <ScrollMarquee items={MARQUEE_ITEMS} className="border-border mt-6 rounded-lg border" />
+          {/* The toolbox at work: a request typing itself into one of the
+              services these tools run, and its answer streaming back — see
+              motion/code-window.tsx. `split` because this column is wide
+              enough for request and response side by side; the card folds
+              them one over the other on its own when it is not. It also
+              fills what was an empty stretch of this column beside the
+              taller illustration. */}
+          <CodeWindow locale={locale} layout="split" className="reveal mt-8" />
         </div>
         <div className="reveal wide:order-none order-first">
           <Illustration

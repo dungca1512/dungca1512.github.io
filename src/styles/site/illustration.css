@@ -10,12 +10,16 @@
    in step, and a second set that would drift from the first the moment either
    was redrawn.
 
-   `invert(1)` alone flips the ground to near-black but also takes the blue to
+   `invert(1)` alone flips the black ink to white but also takes the blue to
    orange and the amber to blue. `hue-rotate(180deg)` puts the hues back:
    invert moves every hue by 180 degrees on the wheel and the rotate moves it
-   back, leaving only the lightness flipped. Measured on the shipped files, the
-   inverted ground lands within one point of the dark theme's own background,
-   so the art reads as part of the page rather than as a plate on it.
+   back, leaving only the lightness flipped.
+
+   There is no ground left to flip. The art ships with it keyed out to alpha
+   (scripts/key-ground.py), and a filter leaves alpha alone, so what inverts
+   is the line work and the fills, and the page shows through everywhere
+   else. The inverted ground used to land near the old near-black page; on
+   the navy page it was a visible square, which is what the keying fixed.
 
    No colour literals here, and none in the prose either: scripts/
    check-no-hardcoded-colors.mjs matches anywhere on a line, comments

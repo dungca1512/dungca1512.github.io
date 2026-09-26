@@ -8,6 +8,8 @@ type SplitLinesProps = {
   lineClassName?: string;
   /** Trễ trước dòng đầu, để nét bút và chữ không cùng bắt đầu ở mili giây 0. */
   delay?: number;
+  /** Mỗi dòng trễ hơn dòng trước từng này ms. 80 là bước so le của wigin.ai
+   * (đo ngày 2026-09-26), trùng với `--stagger-step` mặc định trong motion.css. */
   step?: number;
   /** `load` cho chữ nằm sẵn trong khung nhìn (hero). Xem globals.css §3a-bis. */
   mode?: 'scroll' | 'load';
@@ -18,7 +20,7 @@ export function SplitLines({
   className,
   lineClassName,
   delay = 0,
-  step = 60,
+  step = 80,
   mode = 'scroll',
 }: SplitLinesProps) {
   return (

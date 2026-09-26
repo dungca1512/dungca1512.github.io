@@ -20,9 +20,13 @@
      replaced never had that problem, because a plain block box has no
      content-based intrinsic size to fall back to. */
   width: 100%;
+  /* The circle is a clip now, not a disc. The art ships with its ground
+     keyed out (scripts/key-ground.py), so there is no plate for a
+     background here to sit behind, and one would only paint the disc back
+     in. The clip stays for the parallax's oversize; nothing in the hero art
+     reaches outside the inscribed circle, so it cuts nothing. */
   border-radius: 999px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--base-primary) 8%, var(--base-surface));
   aspect-ratio: 1;
 }
 

@@ -21,16 +21,15 @@ if (jsdomGlobal && brokenStorage) {
 
 /**
  * jsdom ships neither `CSS` nor `IntersectionObserver`. `useInView`
- * (src/components/motion/use-in-view.ts) treats a missing `CSS.supports` as
- * "the browser does not have `animation-timeline: view()`" and falls
- * through to constructing a real `IntersectionObserver` — which, under
- * jsdom, would otherwise throw `ReferenceError: IntersectionObserver is not
- * defined` the moment anything renders `<RevealScope>`. Task 7's `Section`
- * wraps EVERY band in `RevealScope`, so every later test that renders a
- * section takes this path.
+ * (src/components/motion/use-in-view.ts) constructs a real
+ * `IntersectionObserver` on every render — it is the one path the reveals
+ * have, on every browser — which, under jsdom, would otherwise throw
+ * `ReferenceError: IntersectionObserver is not defined` the moment anything
+ * renders `<RevealScope>`. Task 7's `Section` wraps EVERY band in
+ * `RevealScope`, so every later test that renders a section takes this path.
  *
  * A stub that just no-ops (or returns an object with empty methods) would
- * make the crash go away by making the fallback silently do nothing — which
+ * make the crash go away by making the observer silently do nothing — which
  * is worse than the crash, because it deletes the coverage instead of
  * fixing it: nothing would ever prove the observer was told to watch the
  * right elements, or that it correctly marks an element in-view exactly

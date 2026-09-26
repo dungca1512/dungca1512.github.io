@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -64,17 +64,20 @@ function declValue(rule: Rule | undefined, prop: string): string | undefined {
 
 /**
  * Compiles src/app/globals.css through the real Tailwind v4 PostCSS
- * pipeline — the same one `next build` runs — with no candidate classes at
- * all. This exists to prove motion.css and motion-reduced.css actually
- * reach the built stylesheet through globals.css's `@import`, rather than
- * just existing as source files nobody wires up: reading
- * `src/styles/motion.css` directly (as every other test in this file does)
- * would stay green even if globals.css stopped importing it entirely.
+ * pipeline — the same one `next build` runs — with only the candidate
+ * classes it is given (none by default). This exists to prove motion.css and
+ * motion-reduced.css actually reach the built stylesheet through
+ * globals.css's `@import`, rather than just existing as source files nobody
+ * wires up: reading `src/styles/motion.css` directly would stay green even
+ * if globals.css stopped importing it entirely. With candidates, it is also
+ * the only way to see what an `@utility` block turns into — the reveal
+ * utilities nest `.js &`, and what matters is the selector that comes OUT.
  * Mirrors the pattern in tests/tokens.test.ts.
  */
-async function compileGlobals(): Promise<string> {
+async function compileGlobals(classNames: string[] = []): Promise<string> {
   const dir = mkdtempSync(join(tmpdir(), 'motion-build-test-'));
   try {
+    writeFileSync(join(dir, 'probe.html'), `<div class="${classNames.join(' ')}"></div>`);
     const entry = join(dir, 'probe.css');
     writeFileSync(entry, `@import "${GLOBALS_CSS}";`);
     const result = await postcss([tailwindcssPostcss({ base: dir })]).process(
@@ -242,93 +245,216 @@ function keyframeProps(name: string): string[] {
   return [...props];
 }
 
+/** The declarations of the rule(s) in `css` whose full selector is exactly
+ *  `selector`, as a prop → value map. Later declarations win, as they do in
+ *  the cascade. Undefined when no rule carries that selector. Works on the
+ *  compiled sheet and on a source file alike, for top-level rules. */
+function compiledRule(css: string, selector: string): Record<string, string> | undefined {
+  let found: Record<string, string> | undefined;
+  postcss.parse(css).walkRules((rule) => {
+    if (rule.selector !== selector) return;
+    found ??= {};
+    rule.walkDecls((decl) => {
+      found![decl.prop] = decl.value;
+    });
+  });
+  return found;
+}
+
+/** Where a token is USED in motion.css — every declaration whose value
+ *  mentions it, named by the at-rule or selector that owns it. Comments do
+ *  not count, which a plain text search cannot promise. */
+function usesOf(token: string): string[] {
+  const owners: string[] = [];
+  postcss.parse(motion).walkDecls((decl) => {
+    if (!decl.value.includes(token)) return;
+    let owner = '';
+    for (let n = decl.parent; n; n = n.parent as typeof decl.parent) {
+      if (n.type === 'atrule' && (n as postcss.AtRule).name === 'utility') {
+        owner = `@utility ${(n as postcss.AtRule).params}`;
+        break;
+      }
+      if (n.type === 'rule') owner ||= (n as Rule).selector;
+    }
+    owners.push(owner);
+  });
+  return owners;
+}
+
+/* Reveals fire on ENTRY and play on a clock — wigin.ai's model, adopted on
+   2026-09-26 in place of the scroll-scrubbed `animation-timeline: view()`
+   version that had been the primary path since 2026-09-15. Measured on
+   wigin: a reveal begins when the element's top edge crosses roughly 90% of
+   the viewport height and is over 0.7s later, whatever the reader does with
+   the wheel meanwhile. The scrubbed version moved WITH the wheel — it could
+   be parked half-done, and replayed backwards on every scroll-up. The
+   observer path that used to be the `@supports not` fallback is now the only
+   path, so these tests read the built stylesheet for the `.js` rules that
+   carry it. */
 describe('reveal', () => {
-  it('is scroll-driven, not observer-driven, where the browser supports it', () => {
-    expect(motion).toMatch(/animation-timeline:\s*view\(\)/);
+  let css = '';
+  beforeAll(async () => {
+    css = await compileGlobals([
+      'reveal',
+      'reveal-clip',
+      'reveal-load',
+      'reveal-clip-load',
+      'stagger',
+    ]);
   });
 
-  // The fade and the movement are deliberately two animations. A single
-  // @keyframes carries one timing function, and these two cannot share one:
-  // `--ease-spring` is cubic-bezier(0.34, 1.56, 0.64, 1), which passes y=1 at
-  // roughly a third of the way through and keeps climbing. Movement wants
-  // that overshoot. Opacity clamps at 1, so riding the same curve finished
-  // the fade inside the first third of its scroll range — measured in Chrome
-  // at a 900px viewport, fully opaque with its top edge still 82% of the way
-  // down the screen, below anything being read. On its own linear track the
-  // same range reaches full at 58%.
-  it('does not animate opacity from the keyframes that carry the overshooting spring', () => {
+  it('is observer-driven: no scroll timeline, no animation shorthand and no feature fork on the reveals', () => {
+    for (const name of ['reveal', 'reveal-clip']) {
+      expect(
+        atRuleDecl('utility', name, 'animation-timeline'),
+        `${name} still scrubs on scroll`,
+      ).toBeUndefined();
+      // The clip wipe does run keyframes (see below) — through longhands.
+      // The shorthand would reset `animation-delay` over `.stagger > *`.
+      expect(
+        atRuleDecl('utility', name, 'animation'),
+        `${name} uses the animation shorthand`,
+      ).toBeUndefined();
+    }
+    // With one path there is nothing to fork on. A `@supports not` block here
+    // would be a second copy of the reveal, waiting to drift from the first.
+    expect(motion).not.toMatch(/@supports/);
+  });
+
+  it.each(['reveal', 'reveal-clip'])(
+    'hides %s only under `.js`, and shows it on data-inview',
+    (name) => {
+      const hidden = compiledRule(css, `.js .${name}`);
+      expect(hidden, `no .js .${name} rule in the built stylesheet`).toBeDefined();
+      expect(hidden?.opacity).toBe('0');
+      const shown = compiledRule(css, `.js .${name}[data-inview='true']`);
+      expect(
+        shown,
+        `no .js .${name}[data-inview='true'] rule in the built stylesheet`,
+      ).toBeDefined();
+      expect(shown?.opacity).toBe('1');
+      expect(shown?.transform).toBe('none');
+      // A JS-less visitor never gets data-inview, so nothing may hide the
+      // element without the `.js` gate in front of it.
+      expect(
+        compiledRule(css, `.${name}`)?.opacity,
+        `.${name} hides itself without JS`,
+      ).toBeUndefined();
+    },
+  );
+
+  it.each(['reveal', 'reveal-clip'])('%s rises along the scroll axis, never across it', (name) => {
+    const hidden = compiledRule(css, `.js .${name}`) ?? {};
+    expect(hidden.transform).toMatch(/^translateY\(/);
+    expect(hidden.transform).not.toMatch(/translateX/);
+  });
+
+  it("transitions the plain reveal on the hero clock and the quint ease — wigin's numbers", () => {
+    const hidden = compiledRule(css, '.js .reveal') ?? {};
+    expect(hidden['transition-duration']).toBe('var(--duration-hero)');
+    expect(hidden['transition-timing-function']).toBe('var(--ease-out-quint)');
+    expect(hidden['transition-property']).toMatch(/\bopacity\b/);
+    expect(hidden['transition-property']).toMatch(/\btransform\b/);
+  });
+
+  it('plays the clip wipe as keyframes on data-inview, on the same clock and ease, through longhands', () => {
+    /* Not a transition, and the hidden state carries NO clip-path. Measured
+       in Chrome 154: IntersectionObserver clips the target by its own
+       `clip-path`, so a heading masked to `inset(… 100% …)` has an
+       intersection width of 0 and never fires — every section heading on
+       the page stayed hidden. WebKit ignores clip-path there, which is why
+       it passed. So the mask exists only inside the keyframes, which start
+       the moment the attribute lands. Longhands, so `.stagger > *` keeps
+       its `animation-delay`; `both`, so the last frame stays. */
+    const hidden = compiledRule(css, '.js .reveal-clip') ?? {};
+    expect(hidden['clip-path']).toBeUndefined();
+    expect(hidden['transition-property']).toBeUndefined();
+    expect(hidden['transition-duration']).toBeUndefined();
+    const shown = compiledRule(css, ".js .reveal-clip[data-inview='true']") ?? {};
+    expect(shown['animation-name']).toBe('site-reveal-fade, site-reveal-clip');
+    expect(shown['animation-duration']).toBe('var(--duration-hero), var(--duration-hero)');
+    expect(shown['animation-timing-function']).toBe('var(--ease-out-quint), var(--ease-out-quint)');
+    expect(shown['animation-fill-mode']).toBe('both, both');
+    expect(shown.animation).toBeUndefined();
+    expect(shown['animation-delay']).toBeUndefined();
+    expect(shown['clip-path']).toBeUndefined();
+    const stagger = compiledRule(css, '.stagger > *') ?? {};
+    expect(stagger['animation-delay']).toMatch(/var\(--stagger-step, 80ms\)/);
+  });
+
+  it('moves the plain reveal by 26px, the distance measured on wigin', () => {
+    expect(compiledRule(css, '.js .reveal')?.transform).toBe('translateY(26px)');
+  });
+
+  it.each(['reveal', 'reveal-clip'])(
+    '%s leaves transition-delay to the stagger utility and to inline styles',
+    (name) => {
+      /* `.js .reveal` is (0,2,0); `.stagger > *` is (0,1,0). A `transition`
+         SHORTHAND on the first would reset `transition-delay` to 0s at the
+         higher weight and silently switch every staggered list back to
+         arriving all at once. Longhands only, and never the delay. */
+      const hidden = compiledRule(css, `.js .${name}`) ?? {};
+      expect(hidden.transition, `${name} uses the transition shorthand`).toBeUndefined();
+      expect(hidden['transition-delay']).toBeUndefined();
+      const stagger = compiledRule(css, '.stagger > *') ?? {};
+      // 80ms per item is wigin's list stagger; it was 60ms on the scroll timeline.
+      expect(stagger['transition-delay']).toMatch(/var\(--stagger-step, 80ms\)/);
+    },
+  );
+
+  it('wipes the headline across the reading direction: the keyframes mask the whole line, then bleed past the box', () => {
+    /* The `from` right inset is 100% — the whole line masked — and the `to`
+       bleeds past the box on every side, because Vietnamese diacritics
+       reach above and below it and `both` keeps that frame for good. The
+       both-ends-are-shapes rule is checked further down. */
+    const frames: Record<string, string> = {};
+    postcss.parse(motion).walkAtRules('keyframes', (at) => {
+      if (at.params !== 'site-reveal-clip') return;
+      at.walkRules((rule) => {
+        rule.walkDecls('clip-path', (decl) => {
+          frames[rule.selector] = decl.value;
+        });
+      });
+    });
+    expect(frames.from).toMatch(/^inset\(-[\d.]+em 100% /);
+    expect(frames.to).toMatch(/^inset\(-[\d.]+em -[\d.]+em -[\d.]+em -[\d.]+em\)$/);
+  });
+
+  it('plays the hero variants once, on the same clock and ease as the scroll reveal', () => {
+    for (const name of ['reveal-load', 'reveal-clip-load']) {
+      const animation = atRuleDecl('utility', name, 'animation') ?? '';
+      const tracks = animation.split(',').map((t) => t.trim());
+      expect(tracks, `${name} should run a fade track and a movement track`).toHaveLength(2);
+      for (const track of tracks) {
+        expect(track).toContain('var(--duration-hero)');
+        expect(track).toContain('var(--ease-out-quint)');
+        expect(track).toMatch(/\bboth\b/);
+      }
+      expect(atRuleDecl('utility', name, 'animation-timeline')).toBeUndefined();
+    }
+  });
+
+  it('has no spring left on any reveal: wigin settles without overshoot, and matching that is the point', () => {
+    // `--ease-spring` peaks near 1.1 before returning to 1. The chip lift is
+    // the one place it still belongs.
+    expect(usesOf('--ease-spring')).toEqual(['@utility pop-on-hover']);
+  });
+
+  it('keeps opacity out of the movement keyframes, so the fade and the rise stay separate tracks', () => {
     expect(keyframeProps('site-reveal-in')).not.toContain('opacity');
     expect(keyframeProps('site-reveal-clip')).not.toContain('opacity');
     expect(keyframeProps('site-reveal-fade')).toEqual(['opacity']);
   });
 
-  it.each(['reveal', 'reveal-clip', 'reveal-load', 'reveal-clip-load'])(
-    '%s fades on its own linear track',
-    (name) => {
-      const animation = atRuleDecl('utility', name, 'animation') ?? '';
-      const fade = animation.split(',').find((track) => track.includes('site-reveal-fade'));
-      expect(fade, `${name} runs no site-reveal-fade track`).toBeDefined();
-      expect(fade).toMatch(/\blinear\b/);
-    },
-  );
-
-  it.each(['reveal', 'reveal-clip'])(
-    '%s gives the fade the same scroll range as the movement, by declaring one range for both',
-    (name) => {
-      // CSS repeats a short animation-* list until it matches the number of
-      // animation names, so a single entry covers both tracks — and there is
-      // no second copy to drift out of step with the first. Two entries would
-      // be legal; they would also be two things to keep in sync.
-      const range = atRuleDecl('utility', name, 'animation-range') ?? '';
-      expect(range).not.toContain(',');
-      expect(range).toMatch(/^cover \d+vh cover \d+vh$/);
-    },
-  );
-
-  /* The reveal travels sideways now, and that is a different failure mode than
-     the vertical version had. A page whose content starts 2rem past the right
-     edge grows to fit it: the document gets a horizontal scrollbar and a
-     margin of nothing to drag into, on every band at once. The two assertions
-     below are one invariant in two halves — the direction, and the clip it
-     obliges — and the second is written as a consequence of the first, so
-     turning the travel back to vertical retires the requirement rather than
-     leaving a rule nobody can explain. */
-  it('travels across the reading direction, not along the scroll', () => {
+  it('rises along the scroll axis in the hero keyframes too, by the same 26px', () => {
     for (const name of ['site-reveal-in', 'site-reveal-clip']) {
       const block =
         motion.match(new RegExp(`@keyframes ${name}\\s*\\{[\\s\\S]*?\\n\\}`))?.[0] ?? '';
       expect(block, `${name} has no @keyframes block`).not.toBe('');
-      expect(block, `${name} still moves on Y`).not.toMatch(/translateY\(/);
-      expect(block, `${name} does not move on X`).toMatch(/translateX\(/);
+      expect(block, `${name} still moves on X`).not.toMatch(/translateX\(/);
+      expect(block, `${name} does not move on Y`).toMatch(/translateY\(/);
     }
-  });
-
-  it('clips the document, because the first frame sits outside it', async () => {
-    const travelsSideways = /@keyframes site-reveal-in\s*\{[\s\S]*?translateX\(/.test(motion);
-    if (!travelsSideways) return; // vertical reveal needs no clip — nothing to check
-
-    // Compiled, not read from source: this has to hold in the stylesheet the
-    // browser actually gets, and `overflow-x` on body is one declaration in a
-    // base layer that a refactor can drop without touching motion.css at all.
-    const css = await compileGlobals();
-    /* `ruleFor` is not the tool here — it only looks inside a
-       `prefers-reduced-motion` at-rule, and this declaration is in the base
-       layer where it applies to everyone. Collected across every `body` rule
-       in the sheet, last one winning, which is what the cascade does too. */
-    let overflow: string | undefined;
-    postcss.parse(css).walkRules((rule) => {
-      if (!rule.selectors.includes('body')) return;
-      rule.walkDecls('overflow-x', (decl) => {
-        overflow = decl.value;
-      });
-    });
-    expect(overflow, 'a sideways reveal with no overflow-x clip scrolls the page sideways').toBe(
-      'clip',
-    );
-    /* Not `hidden`, and the difference is behavioural: `hidden` makes <body> a
-       scroll container, which takes the sticky header out of the viewport's
-       scroll context and disables `scroll-behavior: smooth` set on <html>. */
-    expect(overflow).not.toBe('hidden');
+    expect(motion).toMatch(/@keyframes site-reveal-in\s*\{[\s\S]*?translateY\(26px\)/);
   });
 
   /* The one failure this animation has actually had, written down so it cannot
@@ -341,7 +467,7 @@ describe('reveal', () => {
      animation "runs", the element ends up in the right place, and the fade
      underneath hides the snap — the wipe simply never happened, for as long as
      the block was written that way. Both ends have to name a shape. */
-  it('names a shape at both ends of the wipe, or it snaps instead of sweeping', () => {
+  it('names a shape at both ends of the hero wipe, or it snaps instead of sweeping', () => {
     const frames: Record<string, string[]> = {};
     postcss.parse(motion).walkAtRules('keyframes', (at) => {
       if (at.params !== 'site-reveal-clip') return;
@@ -366,27 +492,45 @@ describe('reveal', () => {
     }
   });
 
-  it('keeps the JS fallback behind `@supports not`, so it never double-runs', () => {
-    expect(motion).toMatch(/@supports not \(animation-timeline: view\(\)\)/);
-  });
-
-  it('gates the fallback on `.js`, so a JS-less visitor is not left at opacity 0', () => {
-    const block = motion.match(/@supports not[\s\S]*?\n\}/)?.[0] ?? '';
-    expect(block).toMatch(/\.js \.reveal/);
+  it('no longer clips the document sideways', () => {
+    /* `overflow-x: clip` on <body> arrived with the sideways reveal (d402481)
+       because every first frame sat 2rem past the right edge. A rise has no
+       such frame, and the declaration went with it: a horizontal overflow
+       is now a real bug to find, not one silently cut off. */
+    let overflow: string | undefined;
+    postcss.parse(css).walkRules((rule) => {
+      if (!rule.selectors.includes('body')) return;
+      rule.walkDecls('overflow-x', (decl) => {
+        overflow = decl.value;
+      });
+    });
+    expect(overflow).toBeUndefined();
   });
 });
 
 describe('the drawn underline', () => {
-  it('draws itself on with a scroll-driven stroke-dashoffset animation', () => {
+  it('parks the stroke undrawn under `.js` and draws it on data-inview, on the hero clock', () => {
     // The reduced-motion reset (below) hands back `stroke-dasharray: none`
     // and `stroke-dashoffset: 0` on `.drawn-line path` — that reset only
-    // means something if motion.css actually sets those dash values and
-    // animates the offset in the first place.
-    expect(motion).toMatch(/@keyframes site-draw-underline\s*\{[\s\S]*?stroke-dashoffset:/);
-    expect(motion).toMatch(/\.drawn-line path\s*\{[\s\S]*?stroke-dasharray:\s*\d/);
-    const rule = motion.match(/\.drawn-line path\s*\{[\s\S]*?\n\}/)?.[0] ?? '';
-    expect(rule).toMatch(/animation:\s*site-draw-underline/);
-    expect(rule).toMatch(/animation-timeline:\s*view\(\)/);
+    // means something if motion.css sets the dash and parks the offset.
+    const parked = compiledRule(motion, '.js .drawn-line path') ?? {};
+    const dasharray = compiledRule(motion, '.drawn-line path')?.['stroke-dasharray'];
+    expect(dasharray).toMatch(/^\d/);
+    // Offset = dash length: the single dash sits entirely behind the path's
+    // origin, 0% visible. Anything less leaves a stub drawn from the start.
+    expect(parked['stroke-dashoffset']).toBe(dasharray);
+    expect(parked.transition).toMatch(
+      /^stroke-dashoffset var\(--duration-hero\) var\(--ease-out-quint\)$/,
+    );
+    expect(
+      compiledRule(motion, ".js .drawn-line[data-inview='true'] path")?.['stroke-dashoffset'],
+    ).toBe('0');
+  });
+
+  it('is drawn for a JS-less visitor: the ungated rule sets the dash and never the offset', () => {
+    const ungated = compiledRule(motion, '.drawn-line path') ?? {};
+    expect(ungated['stroke-dashoffset']).toBeUndefined();
+    expect(ungated.animation).toBeUndefined();
   });
 
   it('sets a stroke-dasharray that comfortably exceeds the measured length of the path the component actually ships', () => {
@@ -402,9 +546,7 @@ describe('the drawn underline', () => {
     expect(measuredLength).toBeGreaterThan(600);
     expect(measuredLength).toBeLessThan(670);
 
-    const dasharray = Number(
-      motion.match(/\.drawn-line path\s*\{[\s\S]*?stroke-dasharray:\s*(\d+(?:\.\d+)?)/)?.[1],
-    );
+    const dasharray = Number(compiledRule(motion, '.drawn-line path')?.['stroke-dasharray']);
     expect(
       dasharray,
       'motion.css must declare a numeric stroke-dasharray on .drawn-line path',
@@ -420,25 +562,40 @@ describe('the drawn underline', () => {
     ).toBeLessThan(100);
   });
 
-  it('keeps the underline JS fallback behind its own `@supports not`, gated on `.js`', () => {
-    // There are two `@supports not (animation-timeline: view())` blocks in
-    // the file — reveal's and the underline's. Take the text starting at
-    // the SECOND occurrence of the marker, which is the underline's own.
-    const marker = '@supports not (animation-timeline: view())';
-    const first = motion.indexOf(marker);
-    const second = motion.indexOf(marker, first + marker.length);
-    expect(
-      second,
-      'the underline needs its own @supports not block, not a shared one',
-    ).toBeGreaterThan(-1);
-    const underlineBlock = motion.slice(second);
-    expect(underlineBlock).toMatch(/\.js \.drawn-line path/);
+  it('has no scroll-driven draw left: the observed rules run neither keyframes nor a timeline', () => {
+    expect(motion).not.toMatch(/site-draw-underline/);
+    for (const selector of ['.drawn-line path', '.js .drawn-line path']) {
+      const rule = compiledRule(motion, selector) ?? {};
+      expect(rule['animation-timeline'], `${selector} scrubs on scroll`).toBeUndefined();
+      expect(rule.animation, `${selector} runs keyframes`).toBeUndefined();
+    }
   });
 
-  it('reads data-inview off the .drawn-line root in the fallback CSS, not off the <path> itself', () => {
+  it('has a -load variant for the hero, which is on screen at load and never observed in', () => {
+    // The hero is not inside a RevealScope (its text runs `reveal-load`),
+    // so nothing ever sets data-inview on its underline. Measured on the
+    // built page before this existed: the hero stroke sat parked at the
+    // full dash for good. Same clock and curve as `reveal-load`, written
+    // with BOTH ends: under `.js` the element's own offset is the parked
+    // 660, so a `from`-only block would draw from 660 to 660.
+    const rule = compiledRule(motion, '.drawn-line-load path') ?? {};
+    expect(rule.animation).toMatch(
+      /^site-underline-load var\(--duration-hero\) var\(--ease-out-quint\) [\s\S]*\bboth\b/,
+    );
+    expect(rule['animation-timeline']).toBeUndefined();
+    const dasharray = compiledRule(motion, '.drawn-line path')?.['stroke-dasharray'];
+    expect(motion).toMatch(
+      new RegExp(
+        `@keyframes site-underline-load\\s*\\{\\s*from\\s*\\{\\s*stroke-dashoffset:\\s*${dasharray};\\s*\\}\\s*to\\s*\\{\\s*stroke-dashoffset:\\s*0;`,
+      ),
+    );
+    expect(keyframeProps('site-underline-load')).toEqual(['stroke-dashoffset']);
+  });
+
+  it('reads data-inview off the .drawn-line root, not off the <path> itself', () => {
     // useInView sets data-inview on entry.target, which for `.drawn-line` is
     // the <svg> — never the <path> inside it (see the "in the DOM" tests
-    // below). The fallback CSS has to query the attribute there:
+    // below). The CSS has to query the attribute there:
     // `.drawn-line[data-inview='true']` as the attribute-bearing compound,
     // with `path` as a plain descendant selector after it.
     // `.drawn-line path[data-inview='true']` parses fine and would never
@@ -522,6 +679,14 @@ describe('the drawn underline in the DOM', () => {
     expect(svg.getAttribute('data-inview')).toBe('true');
     expect(svg.querySelector('path')?.getAttribute('data-inview')).toBeNull();
   });
+
+  it('takes mode="load" for the hero, and stays observer-driven by default', () => {
+    const scroll = render(<DrawnUnderline />).container.querySelector('.drawn-line');
+    expect(scroll).not.toHaveClass('drawn-line-load');
+    cleanup();
+    const load = render(<DrawnUnderline mode="load" />).container.querySelector('.drawn-line');
+    expect(load).toHaveClass('drawn-line-load');
+  });
 });
 
 describe('prefers-reduced-motion', () => {
@@ -565,6 +730,11 @@ describe('prefers-reduced-motion', () => {
       expect(declValue(rule, 'clip-path'), `${selector}'s own rule must clear the clip-path`).toBe(
         'none !important',
       );
+      // The scroll reveal is a transition now, and a preference toggled after
+      // load would otherwise animate the element into its resting state.
+      expect(declValue(rule, 'transition'), `${selector}'s own rule must drop the transition`).toBe(
+        'none !important',
+      );
     });
   }
 
@@ -573,6 +743,9 @@ describe('prefers-reduced-motion', () => {
     expect(rule, '.drawn-line path needs its own reduced-motion rule').toBeDefined();
     expect(declValue(rule, 'stroke-dasharray')).toBe('none !important');
     expect(declValue(rule, 'stroke-dashoffset')).toBe('0 !important');
+    expect(declValue(rule, 'transition')).toBe('none !important');
+    // The hero's `.drawn-line-load` variant runs keyframes, not a transition.
+    expect(declValue(rule, 'animation')).toBe('none !important');
   });
 
   it('turns off the scroll-driven `site-drift` background animation too', () => {
@@ -611,6 +784,57 @@ describe('useInView, via RevealScope', () => {
     expect(observer.observed.has(getByTestId('div-reveal'))).toBe(true);
     expect(observer.observed.has(getByTestId('plain'))).toBe(false);
     expect(observer.observed.size).toBe(3);
+  });
+
+  it('attaches on every browser: a scroll timeline is no longer a reason to skip it', () => {
+    /* Until 2026-09-26 this hook was the FALLBACK and returned early wherever
+       `CSS.supports('animation-timeline: view()')` was true — which is every
+       current Chrome and Safari, i.e. almost everyone. It is the only path
+       now, so a runtime that answers "yes" must still get an observer. jsdom
+       has no `CSS` at all; this stands one up that says yes to everything. */
+    const hadCSS = 'CSS' in globalThis;
+    const original = (globalThis as { CSS?: unknown }).CSS;
+    Object.defineProperty(globalThis, 'CSS', {
+      value: { supports: () => true },
+      configurable: true,
+      writable: true,
+    });
+    try {
+      const { getByTestId } = render(
+        <RevealScope>
+          <h2 className="reveal" data-testid="heading">
+            Heading
+          </h2>
+        </RevealScope>,
+      );
+      expect(MockIntersectionObserver.instances).toHaveLength(1);
+      expect(MockIntersectionObserver.instances[0].observed.has(getByTestId('heading'))).toBe(true);
+    } finally {
+      if (hadCSS) {
+        Object.defineProperty(globalThis, 'CSS', {
+          value: original,
+          configurable: true,
+          writable: true,
+        });
+      } else {
+        delete (globalThis as { CSS?: unknown }).CSS;
+      }
+    }
+  });
+
+  it("fires where wigin's does: 6% of the element showing, 8% up from the bottom edge", () => {
+    // Measured on wigin.ai: `threshold: .06`, `rootMargin: '0px 0px -8% 0px'`,
+    // which puts the trigger line at about 90% of the viewport height for a
+    // one-line element — low enough that the reveal is under way as the
+    // reader's eye arrives, high enough that it is never in the margin.
+    render(
+      <RevealScope>
+        <h2 className="reveal">Heading</h2>
+      </RevealScope>,
+    );
+    const [observer] = MockIntersectionObserver.instances;
+    expect(observer.rootMargin).toBe('0px 0px -8% 0px');
+    expect([...observer.thresholds]).toEqual([0.06]);
   });
 
   it('marks an observed element in-view exactly once, then lets it go', () => {
@@ -663,7 +887,7 @@ describe('motion.css and motion-reduced.css reach the built stylesheet', () => {
     // classes, and would go red if either @import were ever removed.
     const css = await compileGlobals();
     expect(css, 'a motion.css marker must survive the build').toMatch(
-      /@keyframes site-draw-underline/,
+      /@keyframes site-reveal-fade/,
     );
     // NOT a bare `/prefers-reduced-motion:\s*reduce/` match: globals.css's
     // own base layer has its own `@media (prefers-reduced-motion: reduce)
