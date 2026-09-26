@@ -3,6 +3,7 @@ import { Container } from '@/components/site/container';
 import { DrawnUnderline } from '@/components/motion/drawn-underline';
 import { SplitLines } from '@/components/motion/split-lines';
 import { CodeWindow } from '@/components/motion/code-window';
+import { Illustration } from '@/components/site/illustration';
 import { getDictionary, getLocale } from '@/content/dictionaries';
 import { localeAnchorHref } from '@/lib/paths';
 import { HERO_TRUST, SITE } from '@/content/site';
@@ -113,16 +114,26 @@ export async function Hero() {
             </p>
           </div>
 
-          {/* The right column used to be the `hero` illustration in a circle
-              (`.hero-portrait`). It is a terminal now — a request typing
-              itself and its answer streaming back, on a clock, for ever —
-              because the headline claims services in production and a
-              picture of a desk cannot evidence that while a request that
-              answers can. The illustration is still the intro curtain's.
-              `reveal-load`, like everything else here: the card is on screen
-              at load, and the wrapper class in sections/hero.css delays it a
-              beat behind the headline. */}
-          <CodeWindow locale={locale} className="hero-terminal reveal-load" />
+          {/* The right column carries two things, stacked with an overlap:
+              the owner's portrait illustration in its circle, and the code
+              window floating over the circle's lower edge. The portrait is
+              who; the terminal — a request typing itself and its answer
+              streaming back, on a clock, for ever — is what he runs. The
+              card covers only the bottom of the circle, where the drawing
+              has nothing but legs, his and the desk's. Placement is in
+              sections/hero.css. Both are `reveal-load`, a beat apart. */}
+          <div className="hero-visual">
+            <Illustration
+              name="hero"
+              parallax
+              alt=""
+              width={880}
+              height={880}
+              priority
+              className="hero-portrait reveal-load"
+            />
+            <CodeWindow locale={locale} className="hero-terminal reveal-load" />
+          </div>
         </div>
       </Container>
     </section>

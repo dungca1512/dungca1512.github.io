@@ -295,8 +295,8 @@ the owner's request and the featured projects are plain cards again — motion-s
 The same request as the neural field brought two more things from wigin.ai's hero.
 
 **The code window.** `src/components/motion/code-window.tsx` (`'use client'`), placed
-in the hero's right column in place of the portrait illustration (the picture stays on
-the page in the intro curtain). A dark terminal card — three dots with a breathing
+in the hero's right column over the lower edge of the portrait illustration, which
+stays: the owner asked for the portrait on the hero without exception. A dark terminal card — three dots with a breathing
 "live" light, a row of tab pills, a monospace body — that types an API request one
 character at a time (24ms per character, jittered, a beat at every line end), waits
 the request's stated latency, streams the response in three-character chunks every
@@ -314,8 +314,11 @@ is the last frame; `motion-reduced.css` stops the live dot and the cursor. The c
 The card's colours are `--site-code-*` tokens on `:root` that do not flip with the
 theme, on purpose: it is dark in both themes, and on the light page it is the one place
 wigin's ground shows through. Frame in `src/styles/site/code-window.css`, placement
-(`.hero-terminal`, a 220ms delay behind the headline, a 30rem cap below `wide`) in
-`sections/hero.css`.
+in `sections/hero.css`: `.hero-visual` stacks the circle (84% of the column, 78% below
+`wide`) and the card (full column width, because the snippets are measured to it) with
+a 5.5rem overlap (4rem below `wide`) that covers only the legs at the bottom of the
+drawing; the portrait reveals 120ms behind the headline and the card 320ms; the pair is
+capped at 30rem below `wide`.
 
 **The dark palette.** wigin's measured tokens are `#000` ground, `#0160fb` blue,
 `#02e7c9` cyan, `#f3f5f7` grey at 10%/18% for borders and 62% for muted text, and a

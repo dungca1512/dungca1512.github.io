@@ -65,11 +65,11 @@ function pageSections(): string[] {
 
 /* The three ways a band can carry art. All three are pictures to a reader;
    only the first is a file on disk. */
-// `<CodeWindow` counts as art since 2026-09-26: the hero's right column is a
-// terminal that types a request and its answer (components/motion/
-// code-window.tsx), in place of the portrait illustration. It is a picture in
+// `<CodeWindow` counts as art since 2026-09-26: the terminal that types a
+// request and its answer (components/motion/code-window.tsx) is a picture in
 // every sense this test cares about — a drawn, decorative, aria-hidden thing
-// that keeps a band from being a column of text alone.
+// that keeps a band from being a column of text alone. The hero carries it
+// over the portrait illustration, so the hero passes on both markers.
 const ART_MARKERS = ['<Illustration', '<TechArt', '<MetricGlyph', '<CodeWindow'];
 
 describe('every band on the page carries art', () => {
@@ -255,10 +255,9 @@ describe('parallax and the class it must not share an element with', () => {
           call: m[0],
         })),
       );
-    // Seven until 2026-09-26, when the hero's portrait gave its column to the
-    // code window (components/motion/code-window.tsx). The picture itself is
-    // still on the page, in the intro curtain, which this count excludes.
-    expect(calls.length, 'found no <Illustration> callers to check').toBeGreaterThanOrEqual(6);
+    // Seven: the hero's portrait is one of them, and it stays one — the code
+    // window was set beside it, not in its place.
+    expect(calls.length, 'found no <Illustration> callers to check').toBeGreaterThanOrEqual(7);
     for (const { file, call } of calls) {
       expect(call, `${file} renders art with no parallax`).toContain('parallax');
     }
