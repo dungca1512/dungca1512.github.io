@@ -44,11 +44,12 @@
    measured 689px at 768px and a full-bleed 820px circle at 899px, taller
    than the viewport. Capped so a visitor never sees that, on today's missing
    art or on the real thing later (the reservation is aspect-ratio-driven, so
-   the real image inherits the same box). `max-width: 899px` mirrors
-   Tailwind's `wide:` variant (`min-width: 900px`) so this rule and the grid's
+   the real image inherits the same box). `width < 56.25rem` is the exact
+   complement of Tailwind's `wide:` variant (`width >= 56.25rem`, 900px at
+   the default font size) so this rule and the grid's
    own column sizing are complementary, never both fighting to size the same
    element. */
-@media (max-width: 899px) {
+@media (width < 56.25rem) {
   .hero-portrait {
     max-width: 22rem;
     margin-inline: auto;
